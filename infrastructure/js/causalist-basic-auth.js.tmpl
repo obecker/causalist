@@ -1,0 +1,53 @@
+function handler(event) {
+    var request = event.request;
+    var requestUri = request.uri;
+    var allowedExtensions = ["js", "css", "png", "svg", "ico", "json"];
+    var actualExtension = requestUri.substring(requestUri.lastIndexOf(".") + 1);
+
+    if (allowedExtensions.includes(actualExtension)) {
+        return request;
+    }
+
+    // check basic authentication
+    var encodedBasicAuth = "${basic_auth}";
+    var authHeaders = request.headers.authorization;
+    if (authHeaders && authHeaders.value === "Basic " + encodedBasicAuth) {
+        return request;
+    }
+
+    // use cookies as work-around for browsers (MS Edge) that don't support basic authentication
+    // if basic auth value was sent as query parameter: set auth cookie and redirect
+    if (request.querystring.auth) {
+        return {
+            statusCode: 302,
+            statusDescription: "Found",
+            headers: {
+                "location": {
+                    value: "/"
+                }
+            },
+            cookies: {
+                "auth": {
+                    value: btoa(request.querystring.auth.value),
+                    attributes: "Secure;HttpOnly;Max-Age=630720000"
+                }
+            }
+        };
+    }
+    // check auth cookie
+    var authCookie = request.cookies.auth;
+    if (authCookie && authCookie.value === encodedBasicAuth) {
+        return request;
+    }
+
+    // not authenticated
+    return {
+        statusCode: 401,
+        statusDescription: "Unauthorized",
+        headers: {
+            "www-authenticate": {
+                value: 'Basic realm="Zugangsdaten für Causalist"'
+            }
+        }
+    };
+}
