@@ -16,6 +16,7 @@ import EditModal from "./EditModal";
 import FailureAlert from "./FailureAlert";
 import FileUploadModal from "./FileUploadModal";
 import {StatusIcon, statusKeys, statusLabels} from "./Status";
+import {startOfWeek} from "./utils";
 
 function containsSearch(aCase, search) {
     search = search.trim().toLowerCase();
@@ -49,7 +50,7 @@ export default function Content() {
     const [todosOnly, setTodosOnly] = useState(false);
     const [settledCases, setSettledCases] = useState(false);
     const [reloadCases, setReloadCases] = useState(true);
-    const [lastUpdatedId, setLastUpdatedId] = useState();
+    const [recentlyUpdatedId, setRecentlyUpdatedId] = useState();
     const [loading, setLoading] = useState(false);
     const delayedLoading = useDebounce(loading, 1000);
     const [openCase, setOpenCase] = useState(null);
@@ -65,31 +66,58 @@ export default function Content() {
             .then(response => {
                 setCases(response.data && response.data.cases.map((c) => {
                     c.reference = `${c.ref.entity} ${c.ref.register} ${c.ref.number}/${c.ref.year.toString().padStart(2, '0')}`;
-                    if (c.id === lastUpdatedId) {
-                        c.lastUpdated = true;
+                    if (c.id === recentlyUpdatedId) {
+                        c.recentlyUpdated = true;
                     }
                     return c;
                 }));
                 setLoading(false);
                 setErrorMessage('');
                 // remove the animation css class after about 2.5s (duration of delay + animation, see tailwind.config.js)
-                setTimeout(() => setLastUpdatedId(undefined), 2600);
+                setTimeout(() => setRecentlyUpdatedId(undefined), 2600);
             })
             .catch(error => setErrorMessage(error.userMessage));
     }, [reloadCases, statusQuery, typeQuery, settledCases]);
 
     useEffect(() => {
         if (todosOnly && !settledCases) {
-            const newCases = cases.filter((c) => c.todoDate)
+            let newCases = cases.filter((c) => c.todoDate)
                 .filter((c) => containsSearch(c, search))
                 .sort((c1, c2) => c1.todoDate.localeCompare(c2.todoDate))
                 .map((c) => Object.assign({}, c));
-            let recentWeek = 0
-            for (let c of newCases) {
+            let recentWeek = null;
+            let recentTodo = null;
+            let emptyWeeks = [];
+            for (let i = 0; i < newCases.length; i++) {
+                let c = newCases[i];
                 if (c.todoWeekOfYear && c.todoWeekOfYear !== recentWeek) {
                     c.newWeek = true;
+                    if (recentWeek && recentTodo) {
+                        // determine missing (empty) weeks
+                        for (let j = 1; j < c.todoWeekOfYear - recentWeek; j++) {
+                            emptyWeeks.push({
+                                casesIndex: i,
+                                weekOfYear: recentWeek + j,
+                                startOfWeek: startOfWeek(recentTodo, j)
+                            });
+                        }
+                    }
                     recentWeek = c.todoWeekOfYear;
+                    recentTodo = c.todoDate;
                 }
+            }
+            // add placeholder entries for empty weeks into cases list
+            for (let i = emptyWeeks.length - 1; i >= 0; i--) {
+                const e = emptyWeeks[i];
+                newCases = [
+                    ...newCases.slice(0, e.casesIndex),
+                    {
+                        id: `week${e.weekOfYear}`, // required field (used as react key)
+                        todoWeekOfYear: e.weekOfYear,
+                        todoDate: e.startOfWeek,
+                        newWeek: true
+                    },
+                    ...newCases.slice(e.casesIndex)];
             }
             setFilteredCases(newCases);
         } else {
@@ -111,7 +139,7 @@ export default function Content() {
 
     function forceUpdate(updated) {
         setReloadCases(!reloadCases);
-        setLastUpdatedId(updated && updated.id);
+        setRecentlyUpdatedId(updated && updated.id);
         setOpenCase(null);
         setOpenDropdown(null);
     }
@@ -379,129 +407,137 @@ export default function Content() {
                 {filteredCases.map((aCase) =>
                     <li key={aCase.id}
                         data-open={openCase === aCase.id}
-                        className={`col-span-full grid grid-cols-subgrid py-2 cursor-pointer 
-                                    border-y border-y-stone-50 data-open:border-y-stone-700 hover:border-y-teal-700
+                        className={`col-span-full grid grid-cols-subgrid
+                                    border-y border-y-stone-50 data-open:border-y-stone-700 
+                                    ${aCase.ref ? 'hover:border-y-teal-700 cursor-pointer py-2' : ''} 
                                     data-open:hover:border-y-teal-700 
                                     hover:text-teal-700 ${todoBg(aCase.todoDate)}
-                                    ${lastUpdatedId && aCase.lastUpdated ? 'animate-updated' : ''}
-                                    ${aCase.newWeek ? 'relative mt-8 border-t-teal-700' : ''}`}
-                        onClick={() => clickCase(aCase.id)}
+                                    ${recentlyUpdatedId && aCase.recentlyUpdated ? 'animate-updated' : ''}
+                                    ${aCase.newWeek ? 'relative mt-20 first:mt-8 border-t-teal-700' : ''}`}
+                        onClick={() => clickCase(aCase.ref && aCase.id)}
                         onDoubleClick={(e) => {
                             clickCase(null);
-                            openEditModal(e, aCase.id);
+                            openEditModal(e, aCase.ref && aCase.id);
                         }}>
                         {aCase.newWeek &&
                             <div className="absolute -top-6 right-0 py-1 px-7
                                            text-xs bg-teal-700 text-white rounded-t-lg">
-                                KW {aCase.todoWeekOfYear}
+                                KW {aCase.todoWeekOfYear} vom {formattedDate(startOfWeek(aCase.todoDate))}
                             </div>
                         }
-                        <div className="flex justify-end w-full items-baseline">
-                            <span className="grow flex-none text-right">{aCase.reference}</span>
-                            <span className="basis-4 flex-none text-left font-bold text-teal-600 text-xs ml-1 ">
-                                {typeMap[aCase.type]}
-                            </span>
-                        </div>
-                        <div title={statusLabels[aCase.status]}>
-                            <StatusIcon status={aCase.status} className="size-6 mx-auto"/>
-                        </div>
-                        <div data-open={openCase === aCase.id}
-                             className="px-2 whitespace-nowrap overflow-hidden text-ellipsis
-                                        data-open:whitespace-normal data-open:md:mr-4">
-                            <span title={aCase.parties ? "Parteien" : null}>{aCase.parties}</span>
-                            <div className="md:hidden text-sm">
-                                <span title={aCase.dueDate && "nächster Termin"}
-                                      className={`${aCase.dueDate ? 'pr-2' : 'hidden'}`}>
-                                    {formattedDate(aCase.dueDate)}
-                                </span>
-                                <span
-                                    title={settledCases ? (aCase.settledOn && "Erledigt am") : (aCase.todoDate && "Vorfrist")}
-                                    className="font-semibold empty:hidden">
-                                    {formattedDate(settledCases ? aCase.settledOn : aCase.todoDate)}
-                                </span>
-                            </div>
-                        </div>
-                        <div title={aCase.area ? "Rechtsgebiet" : null}
-                             data-open={openCase === aCase.id}
-                             className="hidden lg:inline px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:mr-4">
-                            {aCase.area}
-                        </div>
-                        <div title={aCase.dueDate && "nächster Termin"}
-                             className="hidden lg:inline text-right pr-2">
-                            {formattedDate(aCase.dueDate)}
-                        </div>
-                        <div
-                            title={settledCases ? (aCase.settledOn && "Erledigt am") : (aCase.todoDate && "Vorfrist")}
-                            className="hidden md:inline empty:hidden font-semibold text-right pr-2">
-                            {formattedDate(settledCases ? aCase.settledOn : aCase.todoDate)}
-                        </div>
-                        <Transition
-                            show={openCase === aCase.id}
-                            appear={true}
-                            className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4"
-                            enter="transition-opacity duration-100 ease-out"
-                            enterFrom="opacity-20"
-                            enterTo="opacity-100"
-                            leave="transition-opacity duration-75 ease-out"
-                            leaveFrom="opacity-100 grid"
-                            leaveTo="opacity-0 hidden"
-                        >
-                            <div className="col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5 relative">
-                                <div className="flex">
-                                    <button
-                                        className="flex w-full self-start px-3 py-2 rounded-l-lg
-                                                   leading-4 text-sm font-semibold text-white shadow-sm
-                                                   bg-teal-700 hover:bg-teal-600 border-r-white border-r
-                                                   focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-                                        onClick={(e) => openEditModal(e, aCase.id)}>
-                                        <PencilIcon className="size-4 mr-2"/>
-                                        Bearbeiten
-                                    </button>
-                                    <button
-                                        className="self-start p-2 rounded-r-lg text-white bg-teal-700 hover:bg-teal-600"
-                                        onClick={(e) => toggleDropdown(e, aCase.id)}
-                                        onDoubleClick={(e) => e.stopPropagation()}>
-                                        <ChevronDownIcon className="size-4"/>
-                                    </button>
+                        {aCase.ref && // a case without ref is placeholder for an empty week
+                            <>
+                                <div className="flex justify-end w-full items-baseline">
+                                    <span className="grow flex-none text-right">{aCase.reference}</span>
+                                    <span className="basis-4 flex-none text-left font-bold text-teal-600 text-xs ml-1 ">
+                                        {typeMap[aCase.type]}
+                                    </span>
                                 </div>
-                                <ul className="absolute top-9 left-0 right-0 z-10 hidden data-open:block"
-                                    data-open={openDropdown === aCase.id}>
-                                    <li>
-                                        <button className="flex w-full px-3 py-2 rounded-lg
-                                                           leading-4 text-sm font-semibold text-rose-700 shadow-sm
-                                                           border border-stone-200 bg-white hover:bg-stone-100"
-                                                onClick={(e) => openDeleteModal(e, aCase)}
-                                                onDoubleClick={(e) => e.stopPropagation()}>
-                                            <TrashIcon className="size-4 mr-2"/>
-                                            Löschen
-                                        </button>
-                                    </li>
-                                </ul>
-                            </div>
-                            {aCase.area &&
-                                <div title="Rechtsgebiet"
-                                     className="col-start-3 px-2 lg:hidden md:mr-4">
+                                <div title={statusLabels[aCase.status]}>
+                                    <StatusIcon status={aCase.status} className="size-6 mx-auto"/>
+                                </div>
+                                <div data-open={openCase === aCase.id}
+                                     className="px-2 whitespace-nowrap overflow-hidden text-ellipsis
+                                                data-open:whitespace-normal data-open:md:mr-4">
+                                    <span title={aCase.parties ? "Parteien" : null}>{aCase.parties}</span>
+                                    <div className="md:hidden text-sm">
+                                        <span title={aCase.todoDate && "Vorfrist"}
+                                              className={`${aCase.todoDate ? 'pr-4' : 'hidden'}`}>
+                                            {formattedDate(aCase.todoDate)}
+                                        </span>
+                                        <span
+                                            title={settledCases ? (aCase.settledOn && "Erledigt am") : (aCase.dueDate && "nächster Termin")}
+                                            className="font-semibold empty:hidden">
+                                            {formattedDate(settledCases ? aCase.settledOn : aCase.dueDate)}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div title={aCase.area ? "Rechtsgebiet" : null}
+                                     data-open={openCase === aCase.id}
+                                     className="hidden lg:inline px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:mr-4">
                                     {aCase.area}
                                 </div>
-                            }
-                            {aCase.dueDate &&
-                                <div title="nächster Termin"
-                                     className="hidden md:max-lg:block col-start-4 pr-2 text-right">
-                                    {formattedDate(aCase.dueDate)}
+                                <div title={aCase.todoDate && "Vorfrist"}
+                                     className="hidden lg:inline text-right pr-2">
+                                    {formattedDate(aCase.todoDate)}
                                 </div>
-                            }
-                            <div className="col-start-3 col-end-5 px-2">
-                                <b>Status:</b> {statusLabels[aCase.status]}
-                                {aCase.statusNote && <span title="Status-Notiz"> - {aCase.statusNote}</span>}
-                            </div>
-                            {aCase.memo &&
-                                <div title="Anmerkung" className="col-start-3 col-end-5 px-2 italic">
-                                    {aCase.memo}
+                                <div
+                                    title={settledCases ? (aCase.settledOn && "Erledigt am") : (aCase.dueDate && "nächster Termin")}
+                                    className="hidden md:inline empty:hidden font-semibold text-right pr-2">
+                                    {formattedDate(settledCases ? aCase.settledOn : aCase.dueDate)}
                                 </div>
-                            }
-                            <div
-                                className="text-xs text-right pr-2 col-start-3 md:col-end-5 lg:col-start-5 lg:col-end-7">geändert {formattedDateTime(aCase.updatedAt)}</div>
-                        </Transition>
+                                <Transition
+                                    show={openCase === aCase.id}
+                                    appear={true}
+                                    className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4"
+                                    enter="transition-opacity duration-100 ease-out"
+                                    enterFrom="opacity-20"
+                                    enterTo="opacity-100"
+                                    leave="transition-opacity duration-75 ease-out"
+                                    leaveFrom="opacity-100 grid"
+                                    leaveTo="opacity-0 hidden"
+                                >
+                                    <div className="col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5 relative">
+                                        <div className="flex">
+                                            <button
+                                                className="flex w-full self-start px-3 py-2 rounded-l-lg
+                                                           leading-4 text-sm font-semibold text-white shadow-sm
+                                                           bg-teal-700 hover:bg-teal-600 border-r-white border-r
+                                                           focus-visible:outline focus-visible:outline-2
+                                                           focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                                                onClick={(e) => openEditModal(e, aCase.id)}>
+                                                <PencilIcon className="size-4 mr-2"/>
+                                                Bearbeiten
+                                            </button>
+                                            <button
+                                                className="self-start p-2 rounded-r-lg text-white bg-teal-700 hover:bg-teal-600"
+                                                onClick={(e) => toggleDropdown(e, aCase.id)}
+                                                onDoubleClick={(e) => e.stopPropagation()}>
+                                                <ChevronDownIcon className="size-4"/>
+                                            </button>
+                                        </div>
+                                        <ul className="absolute top-9 left-0 right-0 z-10 hidden data-open:block"
+                                            data-open={openDropdown === aCase.id}>
+                                            <li>
+                                                <button className="flex w-full px-3 py-2 rounded-lg
+                                                                   leading-4 text-sm font-semibold text-rose-700 shadow-sm
+                                                                   border border-stone-200 bg-white hover:bg-stone-100"
+                                                        onClick={(e) => openDeleteModal(e, aCase)}
+                                                        onDoubleClick={(e) => e.stopPropagation()}>
+                                                    <TrashIcon className="size-4 mr-2"/>
+                                                    Löschen
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    {aCase.area &&
+                                        <div title="Rechtsgebiet"
+                                             className="col-start-3 px-2 lg:hidden md:mr-4">
+                                            {aCase.area}
+                                        </div>
+                                    }
+                                    {aCase.todoDate &&
+                                        <div title="Vorfrist"
+                                             className="hidden md:max-lg:block col-start-4 pr-2 text-right">
+                                            {formattedDate(aCase.todoDate)}
+                                        </div>
+                                    }
+                                    <div className="col-start-3 col-end-5 px-2">
+                                        <b>Status:</b> {statusLabels[aCase.status]}
+                                        {aCase.statusNote && <span title="Status-Notiz"> - {aCase.statusNote}</span>}
+                                    </div>
+                                    {aCase.memo &&
+                                        <div title="Anmerkung" className="col-start-3 col-end-5 px-2 italic">
+                                            {aCase.memo}
+                                        </div>
+                                    }
+                                    <div className="text-xs text-right pr-2
+                                                    col-start-3 md:col-end-5 lg:col-start-5 lg:col-end-7">
+                                        geändert {formattedDateTime(aCase.updatedAt)}
+                                    </div>
+                                </Transition>
+                            </>
+                        }
                     </li>
                 )}
             </ol>

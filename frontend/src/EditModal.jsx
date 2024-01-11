@@ -268,7 +268,8 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                    onChange={(e) => setCaseArea(e.target.value)}
                                                    className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5"/>
                                         </div>
-                                        <div className="sm:col-span-6 lg:col-span-4 xl:col-span-2 xl:col-start-1 xl:row-start-2">
+                                        <div
+                                            className="sm:col-span-6 lg:col-span-4 xl:col-span-2 xl:col-start-1 xl:row-start-2">
                                             <label htmlFor="status"
                                                    className="block mb-2 text-sm font-medium">Status</label>
                                             <Listbox id="status" value={caseStatus} onChange={setNewStatus}>
@@ -339,15 +340,6 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                    className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 ${(caseSettledOnFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
                                         </div>
                                         <div className="sm:col-span-3 lg:col-span-1">
-                                            <label htmlFor="dueDate"
-                                                   className="block mb-2 text-sm font-medium">nächster Termin am</label>
-                                            <input id="dueDate" name="dueDate" type="date" tabIndex="14"
-                                                   value={caseDueDate}
-                                                   onChange={(e) => setCaseDueDate(e.target.value)}
-                                                   onFocus={(e) => e.target.defaultValue = ""}
-                                                   className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5"/>
-                                        </div>
-                                        <div className="sm:col-span-3 lg:col-span-1">
                                             <label htmlFor="todoDate"
                                                    className="block mb-2 text-sm font-medium">Vorfrist am</label>
                                             <input id="todoDate" name="todoDate" type="date" tabIndex="15"
@@ -355,6 +347,15 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                    onChange={(e) => setCaseTodoDate(e.target.value)}
                                                    onFocus={(e) => e.target.defaultValue = ""}
                                                    className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 ${(caseTodoDateFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                        </div>
+                                        <div className="sm:col-span-3 lg:col-span-1">
+                                            <label htmlFor="dueDate"
+                                                   className="block mb-2 text-sm font-medium">nächster Termin am</label>
+                                            <input id="dueDate" name="dueDate" type="date" tabIndex="14"
+                                                   value={caseDueDate}
+                                                   onChange={(e) => setCaseDueDate(e.target.value)}
+                                                   onFocus={(e) => e.target.defaultValue = ""}
+                                                   className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5"/>
                                         </div>
                                         <FailureAlert message={errorOnSave} className="col-span-full"/>
                                         <div className="col-span-full flex justify-center gap-6">
