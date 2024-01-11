@@ -1,7 +1,11 @@
+import com.adarshr.gradle.testlogger.theme.ThemeType
+
 plugins {
     kotlin("jvm") version "1.9.22"
     id("com.google.devtools.ksp") version "1.9.22-1.0.16"
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.adarshr.test-logger") version "4.0.0"
+    id("de.obqo.decycle") version "1.1.0"
     application
 }
 
@@ -53,10 +57,6 @@ dependencies {
     testImplementation("org.http4k:http4k-connect-amazon-dynamodb-fake")
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
-
 kotlin {
     jvmToolchain(17)
 }
@@ -72,4 +72,12 @@ tasks.shadowJar {
     minimize {
         exclude(dependency("org.slf4j:slf4j-simple"))
     }
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+testlogger {
+    theme = ThemeType.MOCHA
 }
