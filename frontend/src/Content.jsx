@@ -1,5 +1,12 @@
 import {Listbox, Transition} from "@headlessui/react";
-import {ArrowDownOnSquareIcon, PencilIcon, PlusCircleIcon, TrashIcon, XMarkIcon} from "@heroicons/react/24/outline";
+import {
+    ArrowDownOnSquareIcon,
+    ArrowPathIcon,
+    PencilIcon,
+    PlusCircleIcon,
+    TrashIcon,
+    XMarkIcon
+} from "@heroicons/react/24/outline";
 import {ChevronDownIcon, ChevronUpIcon} from "@heroicons/react/24/solid";
 import {useDebounce} from "@uidotdev/usehooks";
 import {useContext, useEffect, useRef, useState} from "react";
@@ -43,6 +50,8 @@ export default function Content() {
     const [settledCases, setSettledCases] = useState(false);
     const [reloadCases, setReloadCases] = useState(true);
     const [lastUpdatedId, setLastUpdatedId] = useState();
+    const [loading, setLoading] = useState(false);
+    const delayedLoading = useDebounce(loading, 1000);
     const [openCase, setOpenCase] = useState(null);
     const [openDropdown, setOpenDropdown] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
@@ -51,6 +60,7 @@ export default function Content() {
     const searchRef = useRef(null);
 
     useEffect(() => {
+        setLoading(true);
         api.getCases(statusQuery, typeQuery, settledCases)
             .then(response => {
                 setCases(response.data && response.data.cases.map((c) => {
@@ -60,6 +70,7 @@ export default function Content() {
                     }
                     return c;
                 }));
+                setLoading(false);
                 setErrorMessage('');
                 // remove the animation css class after about 2.5s (duration of delay + animation, see tailwind.config.js)
                 setTimeout(() => setLastUpdatedId(undefined), 2600);
@@ -351,8 +362,15 @@ export default function Content() {
                 </label>
             </div>
 
+            {/* loading spinner */}
+            {loading && delayedLoading &&
+                <div className="relative">
+                    <ArrowPathIcon className="absolute top-1 w-full mx-auto size-8 animate-spin"/>
+                </div>
+            }
             {/* cases table */}
-            <ol className="grid grid-cols-cases md:grid-cols-cases-md lg:grid-cols-cases-lg">
+            <ol className={`grid grid-cols-cases md:grid-cols-cases-md lg:grid-cols-cases-lg
+                            ${loading && delayedLoading ? 'opacity-40' : ''}`}>
                 {filteredCases.map((aCase) =>
                     <li key={aCase.id}
                         data-open={openCase === aCase.id}
