@@ -371,6 +371,11 @@ export default function Content() {
             {/* cases table */}
             <ol className={`grid grid-cols-cases md:grid-cols-cases-md lg:grid-cols-cases-lg
                             ${loading && delayedLoading ? 'opacity-40' : ''}`}>
+                {filteredCases.length === 0 &&
+                    <li className="col-span-full text-stone-600 py-2 border-y border-y-stone-50">
+                        Du hast keine Verfahren für die aktuellen Filter- und Suchkriterien.
+                    </li>
+                }
                 {filteredCases.map((aCase) =>
                     <li key={aCase.id}
                         data-open={openCase === aCase.id}
