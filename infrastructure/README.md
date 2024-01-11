@@ -8,13 +8,9 @@ flowchart LR
     user[[User]]
     subgraph AWS 
     cloudfront(Cloudfront):::aws
-    subgraph frontend [frontend code]
-    s3(S3):::aws
-    end
+    s3("S3<br>(frontend code)"):::aws
     api(API Gateway):::aws
-    subgraph backend [backend code]
-    lambda(Lambda):::aws
-    end
+    lambda("Lambda<br>(backend code)"):::aws
     dynamo[(DynamoDB)]:::aws
     end
     
@@ -24,8 +20,5 @@ flowchart LR
     api --> lambda
     lambda --> dynamo
     
-    class frontend,backend code;
-    
-    classDef code fill:white
     classDef aws fill:#f79d36,stroke:#623e15
 ```
