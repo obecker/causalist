@@ -42,6 +42,7 @@ export default function Content() {
     const [todosOnly, setTodosOnly] = useState(false);
     const [settledCases, setSettledCases] = useState(false);
     const [reloadCases, setReloadCases] = useState(true);
+    const [lastUpdatedId, setLastUpdatedId] = useState();
     const [openCase, setOpenCase] = useState(null);
     const [openDropdown, setOpenDropdown] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
@@ -54,9 +55,14 @@ export default function Content() {
             .then(response => {
                 setCases(response.data && response.data.cases.map((c) => {
                     c.reference = `${c.ref.entity} ${c.ref.register} ${c.ref.number}/${c.ref.year.toString().padStart(2, '0')}`;
+                    if (c.id === lastUpdatedId) {
+                        c.lastUpdated = true;
+                    }
                     return c;
-                }))
+                }));
                 setErrorMessage('');
+                // remove the animation css class after about 2.5s (duration of delay + animation, see tailwind.config.js)
+                setTimeout(() => setLastUpdatedId(undefined), 2600);
             })
             .catch(error => setErrorMessage(error.userMessage));
     }, [reloadCases, statusQuery, typeQuery, settledCases]);
@@ -92,8 +98,9 @@ export default function Content() {
         return {ref: {}};
     }
 
-    function forceUpdate() {
+    function forceUpdate(updated) {
         setReloadCases(!reloadCases);
+        setLastUpdatedId(updated && updated.id);
         setOpenCase(null);
         setOpenDropdown(null);
     }
@@ -353,7 +360,8 @@ export default function Content() {
                                     border-y border-y-stone-50 data-open:border-y-stone-700 hover:border-y-teal-700
                                     data-open:hover:border-y-teal-700 
                                     hover:text-teal-700 ${todoBg(aCase.todoDate)}
-                                    relative ${aCase.newWeek && 'mt-8 border-t-teal-700'}`}
+                                    ${lastUpdatedId && aCase.lastUpdated ? 'animate-updated' : ''}
+                                    ${aCase.newWeek ? 'relative mt-8 border-t-teal-700' : ''}`}
                         onClick={() => clickCase(aCase.id)}
                         onDoubleClick={(e) => {
                             clickCase(null);
@@ -377,7 +385,7 @@ export default function Content() {
                         <div data-open={openCase === aCase.id}
                              className="px-2 whitespace-nowrap overflow-hidden text-ellipsis
                                         data-open:whitespace-normal data-open:md:mr-4">
-                            <span title={aCase.parties && "Parteien"}>{aCase.parties}</span>
+                            <span title={aCase.parties ? "Parteien" : null}>{aCase.parties}</span>
                             <div className="md:hidden text-sm">
                                 <span title={aCase.dueDate && "nächster Termin"}
                                       className={`${aCase.dueDate ? 'pr-2' : 'hidden'}`}>
@@ -390,7 +398,7 @@ export default function Content() {
                                 </span>
                             </div>
                         </div>
-                        <div title={aCase.area && "Rechtsgebiet"}
+                        <div title={aCase.area ? "Rechtsgebiet" : null}
                              data-open={openCase === aCase.id}
                              className="hidden lg:inline px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:mr-4">
                             {aCase.area}

@@ -131,16 +131,16 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
 
             if (caseResource.id) {
                 api.updateCase(caseResource)
-                    .then(() => {
+                    .then(response => {
                         setIsOpen(false);
-                        forceUpdate();
+                        forceUpdate(response.data);
                     })
                     .catch(saveErrorHandler);
             } else {
                 api.persistCase(caseResource)
-                    .then(() => {
+                    .then(response => {
                         setIsOpen(false);
-                        forceUpdate();
+                        forceUpdate(response.data);
                     })
                     .catch(saveErrorHandler);
             }
