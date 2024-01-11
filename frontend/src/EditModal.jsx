@@ -1,7 +1,7 @@
 import {Dialog, Listbox, Transition} from '@headlessui/react'
 import {ChevronDownIcon, ChevronUpIcon} from "@heroicons/react/24/solid";
 import {useMediaQuery} from "@uidotdev/usehooks";
-import {Fragment, useContext, useEffect, useState} from 'react'
+import {Fragment, useContext, useEffect, useRef, useState} from 'react'
 import {ApiContext} from "./ApiProvider";
 import FailureAlert from "./FailureAlert";
 import {StatusIcon, statusKeys, statusLabels} from "./Status";
@@ -34,6 +34,10 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
     const [caseReceivedOnFailure, setCaseReceivedOnFailure] = useState(false);
     const [caseSettledOnFailure, setCaseSettledOnFailure] = useState(false);
     const [caseTodoDateFailure, setCaseTodoDateFailure] = useState(false);
+
+    const refRegisterInput = useRef();
+    const refNoInput = useRef();
+    const refYearInput = useRef();
 
     const [errorOnSave, setErrorOnSave] = useState('');
 
@@ -82,6 +86,24 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
         }
     }
 
+    function focusNextOnSpace(event, next) {
+        if (event.key === ' ') {
+            event.preventDefault();
+            next.current.focus();
+        }
+    }
+
+    function pasteReference(event) {
+        event.preventDefault();
+        const reference = (event.clipboardData || window.clipboardData).getData("text");
+        const parts = reference.split(/[ /]/, 4);
+        event.target.value = parts[0];
+        refRegisterInput.current.value = parts[1];
+        refNoInput.current.value = parts[2];
+        refYearInput.current.value = parts[3];
+        refYearInput.current.focus()
+    }
+
     function saveErrorHandler(error) {
         if (error.response.status === 409) {
             setErrorOnSave("Es gibt bereits ein Verfahren mit diesem Aktenzeichen.");
@@ -94,7 +116,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
 
     function saveCase(e) {
         const onlyNumbers = /^[0-9]+$/;
-        let refChamberFailed = !onlyNumbers.test(refEntity) || refEntity.length > 5;
+        let refEntityFailed = !onlyNumbers.test(refEntity) || refEntity.length > 5;
         let refRegisterFailed = !['O', 'OH', 'S', 'T'].includes(refRegister);
         let refNoFailed = !onlyNumbers.test(refNo) || refNo.length > 5;
         let refYearFailed = !onlyNumbers.test(refYear) || refYear.length !== 2;
@@ -103,7 +125,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
         let caseSettledOnFailed = caseStatus === 'SETTLED' && caseSettledOn === '';
         let caseTodoDateFailed = caseDueDate !== '' && caseTodoDate === '';
 
-        setRefEntityFailure(refChamberFailed);
+        setRefEntityFailure(refEntityFailed);
         setRefRegisterFailure(refRegisterFailed);
         setRefNoFailure(refNoFailed);
         setRefYearFailure(refYearFailed);
@@ -112,7 +134,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
         setCaseSettledOnFailure(caseSettledOnFailed);
         setCaseTodoDateFailure(caseTodoDateFailed);
 
-        let validationFailed = refChamberFailed || refRegisterFailed || refNoFailed || refYearFailed || caseTypeFailed || caseReceivedOnFailed || caseSettledOnFailed || caseTodoDateFailed;
+        let validationFailed = refEntityFailed || refRegisterFailed || refNoFailed || refYearFailed || caseTypeFailed || caseReceivedOnFailed || caseSettledOnFailed || caseTodoDateFailed;
         if (!validationFailed) {
             caseResource.ref.entity = refEntity;
             caseResource.ref.register = refRegister;
@@ -188,20 +210,27 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                             <div className="block w-fit rounded-lg border border-stone-300">
                                                 <input minLength="1" maxLength="4" tabIndex="1"
                                                        value={refEntity}
-                                                       onChange={(e) => setRefEntity(e.target.value)}
+                                                       onKeyDown={(e) => focusNextOnSpace(e, refRegisterInput)}
+                                                       onPaste={pasteReference}
+                                                       onChange={(e) => setRefEntity(e.target.value.trim())}
                                                        className={`mr-1 w-16 border-0 rounded-l-lg focus:ring-2 focus:ring-teal-700 ${(refEntityFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
                                                 <input minLength="1" maxLength="2" tabIndex="2"
                                                        value={refRegister}
-                                                       onChange={(e) => setRefRegister(e.target.value)}
+                                                       ref={refRegisterInput}
+                                                       onKeyDown={(e) => focusNextOnSpace(e, refNoInput)}
+                                                       onChange={(e) => setRefRegister(e.target.value.trim().toUpperCase())}
                                                        className={`mr-1 w-12 border-0 focus:ring-2 focus:ring-teal-700 ${(refRegisterFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
                                                 <input minLength="1" maxLength="4" tabIndex="3"
                                                        value={refNo}
-                                                       onChange={(e) => setRefNo(e.target.value)}
+                                                       ref={refNoInput}
+                                                       onKeyDown={(e) => focusNextOnSpace(e, refYearInput)}
+                                                       onChange={(e) => setRefNo(e.target.value.trim())}
                                                        className={`w-16 border-0 focus:ring-2 focus:ring-teal-700 ${(refNoFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
                                                 <span>/</span>
                                                 <input minLength="2" maxLength="2" tabIndex="4"
                                                        value={refYear}
-                                                       onChange={(e) => setRefYear(e.target.value)}
+                                                       ref={refYearInput}
+                                                       onChange={(e) => setRefYear(e.target.value.trim())}
                                                        className={`w-12 border-0 rounded-r-lg focus:ring-2 focus:ring-teal-700 ${(refYearFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
                                             </div>
                                         </div>
