@@ -61,12 +61,13 @@ function LoginForm({successMessage, setSuccessMessage, toggleForm}) {
             <h2 className="mt-8 text-center text-2xl font-bold leading-9 tracking-tight text-stone-900">
                 Causalist Login
             </h2>
-            <div
-                className={`${successMessage ? 'flex' : 'hidden'} items-center p-4 mt-8 text-sm text-teal-800 rounded-lg bg-teal-50`}
-                role="alert">
-                <CheckCircleIcon className="w-4 h-4 me-3 flex-shrink-0 inline "/>
-                <span className="font-medium">{successMessage}</span>
-            </div>
+            {successMessage &&
+                <div className="flex items-center p-4 mt-8 text-sm text-teal-800 rounded-lg bg-teal-50"
+                     role="alert">
+                    <CheckCircleIcon className="w-4 h-4 me-3 flex-shrink-0 inline "/>
+                    <span className="font-medium">{successMessage}</span>
+                </div>
+            }
             <FailureAlert message={loginFailure} className="mt-8"/>
             <form className="mt-8 space-y-6" action="#" method="POST" onSubmit={login}>
                 <FormInput name="username" label="Nutzername" type="text" value={username}
@@ -119,7 +120,6 @@ function RegistrationForm({setSuccessMessage, toggleForm}) {
     }, [passwordValidationCase, passwordValidationLength, passwordValidationNonAlpha, usernameValidation]);
 
     function registration(event) {
-        setUsername(username);
         event.preventDefault();
 
         setRegistrationFailure('');
@@ -158,15 +158,15 @@ function RegistrationForm({setSuccessMessage, toggleForm}) {
                            onInput={removeWhitespace}
                            onChange={(e) => setUsername(e.target.value)}>
                     <div className="text-xs mt-1 flex align-middle justify-start gap-4">
-                        <Validation value={username} isValid={usernameValidation} label="min 4 Zeichen"/>
+                        <ValidationInfo value={username} isValid={usernameValidation} label="min 4 Zeichen"/>
                     </div>
                 </FormInput>
                 <FormInput name="password" label="Passwort" type="password" value={password} reveal={true}
                            onChange={(e) => setPassword(e.target.value)}>
                     <div className="text-xs mt-1 flex align-middle justify-start gap-4">
-                        <Validation value={password} isValid={passwordValidationLength} label="min 10 Zeichen"/>
-                        <Validation value={password} isValid={passwordValidationCase} label="aAbBcC"/>
-                        <Validation value={password} isValid={passwordValidationNonAlpha} label="123!?#&"/>
+                        <ValidationInfo value={password} isValid={passwordValidationLength} label="min 10 Zeichen"/>
+                        <ValidationInfo value={password} isValid={passwordValidationCase} label="aAbBcC"/>
+                        <ValidationInfo value={password} isValid={passwordValidationNonAlpha} label="123!?#&"/>
                     </div>
                 </FormInput>
                 <FormSubmit label="Registrieren" disabled={disabled}/>
@@ -181,7 +181,7 @@ function FormInput({name, label, type, value, reveal = false, onChange, onInput,
     const inputRef = useRef(null);
 
     function toggleRevealed() {
-        setRevealed(!revealed);
+        setRevealed(b => !b);
         inputRef.current.focus();
     }
 
@@ -242,7 +242,7 @@ function FormToggle({label, toggle}) {
     );
 }
 
-function Validation({value, isValid, label}) {
+function ValidationInfo({value, isValid, label}) {
 
     function validationColor() {
         if (!value) {
