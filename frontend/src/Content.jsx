@@ -121,6 +121,20 @@ export default function Content() {
         }
     }, [cases, todosOnly, settledOnly, search]);
 
+    // pull to refresh on mobile devices (tested on iOS only)
+    useEffect(() => {
+        const onTouchEnd = () => {
+            if (window.scrollY <= -100) { // screen has been "overscrolled", is this a standard behavior?
+                forceUpdate();
+            }
+        }
+
+        window.addEventListener('touchend', onTouchEnd);
+        return () => {
+            window.removeEventListener('touchend', onTouchEnd);
+        };
+    }, []);
+
     function containsSearch(aCase, search) {
         search = search.trim().toLowerCase();
         if (search === '') {
@@ -140,7 +154,7 @@ export default function Content() {
     }
 
     function forceUpdate(updated) {
-        setReloadCases(!reloadCases);
+        setReloadCases(b => !b);
         setRecentlyUpdatedId(updated && updated.id);
     }
 
