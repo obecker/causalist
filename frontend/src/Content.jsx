@@ -38,8 +38,8 @@ export default function Content() {
 
     const api = useContext(ApiContext);
 
-    const [cases, setCases] = useState([]);
-    const [filteredCases, setFilteredCases] = useState([]);
+    const [cases, setCases] = useState(null);
+    const [filteredCases, setFilteredCases] = useState(null);
     const [search, setSearch] = useState('');
     const [statusQuery, setStatusQuery] = useState([]);
     const [typeQuery, setTypeQuery] = useState(null);
@@ -80,6 +80,9 @@ export default function Content() {
     }, [reloadCases, statusQuery, typeQuery, settledCases]);
 
     useEffect(() => {
+        if (!cases) {
+            return;
+        }
         if (todosOnly && !settledCases) {
             let newCases = cases.filter((c) => c.todoDate)
                 .filter((c) => containsSearch(c, search))
@@ -397,150 +400,152 @@ export default function Content() {
                 </div>
             }
             {/* cases table */}
-            <ol className={`grid grid-cols-cases md:grid-cols-cases-md lg:grid-cols-cases-lg
-                            ${loading && delayedLoading ? 'opacity-40' : ''}`}>
-                {filteredCases.length === 0 &&
-                    <li className="col-span-full text-stone-600 py-2 border-y border-y-stone-50">
-                        Du hast keine Verfahren für die aktuellen Filter- und Suchkriterien.
-                    </li>
-                }
-                {filteredCases.map((aCase) =>
-                    <li key={aCase.id}
-                        data-open={openCase === aCase.id}
-                        className={`col-span-full grid grid-cols-subgrid
-                                    border-y border-y-stone-50 data-open:border-y-stone-700 
-                                    ${aCase.ref ? 'hover:border-y-teal-700 cursor-pointer py-2' : ''} 
-                                    data-open:hover:border-y-teal-700 
-                                    hover:text-teal-700 ${todoBg(aCase.todoDate)}
-                                    ${recentlyUpdatedId && aCase.recentlyUpdated ? 'animate-updated' : ''}
-                                    ${aCase.newWeek ? 'relative mt-20 first:mt-8 border-t-teal-700' : ''}`}
-                        onClick={() => clickCase(aCase.ref && aCase.id)}
-                        onDoubleClick={(e) => {
-                            clickCase(null);
-                            openEditModal(e, aCase.ref && aCase.id);
-                        }}>
-                        {aCase.newWeek &&
-                            <div className="absolute -top-6 right-0 py-1 px-7
-                                           text-xs bg-teal-700 text-white rounded-t-lg">
-                                KW {aCase.todoWeekOfYear} vom {formattedDate(startOfWeek(aCase.todoDate))}
-                            </div>
-                        }
-                        {aCase.ref && // a case without ref is placeholder for an empty week
-                            <>
-                                <div className="flex justify-end w-full items-baseline">
-                                    <span className="grow flex-none text-right">{aCase.reference}</span>
-                                    <span className="basis-4 flex-none text-left font-bold text-teal-600 text-xs ml-1 ">
-                                        {typeMap[aCase.type]}
-                                    </span>
+            {filteredCases &&
+                <ol className={`grid grid-cols-cases md:grid-cols-cases-md lg:grid-cols-cases-lg
+                                ${loading && delayedLoading ? 'opacity-40' : ''}`}>
+                    {filteredCases.length === 0 &&
+                        <li className="col-span-full text-stone-600 py-2 border-y border-y-stone-50">
+                            Du hast keine Verfahren für die aktuellen Filter- und Suchkriterien.
+                        </li>
+                    }
+                    {filteredCases.map((aCase) =>
+                        <li key={aCase.id}
+                            data-open={openCase === aCase.id}
+                            className={`col-span-full grid grid-cols-subgrid
+                                        border-y border-y-stone-50 data-open:border-y-stone-700 
+                                        ${aCase.ref ? 'hover:border-y-teal-700 cursor-pointer py-2' : ''} 
+                                        data-open:hover:border-y-teal-700 
+                                        hover:text-teal-700 ${todoBg(aCase.todoDate)}
+                                        ${recentlyUpdatedId && aCase.recentlyUpdated ? 'animate-updated' : ''}
+                                        ${aCase.newWeek ? 'relative mt-20 first:mt-8 border-t-teal-700' : ''}`}
+                            onClick={() => clickCase(aCase.ref && aCase.id)}
+                            onDoubleClick={(e) => {
+                                clickCase(null);
+                                openEditModal(e, aCase.ref && aCase.id);
+                            }}>
+                            {aCase.newWeek &&
+                                <div className="absolute -top-6 right-0 py-1 px-7
+                                               text-xs bg-teal-700 text-white rounded-t-lg">
+                                    KW {aCase.todoWeekOfYear} vom {formattedDate(startOfWeek(aCase.todoDate))}
                                 </div>
-                                <div title={statusLabels[aCase.status]}>
-                                    <StatusIcon status={aCase.status} className="size-6 mx-auto"/>
-                                </div>
-                                <div data-open={openCase === aCase.id}
-                                     className="px-2 whitespace-nowrap overflow-hidden text-ellipsis
-                                                data-open:whitespace-normal data-open:md:mr-4">
-                                    <span title={aCase.parties ? "Parteien" : null}>{aCase.parties}</span>
-                                    <div className="md:hidden text-sm">
-                                        <span title={aCase.todoDate && "Vorfrist"}
-                                              className={`${aCase.todoDate ? 'pr-4' : 'hidden'}`}>
-                                            {formattedDate(aCase.todoDate)}
-                                        </span>
-                                        <span
-                                            title={settledCases ? (aCase.settledOn && "Erledigt am") : (aCase.dueDate && "nächster Termin")}
-                                            className="font-semibold empty:hidden">
-                                            {formattedDate(settledCases ? aCase.settledOn : aCase.dueDate)}
+                            }
+                            {aCase.ref && // a case without ref is placeholder for an empty week
+                                <>
+                                    <div className="flex justify-end w-full items-baseline">
+                                        <span className="grow flex-none text-right">{aCase.reference}</span>
+                                        <span className="basis-4 flex-none text-left font-bold text-teal-600 text-xs ml-1 ">
+                                            {typeMap[aCase.type]}
                                         </span>
                                     </div>
-                                </div>
-                                <div title={aCase.area ? "Rechtsgebiet" : null}
-                                     data-open={openCase === aCase.id}
-                                     className="hidden lg:inline px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:mr-4">
-                                    {aCase.area}
-                                </div>
-                                <div title={aCase.todoDate && "Vorfrist"}
-                                     className="hidden lg:inline text-right pr-2">
-                                    {formattedDate(aCase.todoDate)}
-                                </div>
-                                <div
-                                    title={settledCases ? (aCase.settledOn && "Erledigt am") : (aCase.dueDate && "nächster Termin")}
-                                    className="hidden md:inline empty:hidden font-semibold text-right pr-2">
-                                    {formattedDate(settledCases ? aCase.settledOn : aCase.dueDate)}
-                                </div>
-                                <Transition
-                                    show={openCase === aCase.id}
-                                    appear={true}
-                                    className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4"
-                                    enter="transition-opacity duration-100 ease-out"
-                                    enterFrom="opacity-20"
-                                    enterTo="opacity-100"
-                                    leave="transition-opacity duration-75 ease-out"
-                                    leaveFrom="opacity-100 grid"
-                                    leaveTo="opacity-0 hidden"
-                                >
-                                    <div className="col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5 relative">
-                                        <div className="flex">
-                                            <button
-                                                className="flex w-full self-start px-3 py-2 rounded-l-lg
-                                                           leading-4 text-sm font-semibold text-white shadow-sm
-                                                           bg-teal-700 hover:bg-teal-600 border-r-white border-r
-                                                           focus-visible:outline focus-visible:outline-2
-                                                           focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-                                                onClick={(e) => openEditModal(e, aCase.id)}>
-                                                <PencilIcon className="size-4 mr-2"/>
-                                                Bearbeiten
-                                            </button>
-                                            <button
-                                                className="self-start p-2 rounded-r-lg text-white bg-teal-700 hover:bg-teal-600"
-                                                onClick={(e) => toggleDropdown(e, aCase.id)}
-                                                onDoubleClick={(e) => e.stopPropagation()}>
-                                                <ChevronDownIcon className="size-4"/>
-                                            </button>
+                                    <div title={statusLabels[aCase.status]}>
+                                        <StatusIcon status={aCase.status} className="size-6 mx-auto"/>
+                                    </div>
+                                    <div data-open={openCase === aCase.id}
+                                         className="px-2 whitespace-nowrap overflow-hidden text-ellipsis
+                                                    data-open:whitespace-normal data-open:md:mr-4">
+                                        <span title={aCase.parties ? "Parteien" : null}>{aCase.parties}</span>
+                                        <div className="md:hidden text-sm">
+                                            <span title={aCase.todoDate && "Vorfrist"}
+                                                  className={`${aCase.todoDate ? 'pr-4' : 'hidden'}`}>
+                                                {formattedDate(aCase.todoDate)}
+                                            </span>
+                                            <span
+                                                title={settledCases ? (aCase.settledOn && "Erledigt am") : (aCase.dueDate && "nächster Termin")}
+                                                className="font-semibold empty:hidden">
+                                                {formattedDate(settledCases ? aCase.settledOn : aCase.dueDate)}
+                                            </span>
                                         </div>
-                                        <ul className="absolute top-9 left-0 right-0 z-10 hidden data-open:block"
-                                            data-open={openDropdown === aCase.id}>
-                                            <li>
-                                                <button className="flex w-full px-3 py-2 rounded-lg
-                                                                   leading-4 text-sm font-semibold text-rose-700 shadow-sm
-                                                                   border border-stone-200 bg-white hover:bg-stone-100"
-                                                        onClick={(e) => openDeleteModal(e, aCase)}
-                                                        onDoubleClick={(e) => e.stopPropagation()}>
-                                                    <TrashIcon className="size-4 mr-2"/>
-                                                    Löschen
+                                    </div>
+                                    <div title={aCase.area ? "Rechtsgebiet" : null}
+                                         data-open={openCase === aCase.id}
+                                         className="hidden lg:inline px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:mr-4">
+                                        {aCase.area}
+                                    </div>
+                                    <div title={aCase.todoDate && "Vorfrist"}
+                                         className="hidden lg:inline text-right pr-2">
+                                        {formattedDate(aCase.todoDate)}
+                                    </div>
+                                    <div
+                                        title={settledCases ? (aCase.settledOn && "Erledigt am") : (aCase.dueDate && "nächster Termin")}
+                                        className="hidden md:inline empty:hidden font-semibold text-right pr-2">
+                                        {formattedDate(settledCases ? aCase.settledOn : aCase.dueDate)}
+                                    </div>
+                                    <Transition
+                                        show={openCase === aCase.id}
+                                        appear={true}
+                                        className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4"
+                                        enter="transition-opacity duration-100 ease-out"
+                                        enterFrom="opacity-20"
+                                        enterTo="opacity-100"
+                                        leave="transition-opacity duration-75 ease-out"
+                                        leaveFrom="opacity-100 grid"
+                                        leaveTo="opacity-0 hidden"
+                                    >
+                                        <div className="col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5 relative">
+                                            <div className="flex">
+                                                <button
+                                                    className="flex w-full self-start px-3 py-2 rounded-l-lg
+                                                               leading-4 text-sm font-semibold text-white shadow-sm
+                                                               bg-teal-700 hover:bg-teal-600 border-r-white border-r
+                                                               focus-visible:outline focus-visible:outline-2
+                                                               focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                                                    onClick={(e) => openEditModal(e, aCase.id)}>
+                                                    <PencilIcon className="size-4 mr-2"/>
+                                                    Bearbeiten
                                                 </button>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    {aCase.area &&
-                                        <div title="Rechtsgebiet"
-                                             className="col-start-3 px-2 lg:hidden md:mr-4">
-                                            {aCase.area}
+                                                <button
+                                                    className="self-start p-2 rounded-r-lg text-white bg-teal-700 hover:bg-teal-600"
+                                                    onClick={(e) => toggleDropdown(e, aCase.id)}
+                                                    onDoubleClick={(e) => e.stopPropagation()}>
+                                                    <ChevronDownIcon className="size-4"/>
+                                                </button>
+                                            </div>
+                                            <ul className="absolute top-9 left-0 right-0 z-10 hidden data-open:block"
+                                                data-open={openDropdown === aCase.id}>
+                                                <li>
+                                                    <button className="flex w-full px-3 py-2 rounded-lg
+                                                                       leading-4 text-sm font-semibold text-rose-700 shadow-sm
+                                                                       border border-stone-200 bg-white hover:bg-stone-100"
+                                                            onClick={(e) => openDeleteModal(e, aCase)}
+                                                            onDoubleClick={(e) => e.stopPropagation()}>
+                                                        <TrashIcon className="size-4 mr-2"/>
+                                                        Löschen
+                                                    </button>
+                                                </li>
+                                            </ul>
                                         </div>
-                                    }
-                                    {aCase.todoDate &&
-                                        <div title="Vorfrist"
-                                             className="hidden md:max-lg:block col-start-4 pr-2 text-right">
-                                            {formattedDate(aCase.todoDate)}
+                                        {aCase.area &&
+                                            <div title="Rechtsgebiet"
+                                                 className="col-start-3 px-2 lg:hidden md:mr-4">
+                                                {aCase.area}
+                                            </div>
+                                        }
+                                        {aCase.todoDate &&
+                                            <div title="Vorfrist"
+                                                 className="hidden md:max-lg:block col-start-4 pr-2 text-right">
+                                                {formattedDate(aCase.todoDate)}
+                                            </div>
+                                        }
+                                        <div className="col-start-3 col-end-5 px-2">
+                                            <b>Status:</b> {statusLabels[aCase.status]}
+                                            {aCase.statusNote && <span title="Status-Notiz"> - {aCase.statusNote}</span>}
                                         </div>
-                                    }
-                                    <div className="col-start-3 col-end-5 px-2">
-                                        <b>Status:</b> {statusLabels[aCase.status]}
-                                        {aCase.statusNote && <span title="Status-Notiz"> - {aCase.statusNote}</span>}
-                                    </div>
-                                    {aCase.memo &&
-                                        <div title="Anmerkung" className="col-start-3 col-end-5 px-2 italic">
-                                            {aCase.memo}
+                                        {aCase.memo &&
+                                            <div title="Anmerkung" className="col-start-3 col-end-5 px-2 italic">
+                                                {aCase.memo}
+                                            </div>
+                                        }
+                                        <div className="text-xs text-right pr-2
+                                                        col-start-3 md:col-end-5 lg:col-start-5 lg:col-end-7">
+                                            geändert {formattedDateTime(aCase.updatedAt)}
                                         </div>
-                                    }
-                                    <div className="text-xs text-right pr-2
-                                                    col-start-3 md:col-end-5 lg:col-start-5 lg:col-end-7">
-                                        geändert {formattedDateTime(aCase.updatedAt)}
-                                    </div>
-                                </Transition>
-                            </>
-                        }
-                    </li>
-                )}
-            </ol>
+                                    </Transition>
+                                </>
+                            }
+                        </li>
+                    )}
+                </ol>
+            }
         </>
     )
 }
