@@ -19,7 +19,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
 
-    implementation(platform("org.http4k:http4k-bom:5.12.0.0"))
+    implementation(platform("org.http4k:http4k-bom:5.13.0.0"))
     implementation("org.http4k:http4k-core")
     implementation("org.http4k:http4k-contract")
     implementation("org.http4k:http4k-multipart")
@@ -28,7 +28,7 @@ dependencies {
     }
     implementation("org.http4k:http4k-serverless-lambda")
 
-    implementation(platform("org.http4k:http4k-connect-bom:5.6.4.0"))
+    implementation(platform("org.http4k:http4k-connect-bom:5.6.6.0"))
     implementation("org.http4k:http4k-connect-amazon-dynamodb")
 
     val kotshiVersion = "2.15.0"
@@ -36,10 +36,10 @@ dependencies {
     ksp("se.ansman.kotshi:compiler:$kotshiVersion")
     implementation("com.github.joniles:rtfparserkit:1.16.0")
 
-    implementation(platform("org.slf4j:slf4j-bom:2.0.10"))
+    implementation(platform("org.slf4j:slf4j-bom:2.0.11"))
     implementation("org.slf4j:slf4j-api")
     implementation("org.slf4j:slf4j-simple")
-    implementation("io.github.oshai:kotlin-logging-jvm:6.0.1")
+    implementation("io.github.oshai:kotlin-logging-jvm:6.0.2")
 
     testImplementation(platform("io.kotest:kotest-bom:5.8.0"))
     testImplementation("io.kotest:kotest-framework-api-jvm")
@@ -48,7 +48,7 @@ dependencies {
 //    testImplementation("io.kotest:kotest-extensions-jvm")
 //    testImplementation("io.kotest:kotest-property")
 //    testImplementation("io.kotest:kotest-assertions-json")
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("io.mockk:mockk:1.13.9")
     testRuntimeOnly("io.kotest:kotest-runner-junit5")
 
 //    testImplementation("org.http4k:http4k-testing-approval")
