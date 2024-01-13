@@ -70,8 +70,8 @@ function LoginForm({successMessage, setSuccessMessage, toggleForm}) {
             }
             <FailureAlert message={loginFailure} className="mt-8"/>
             <form className="mt-8 space-y-6" action="#" method="POST" onSubmit={login}>
-                <FormInput name="username" label="Nutzername" type="text" value={username}
-                           onChange={(e) => setUsername(e.target.value)}/>
+                <FormInput name="username" label="Nutzername" type="text" value={username} inputMode="email"
+                           focus={true} onChange={(e) => setUsername(e.target.value)}/>
                 <FormInput name="password" label="Passwort" type="password" value={password}
                            onChange={(e) => setPassword(e.target.value)}/>
                 <FormSubmit label="Login" disabled={disabled}/>
@@ -154,7 +154,8 @@ function RegistrationForm({setSuccessMessage, toggleForm}) {
             </h2>
             <FailureAlert message={registrationFailure} className="mt-8"/>
             <form className="mt-8 space-y-6" action="#" method="POST" autoComplete="off" onSubmit={registration}>
-                <FormInput name="username" label="Nutzername" type="text" value={username}
+                <FormInput name="username" label="Nutzername" type="text" value={username} inputMode="email"
+                           focus={true}
                            onInput={removeWhitespace}
                            onChange={(e) => setUsername(e.target.value)}>
                     <div className="text-xs mt-1 flex align-middle justify-start gap-4">
@@ -176,9 +177,26 @@ function RegistrationForm({setSuccessMessage, toggleForm}) {
     );
 }
 
-function FormInput({name, label, type, value, reveal = false, onChange, onInput, children}) {
+function FormInput({
+                       name,
+                       label,
+                       type,
+                       value,
+                       inputMode = "text",
+                       focus = false,
+                       reveal = false,
+                       onChange,
+                       onInput,
+                       children
+                   }) {
     const [revealed, setRevealed] = useState(false);
     const inputRef = useRef(null);
+
+    useEffect(() => {
+        if (focus) {
+            inputRef.current.focus();
+        }
+    }, [focus]);
 
     function toggleRevealed() {
         setRevealed(b => !b);
@@ -192,6 +210,7 @@ function FormInput({name, label, type, value, reveal = false, onChange, onInput,
                 <input
                     id={name}
                     name={name}
+                    inputMode={inputMode}
                     ref={inputRef}
                     className={`block w-full rounded-lg border-0 py-1.5 text-stone-900 shadow-sm 
                                 ring-1 ring-inset ring-stone-300 placeholder:text-stone-400 

@@ -13,7 +13,11 @@ export default function App() {
                     <div className="container mx-auto p-3 sm:p-8 pb-12 min-w-[352px] text-stone-900">
                         {apiKey ? <Content/> : <LoginRegistration/>}
                     </div>
-                    <div className="absolute bottom-4 right-4 text-xs text-stone-400">{BUILD_NUMBER}</div>
+                    <div className="absolute bottom-4 right-4 text-xs text-stone-400">
+                        <a className="hover:text-teal-700 hover:underline" title="GitHub"
+                           tabIndex="-1"
+                           href="https://github.com/obecker/causalist">{BUILD_NUMBER}</a>
+                    </div>
                 </div>
             )}
         </ApiProvider>
