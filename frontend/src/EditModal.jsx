@@ -240,7 +240,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                     <input type="radio" name="type" value="SINGLE" tabIndex="5"
                                                            checked={caseType === "SINGLE"}
                                                            onChange={() => setCaseType('SINGLE')}
-                                                           className={`w-4 h-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 ${(caseTypeFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                                           className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 ${(caseTypeFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
                                                     Einzelrichter
                                                 </label>
                                             </div>
@@ -249,7 +249,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                     <input type="radio" name="type" value="CHAMBER" tabIndex="6"
                                                            checked={caseType === "CHAMBER"}
                                                            onChange={() => setCaseType('CHAMBER')}
-                                                           className={`w-4 h-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 ${(caseTypeFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                                           className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 ${(caseTypeFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
                                                     Kammersache</label>
                                             </div>
                                         </div>
@@ -285,8 +285,8 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                             <div className="flex-auto text-left">
                                                                 {statusLabels[caseStatus]}
                                                             </div>
-                                                            {open ? <ChevronUpIcon className="w-4 h-4 flex-none"/>
-                                                                : <ChevronDownIcon className="w-4 h-4 flex-none"/>}
+                                                            {open ? <ChevronUpIcon className="size-4 flex-none"/>
+                                                                : <ChevronDownIcon className="size-4 flex-none"/>}
                                                         </Listbox.Button>
                                                         <Listbox.Options
                                                             className="absolute w-full lg:max-h-72 overflow-y-auto mt-0.5 py-2 z-20 bg-stone-50 border rounded-lg shadow shadow-stone-400 outline-none">

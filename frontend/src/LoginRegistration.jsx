@@ -64,7 +64,7 @@ function LoginForm({successMessage, setSuccessMessage, toggleForm}) {
             {successMessage &&
                 <div className="flex items-center p-4 mt-8 text-sm text-teal-800 rounded-lg bg-teal-50"
                      role="alert">
-                    <CheckCircleIcon className="w-4 h-4 me-3 flex-shrink-0 inline "/>
+                    <CheckCircleIcon className="size-4 me-3 flex-shrink-0 inline"/>
                     <span className="font-medium">{successMessage}</span>
                 </div>
             }
@@ -226,7 +226,7 @@ function FormInput({
                 {reveal &&
                     <div className="absolute bottom-0 top-0 right-0 pr-2.5 py-2 text-stone-400 cursor-pointer"
                          onClick={toggleRevealed}>
-                        {revealed ? <EyeSlashIcon className="w-5 h-5"/> : <EyeIcon className="w-5 h-5"/>}
+                        {revealed ? <EyeSlashIcon className="size-5"/> : <EyeIcon className="size-5"/>}
                     </div>
                 }
             </div>
@@ -272,7 +272,7 @@ function ValidationInfo({value, isValid, label}) {
 
     return (
         <span className={`flex ${validationColor()}`}>
-            <ValidationIcon value={value} isValid={isValid} className="w-4 h-4 mr-0.5"/>
+            <ValidationIcon value={value} isValid={isValid} className="size-4 mr-0.5"/>
             {label}
         </span>
     );

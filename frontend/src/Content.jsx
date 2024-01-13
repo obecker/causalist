@@ -217,7 +217,7 @@ export default function Content() {
             <div
                 className="mb-8 flex flex-row justify-between items-baseline border-b-2 border-b-stone-400 border-solid">
                 <div className="font-semibold mb-2 flex flex-row justify-start items-baseline">
-                    <img src="/logo.svg" alt="Logo" className="mr-2 my-auto w-5 h-5"/>
+                    <img src="/logo.svg" alt="Logo" className="mr-2 my-auto size-5"/>
                     <span>Causalist</span>
                 </div>
                 {process.env.NODE_ENV === "development" &&
@@ -297,7 +297,7 @@ export default function Content() {
                                 setSearch('');
                                 searchRef.current.focus();
                             }}>
-                            <XMarkIcon className="w-5 h-5"/>
+                            <XMarkIcon className="size-5"/>
                         </div>
                     </div>
 
@@ -336,8 +336,8 @@ export default function Content() {
                         <Listbox.Button
                             className="text-lg font-semibold mb-2 focus-visible:outline-none focus-visible:underline hover:underline decoration-teal-700">
                             {settledOnly ? "Erledigte Verfahren" : "Laufende Verfahren"}
-                            <ChevronDownIcon className="inline ui-open:hidden w-5 h-5 ml-1"/>
-                            <ChevronUpIcon className="hidden ui-open:inline w-5 h-5 ml-1"/>
+                            <ChevronDownIcon className="inline ui-open:hidden size-5 ml-1"/>
+                            <ChevronUpIcon className="hidden ui-open:inline size-5 ml-1"/>
                         </Listbox.Button>
                         <Listbox.Options
                             className="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
@@ -353,7 +353,7 @@ export default function Content() {
 
                 <label className={`${settledOnly ? 'hidden' : 'inline'}`}>
                     <input type="checkbox"
-                           className="w-4 h-4 mr-2 text-teal-700 bg-stone-50 border-stone-300 focus:ring-teal-700 focus:ring-2 "
+                           className="size-4 mr-2 text-teal-700 bg-stone-50 border-stone-300 focus:ring-teal-700 focus:ring-2 "
                            checked={todosOnly}
                            onChange={() => setTodosOnly(!todosOnly)}/>
                     Fristen
@@ -535,7 +535,10 @@ function CasesList({cases, loadingSpinner, recentlyUpdatedId, openEditModal, ope
                                             className="self-start p-2 rounded-r-lg text-white bg-teal-700 hover:bg-teal-600"
                                             onClick={e => toggleDropdown(e, aCase.id)}
                                             onDoubleClick={e => e.stopPropagation()}>
-                                            <ChevronDownIcon className="size-4"/>
+                                            {
+                                                openDropdown === aCase.id ? <ChevronUpIcon className="size-4"/>
+                                                    : <ChevronDownIcon className="size-4"/>
+                                            }
                                         </button>
                                     </div>
                                     <ul className="absolute top-9 left-0 right-0 z-10 hidden data-open:block"
