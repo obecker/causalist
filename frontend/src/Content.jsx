@@ -50,8 +50,11 @@ export default function Content() {
     const [recentlyUpdatedId, setRecentlyUpdatedId] = useState();
     const [loading, setLoading] = useState(false);
     const delayedLoading = useDebounce(loading, 1000);
+    const [forceSpinner, setForceSpinner] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const searchRef = useRef(null);
+
+    const loadingSpinner = (loading && delayedLoading) || forceSpinner;
 
     useEffect(() => {
         setLoading(true);
@@ -65,6 +68,7 @@ export default function Content() {
                     return c;
                 }));
                 setLoading(false);
+                setForceSpinner(false);
                 setErrorMessage('');
                 // remove the animation css class after about 2.5s (duration of delay + animation, see tailwind.config.js)
                 setTimeout(() => setRecentlyUpdatedId(undefined), 2600);
@@ -125,7 +129,8 @@ export default function Content() {
     useEffect(() => {
         const onTouchEnd = () => {
             if (window.scrollY <= -100) { // screen has been "overscrolled", is this a standard behavior?
-                forceUpdate();
+                setForceSpinner(true);
+                setTimeout(forceUpdate, 500);
             }
         }
 
@@ -356,20 +361,20 @@ export default function Content() {
             </div>
 
             {/* loading spinner */}
-            {loading && delayedLoading &&
+            {loadingSpinner &&
                 <div className="relative">
                     <ArrowPathIcon className="absolute top-1 w-full mx-auto size-8 animate-spin"/>
                 </div>
             }
 
             {/* cases table */}
-            <CasesList cases={filteredCases} pending={loading && delayedLoading} recentlyUpdatedId={recentlyUpdatedId}
+            <CasesList cases={filteredCases} loadingSpinner={loadingSpinner} recentlyUpdatedId={recentlyUpdatedId}
                        openEditModal={openEditModal} openDeleteModal={openDeleteModal}/>
         </>
     )
 }
 
-function CasesList({cases, pending, recentlyUpdatedId, openEditModal, openDeleteModal}) {
+function CasesList({cases, loadingSpinner, recentlyUpdatedId, openEditModal, openDeleteModal}) {
 
     const [openCase, setOpenCase] = useState(null);
     const [openDropdown, setOpenDropdown] = useState(null);
@@ -439,7 +444,7 @@ function CasesList({cases, pending, recentlyUpdatedId, openEditModal, openDelete
 
     return (
         <ol className={`grid grid-cols-cases md:grid-cols-cases-md lg:grid-cols-cases-lg
-                        ${pending ? 'opacity-40' : ''}`}>
+                        ${loadingSpinner ? 'opacity-25' : ''}`}>
             {cases.length === 0 &&
                 <li className="col-span-full text-stone-600 py-2 border-y border-y-stone-50">
                     Du hast keine Verfahren für die aktuellen Filter- und Suchkriterien.
