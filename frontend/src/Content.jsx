@@ -564,7 +564,7 @@ function CasesList({cases, loadingSpinner, recentlyUpdatedId, openEditModal, ope
                                 {aCase.todoDate &&
                                     <div title="Vorfrist"
                                          className="hidden md:max-lg:block col-start-4 pr-2 text-right">
-                                        {formattedDate(aCase.todoDate)}
+                                    {formattedDate(aCase.todoDate)}
                                     </div>
                                 }
                                 <div className="col-start-3 col-end-5 px-2">
@@ -576,9 +576,10 @@ function CasesList({cases, loadingSpinner, recentlyUpdatedId, openEditModal, ope
                                         {aCase.memo}
                                     </div>
                                 }
-                                <div className="text-xs text-right pr-2
-                                                col-start-3 md:col-end-5 lg:col-start-5 lg:col-end-7">
-                                    geändert {formattedDateTime(aCase.updatedAt)}
+                                <div className="col-start-3 md:col-end-5 lg:col-end-7 text-xs
+                                                flex flex-col sm:flex-row justify-between px-2 gap-2">
+                                    <div>Eingegangen am {formattedDate(aCase.receivedOn)}</div>
+                                    <div>Geändert {formattedDateTime(aCase.updatedAt)}</div>
                                 </div>
                             </Transition>
                         </>

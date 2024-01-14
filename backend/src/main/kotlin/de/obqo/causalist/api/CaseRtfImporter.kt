@@ -27,7 +27,7 @@ import java.util.UUID
 import javax.crypto.SecretKey
 
 enum class ImportType {
-    NEW_CASES, UPDATED_DATES
+    NEW_CASES, UPDATED_RECEIVED_DATES, UPDATED_DUE_DATES
 }
 
 @JsonSerializable
@@ -53,6 +53,7 @@ fun importCases(
 
     var importedCases = 0
     var ignoredCases = 0
+    val unknownCases = mutableListOf<String>()
     when (listener.detectedImportType) {
         ImportType.NEW_CASES -> listener.newCases.forEach { caseResource ->
             val importedCase = caseResource.toEntity(currentUserId, secretKey)
@@ -78,7 +79,22 @@ fun importCases(
             }
         }
 
-        ImportType.UPDATED_DATES -> listener.updatedCases.forEach { caseResource: CaseResource ->
+        ImportType.UPDATED_RECEIVED_DATES -> listener.updatedCases.forEach { caseResource ->
+            val importedCase = caseResource.toEntity(currentUserId, secretKey)
+            val persistedCase = caseService.get(importedCase)
+            if (persistedCase != null) {
+                if (persistedCase.receivedOn != importedCase.receivedOn) {
+                    caseService.update(persistedCase.copy(receivedOn = importedCase.receivedOn))
+                    importedCases++
+                } else {
+                    ignoredCases++
+                }
+            } else {
+                unknownCases += importedCase.ref.toString()
+            }
+        }
+
+        ImportType.UPDATED_DUE_DATES -> listener.updatedCases.forEach { caseResource: CaseResource ->
             val importedCase = caseResource.toEntity(currentUserId, secretKey)
             val persistedCase = caseService.get(importedCase)
             if (persistedCase != null) {
@@ -112,13 +128,18 @@ fun importCases(
                     ignoredCases += 1
                 }
             } else {
-                listener.errors.add("${caseResource.ref.toEntity()} ist nicht im Bestand")
+                unknownCases.add(importedCase.ref.toString())
+//                listener.errors.add("${caseResource.ref.toEntity()} ist nicht im Bestand")
             }
         }
 
         else -> if (listener.errors.isEmpty()) {
             listener.errors.add("Es konnten leider keine Daten in der RTF-Datei erkannt werden.")
         }
+    }
+
+    if (unknownCases.isNotEmpty()) {
+        listener.errors.add("Nicht im Bestand: " + unknownCases.joinToString())
     }
 
     return ImportResult(
@@ -171,7 +192,8 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
 
         when (cells.size) {
             4 -> processNewCase()
-            12 -> processUpdatedCase()
+            6 -> processReceivedDateUpdate()
+            12 -> processDueDateUpdate()
         }
     }
 
@@ -229,8 +251,43 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
         newCases.add(case)
     }
 
-    private fun processUpdatedCase() {
-        checkImportType(ImportType.UPDATED_DATES)
+    private fun processReceivedDateUpdate() {
+        checkImportType(ImportType.UPDATED_RECEIVED_DATES)
+
+        if (cells[0] == "Aktenzeichen") { // table header
+            return
+        }
+
+        val refString = cells[0]
+        val reference = parseReference(refString)?.toResource() ?: run {
+            errors.add("Unerkanntes Aktenzeichen: $refString")
+            return
+        }
+
+        val receivedDate = runCatching { LocalDate.parse(cells[3], localDateFormatter) }.getOrElse {
+            errors.add("Unerkanntes Datum ${cells[3]} für Aktenzeichen $refString")
+            return
+        }
+
+        updatedCases.add(
+            CaseResource(
+                ref = reference,
+                type = SINGLE.name, // required field - but not used
+                parties = null,
+                area = "",
+                status = UNKNOWN.name, // required field - but not used
+                statusNote = "",
+                memo = "",
+                receivedOn = receivedDate,
+                settledOn = null,
+                dueDate = null,
+                todoDate = null
+            )
+        )
+    }
+
+    private fun processDueDateUpdate() {
+        checkImportType(ImportType.UPDATED_DUE_DATES)
 
         if (cells[0] == "Nr") { // table header
             return

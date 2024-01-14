@@ -43,18 +43,22 @@ export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
     }
 
     function importedCasesText(type, num) {
-        if (type === 'UPDATED_DATES') {
-            return num === 1 ? '1 Termin wurde aktualisiert' : `${num} Termine wurden aktualisiert`;
-        } else if (type === 'NEW_CASES') {
+        if (type === 'NEW_CASES') {
             return num === 1 ? '1 Verfahren wurde importiert' : `${num} Verfahren wurden importiert`;
+        } else if (type === 'UPDATED_RECEIVED_DATES') {
+            return num === 1 ? '1 Eingangsdatum wurde aktualisiert' : `${num} Eingangsdaten wurden aktualisiert`;
+        } else if (type === 'UPDATED_DUE_DATES') {
+            return num === 1 ? '1 Termin wurde aktualisiert' : `${num} Termine wurden aktualisiert`;
         }
     }
 
     function ignoredCasesText(type, num) {
-        if (type === 'UPDATED_DATES') {
-            return num === 1 ? '1 Termin war bereits aktuell' : `${num} Termine waren bereits aktuell`;
-        } else if (type === 'NEW_CASES') {
+        if (type === 'NEW_CASES') {
             return num === 1 ? '1 bekanntes Verfahren wurde ignoriert' : `${num} bekannte Verfahren wurden ignoriert`;
+        } else if (type === 'UPDATED_RECEIVED_DATES') {
+            return num === 1 ? '1 Eingangsdatum war bereits aktuell' : `${num} Eingangsdaten waren bereits aktuell`;
+        } else if (type === 'UPDATED_DUE_DATES') {
+            return num === 1 ? '1 Termin war bereits aktuell' : `${num} Termine waren bereits aktuell`;
         }
     }
 
