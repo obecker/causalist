@@ -27,10 +27,10 @@ export const statusKeys = Object.keys(statusMap);
 
 export const statusLabels = {
     UNKNOWN: "Unbekannt",
-    ADVANCE_PAYMENT_PENDING: "Kostenvorschuss ausstehend",
+    ADVANCE_PAYMENT_PENDING: "Kostenvorschuss ausstehend / PKH",
     WRITTEN_PRELIMINARY_PROCEDURE: "Schriftliches Vorverfahren",
     ORDER_FOR_EVIDENCE: "Beweisbeschluss",
-    AT_THE_APPRAISER: "Beim Sachverständigen",
+    AT_THE_APPRAISER: "Beim Sachverständigen / beim OLG",
     APPRAISERS_REPORT: "Gutachten liegt vor",
     SESSION_TO_BE_SCHEDULED: "Kann terminiert werden",
     SESSION: "Verhandlung terminiert",
