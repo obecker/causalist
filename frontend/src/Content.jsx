@@ -455,7 +455,7 @@ function CasesList({cases, loadingSpinner, recentlyUpdatedId, openEditModal, ope
                     data-open={openCase === aCase.id}
                     className={`col-span-full grid grid-cols-subgrid
                                 border-y border-y-stone-50 data-open:border-y-stone-700 
-                                ${aCase.ref ? 'hover:border-y-teal-700 cursor-pointer py-2' : ''} 
+                                ${aCase.ref ? 'hover:border-y-stone-300 cursor-pointer py-2' : ''} 
                                 data-open:hover:border-y-teal-700 
                                 hover:text-teal-700 ${todoBg(aCase.todoDate)}
                                 ${recentlyUpdatedId && aCase.recentlyUpdated ? 'animate-updated' : ''}
@@ -546,7 +546,7 @@ function CasesList({cases, loadingSpinner, recentlyUpdatedId, openEditModal, ope
                                         <li>
                                             <button className="flex w-full px-3 py-2 rounded-lg
                                                                leading-4 text-sm font-semibold text-rose-700 shadow-sm
-                                                               border border-stone-200 bg-white hover:bg-stone-100"
+                                                               border border-stone-300 bg-white hover:bg-stone-100"
                                                     onClick={e => openDelete(e, aCase)}
                                                     onDoubleClick={e => e.stopPropagation()}>
                                                 <TrashIcon className="size-4 mr-2"/>
