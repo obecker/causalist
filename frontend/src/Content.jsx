@@ -335,7 +335,7 @@ export default function Content() {
                     <div className="relative">
                         <Listbox.Button
                             className="text-lg font-semibold mb-2 focus-visible:outline-none focus-visible:underline hover:underline decoration-teal-700">
-                            {settledOnly ? "Erledigte Verfahren" : "Laufende Verfahren"}
+                            {settledOnly ? "Erledigte Verfahren" : `${filteredCases ? filteredCases.length : ''} Laufende Verfahren`}
                             <ChevronDownIcon className="inline ui-open:hidden size-5 ml-1"/>
                             <ChevronUpIcon className="hidden ui-open:inline size-5 ml-1"/>
                         </Listbox.Button>
