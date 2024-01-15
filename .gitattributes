@@ -1,0 +1,3 @@
+# https://github.com/github-linguist/linguist/blob/master/docs/overrides.md
+# exclude rtf test files from language statistics
+*.rtf -linguist-detectable
