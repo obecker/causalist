@@ -97,7 +97,13 @@ object Spec {
     )
     private val caseSamplePost = caseSampleGet.copy(id = null, updatedAt = null)
     private val casesSample = CasesResource(listOf(caseSampleGet))
-    private val importResultSample = ImportResult(ImportType.NEW_CASES, 23, 2, listOf("Unknown reference"))
+    private val importResultSample = ImportResult(
+        ImportType.NEW_CASES,
+        listOf("123 O 45/23", "123 O 67/23", "123 O 12/24"),
+        listOf("123 O 3/23"),
+        emptyList(),
+        listOf("Unknown reference")
+    )
 
     val listCases = "/cases" meta {
         operationId = "listCases"

@@ -1,8 +1,13 @@
 import {Dialog, Transition} from "@headlessui/react";
 import {XMarkIcon} from "@heroicons/react/24/outline";
+import {ChevronDownIcon, ChevronUpIcon} from "@heroicons/react/24/solid";
 import {Fragment, useContext, useEffect, useState} from "react";
 import {ApiContext} from "./ApiProvider";
 import FailureAlert from "./FailureAlert";
+
+const IMPORTED = Symbol("imported");
+const IGNORED = Symbol("ignored")
+const UNKNOWN = Symbol("unknown")
 
 export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
 
@@ -42,23 +47,13 @@ export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
         }
     }
 
-    function importedCasesText(type, num) {
+    function header(type) {
         if (type === 'NEW_CASES') {
-            return num === 1 ? '1 Verfahren wurde importiert' : `${num} Verfahren wurden importiert`;
+            return 'Neue Verfahren';
         } else if (type === 'UPDATED_RECEIVED_DATES') {
-            return num === 1 ? '1 Eingangsdatum wurde aktualisiert' : `${num} Eingangsdaten wurden aktualisiert`;
+            return 'Aktualisierung Eingangsdatum';
         } else if (type === 'UPDATED_DUE_DATES') {
-            return num === 1 ? '1 Termin wurde aktualisiert' : `${num} Termine wurden aktualisiert`;
-        }
-    }
-
-    function ignoredCasesText(type, num) {
-        if (type === 'NEW_CASES') {
-            return num === 1 ? '1 bekanntes Verfahren wurde ignoriert' : `${num} bekannte Verfahren wurden ignoriert`;
-        } else if (type === 'UPDATED_RECEIVED_DATES') {
-            return num === 1 ? '1 Eingangsdatum war bereits aktuell' : `${num} Eingangsdaten waren bereits aktuell`;
-        } else if (type === 'UPDATED_DUE_DATES') {
-            return num === 1 ? '1 Termin war bereits aktuell' : `${num} Termine waren bereits aktuell`;
+            return 'Terminaktualisierung';
         }
     }
 
@@ -92,7 +87,7 @@ export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
                             <div className="w-full max-w-lg
                                             transform transition-all overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl ">
                                 <Dialog.Title as="h3"
-                                              className="text-lg font-medium leading-6 text-stone-900 flex justify-between">
+                                              className="text-lg font-semibold leading-6 text-stone-900 flex justify-between">
                                     RTF-Datei importieren
                                     <button onClick={close} title="Schließen" className="outline-none">
                                         <XMarkIcon className="inline size-6"/>
@@ -114,18 +109,22 @@ export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
                                         </button>
                                     </div>
                                     {result &&
-                                        <div className="mt-5 pt-5 border-t border-dashed border-t-teal-700
-                                                        flex justify-between items-end gap-2">
+                                        <div className="mt-5 pt-5 border-t border-dashed border-t-teal-700 flex flex-col">
+                                            <div className="font-semibold mb-2">{header(result.importType)}</div>
                                             <div>
-                                                <div>{importedCasesText(result.importType, result.importedCases)}</div>
-                                                <div>{ignoredCasesText(result.importType, result.ignoredCases)}</div>
+                                                <ImportResultDetails importType={result.importType} casesType={IMPORTED} cases={result.importedCases}/>
+                                                <ImportResultDetails importType={result.importType} casesType={IGNORED} cases={result.ignoredCases}/>
+                                                <ImportResultDetails importType={result.importType} casesType={UNKNOWN} cases={result.unknownCases}/>
                                                 <ol className="text-rose-700 mt-2">
                                                     {result.errors.map((error, idx) =>
                                                         <li key={idx} className="mt-1">{error}</li>)}
                                                 </ol>
                                             </div>
                                             <button onClick={close}
-                                                    className="flex w-28 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-teal-700 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                                                    className="w-28 mt-2 ml-auto rounded-md px-3 py-1.5 text-center text-sm font-semibold leading-6
+                                                               bg-teal-700 text-white shadow-sm hover:bg-teal-600
+                                                               focus-visible:outline focus-visible:outline-2
+                                                               focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                                             >Schließen
                                             </button>
                                         </div>
@@ -137,5 +136,59 @@ export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
                 </div>
             </Dialog>
         </Transition>
+    );
+}
+
+function ImportResultDetails({importType, casesType, cases}) {
+
+    const [detailsOpen, setDetailsOpen] = useState(false);
+
+    let num = cases.length;
+    let casesText;
+    if (importType === 'NEW_CASES') {
+        if (casesType === IMPORTED) {
+            casesText = num === 1 ? '1 Verfahren wurde importiert' : `${num} Verfahren wurden importiert`;
+        } else if (casesType === IGNORED) {
+            casesText = num === 1 ? '1 bekanntes Verfahren wurde ignoriert' : `${num} bekannte Verfahren wurden ignoriert`;
+        } else if (casesType === UNKNOWN) {
+            // will never have cases, so don't display this result
+            return null;
+        }
+    } else if (importType === 'UPDATED_RECEIVED_DATES') {
+        if (casesType === IMPORTED) {
+            casesText = num === 1 ? '1 Eingangsdatum wurde aktualisiert' : `${num} Eingangsdaten wurden aktualisiert`;
+        } else if (casesType === IGNORED) {
+            casesText = num === 1 ? '1 Eingangsdatum war bereits aktuell' : `${num} Eingangsdaten waren bereits aktuell`;
+        } else if (casesType === UNKNOWN) {
+            casesText = num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`;
+        }
+    } else if (importType === 'UPDATED_DUE_DATES') {
+        if (casesType === IMPORTED) {
+            casesText = num === 1 ? '1 Termin wurde aktualisiert' : `${num} Termine wurden aktualisiert`;
+        } else if (casesType === IGNORED) {
+            casesText = num === 1 ? '1 Termin war bereits aktuell' : `${num} Termine waren bereits aktuell`;
+        } else if (casesType === UNKNOWN) {
+            casesText = num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`;
+        }
+    }
+
+    return (
+        <div className="w-full">
+            <div className={`flex gap-1 align-bottom 
+                             ${cases.length ? 'cursor-pointer hover:underline' : ''}
+                             ${detailsOpen ? 'font-semibold' : ''}`}
+                 onClick={() => setDetailsOpen(o => cases.length && !o)}>
+                <div>{casesText}</div>
+                {cases.length > 0 && (detailsOpen
+                    ? <ChevronUpIcon className="size-6 cursor-pointer"/>
+                    : <ChevronDownIcon className="size-6 cursor-pointer"/>
+                )}
+            </div>
+            {cases.length > 0 && detailsOpen &&
+                <ul className="w-full grid grid-cols-4 gap-x-1 gap-y-0.5 mb-4">
+                    {cases.map((ref, i) => <li key={i}>{ref}</li>)}
+                </ul>
+            }
+        </div>
     );
 }

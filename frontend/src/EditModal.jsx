@@ -199,7 +199,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                             {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
                             <div className="w-full min-w-[322px] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl
                                             transform transition-all overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl ">
-                                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-stone-900">
+                                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-stone-900">
                                     {caseResource.id ? 'Verfahren bearbeiten' : 'Neues Verfahren'}
                                 </Dialog.Title>
                                 <div className="w-full mt-4">

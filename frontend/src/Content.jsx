@@ -382,10 +382,10 @@ function CasesList({cases, loadingSpinner, recentlyUpdatedId, openEditModal, ope
     const singleClickedCase = useDebounce(clickedCase, 300);
 
     useEffect(() => {
-        if (recentlyUpdatedId) {
+        if (openCase && (recentlyUpdatedId || !cases.map(c => c.id).includes(openCase))) {
             setOpenCase(null);
         }
-    }, [recentlyUpdatedId]);
+    }, [cases, recentlyUpdatedId, openCase]);
 
     useEffect(() => {
         if (singleClickedCase && clickedCase && singleClickedCase === clickedCase) {

@@ -20,6 +20,7 @@ import de.obqo.causalist.withTodoDate
 import de.obqo.causalist.withType
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.inspectors.shouldForAll
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSingleElement
 import io.kotest.matchers.collections.shouldHaveSize
@@ -69,8 +70,9 @@ class CaseRtfImporterTest : DescribeSpec({
 
             // then
             importResult.importType shouldBe ImportType.NEW_CASES
-            importResult.importedCases shouldBe 8
-            importResult.ignoredCases shouldBe 1
+            importResult.importedCases.shouldContainExactly("123 O 358/14", "123 O 209/18", "123 O 124/19", "123 O 195/19", "123 O 54/21", "123 O 202/21", "123 S 4/23", "123 S 5/23")
+            importResult.ignoredCases.shouldContainExactly(Reference.parseId(refExisting).toString())
+            importResult.unknownCases.shouldBeEmpty()
             importResult.errors.shouldContainExactly(
                 "Unerkanntes Aktenzeichen: 123 Z 54/23",
                 "Unerkannter Bearbeiter: Referendar"
@@ -133,12 +135,12 @@ class CaseRtfImporterTest : DescribeSpec({
 
             // then
             importResult.importType shouldBe ImportType.UPDATED_RECEIVED_DATES
-            importResult.importedCases shouldBe 1
-            importResult.ignoredCases shouldBe 1
+            importResult.importedCases.shouldContainExactly(Reference.parseId(ref1).toString())
+            importResult.ignoredCases.shouldContainExactly(Reference.parseId(ref2).toString())
+            importResult.unknownCases.shouldContainExactly("123 O 201/22", "123 O 207/22")
             importResult.errors.shouldContainExactly(
                 "Unerkanntes Aktenzeichen: 123 Z 46/20",
-                "Unerkanntes Datum 2021-01-02 für Aktenzeichen 123 O 3/21",
-                "Nicht im Bestand: 123 O 201/22, 123 O 207/22"
+                "Unerkanntes Datum 2021-01-02 für Aktenzeichen 123 O 3/21"
             )
 
             caseService.get(userId, ref1).shouldNotBeNull().apply {
@@ -176,12 +178,12 @@ class CaseRtfImporterTest : DescribeSpec({
 
             // then
             importResult.importType shouldBe ImportType.UPDATED_DUE_DATES
-            importResult.importedCases shouldBe 4
-            importResult.ignoredCases shouldBe 1
+            importResult.importedCases.shouldContainExactly("123 O 202/21", "123 O 54/21", "123 O 195/19", "123 O 124/19")
+            importResult.ignoredCases.shouldContainExactly(Reference.parseId(refIdNotUpdated).toString())
+            importResult.unknownCases.shouldContainExactly("123 O 1/23")
             importResult.errors.shouldContainExactly(
                 "Unerkanntes Aktenzeichen: 123 Z 46/20",
-                "Unerkanntes Datum 2024-01-12 für Aktenzeichen 123 O 3/21",
-                "Nicht im Bestand: 123 O 1/23"
+                "Unerkanntes Datum 2024-01-12 für Aktenzeichen 123 O 3/21"
             )
 
             caseService.get(userId, refIdChamber1).shouldNotBeNull().apply {
@@ -220,8 +222,9 @@ class CaseRtfImporterTest : DescribeSpec({
 
             // then
             importResult.importType.shouldBeNull()
-            importResult.importedCases shouldBe 0
-            importResult.ignoredCases shouldBe 0
+            importResult.importedCases.shouldBeEmpty()
+            importResult.ignoredCases.shouldBeEmpty()
+            importResult.unknownCases.shouldBeEmpty()
             importResult.errors shouldHaveSingleElement "Es konnten leider keine Daten in der RTF-Datei erkannt werden."
 
         }

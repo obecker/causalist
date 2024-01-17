@@ -33,10 +33,13 @@ enum class ImportType {
 @JsonSerializable
 data class ImportResult(
     val importType: ImportType?,
-    val importedCases: Int,
-    val ignoredCases: Int,
+    val importedCases: List<String>,
+    val ignoredCases: List<String>,
+    val unknownCases: List<String>,
     val errors: List<String>
 )
+
+private fun MutableList<String>.addCase(case: Case) = add(case.ref.toString())
 
 fun importCases(
     stream: InputStream,
@@ -51,8 +54,8 @@ fun importCases(
 
     parser.parse(source, listener)
 
-    var importedCases = 0
-    var ignoredCases = 0
+    val importedCases = mutableListOf<String>()
+    val ignoredCases = mutableListOf<String>()
     val unknownCases = mutableListOf<String>()
     when (listener.detectedImportType) {
         ImportType.NEW_CASES -> listener.newCases.forEach { caseResource ->
@@ -60,7 +63,7 @@ fun importCases(
             val persistedCase = caseService.get(importedCase)
             if (persistedCase == null) {
                 caseService.persist(importedCase)
-                importedCases += 1
+                importedCases.addCase(importedCase)
             } else {
                 var updatedCase: Case = persistedCase
                 if (importedCase.type != persistedCase.type) {
@@ -71,10 +74,10 @@ fun importCases(
                 }
 
                 if (updatedCase === persistedCase) {
-                    ignoredCases += 1
+                    ignoredCases.addCase(persistedCase)
                 } else {
                     caseService.update(updatedCase)
-                    importedCases += 1
+                    importedCases.addCase(updatedCase)
                 }
             }
         }
@@ -85,12 +88,13 @@ fun importCases(
             if (persistedCase != null) {
                 if (persistedCase.receivedOn != importedCase.receivedOn) {
                     caseService.update(persistedCase.copy(receivedOn = importedCase.receivedOn))
-                    importedCases++
+                    importedCases.addCase(persistedCase)
                 } else {
-                    ignoredCases++
+                    ignoredCases.addCase(persistedCase)
                 }
             } else {
-                unknownCases += importedCase.ref.toString()
+                unknownCases.addCase(importedCase)
+
             }
         }
 
@@ -123,13 +127,12 @@ fun importCases(
                             todoDate = todoDate
                         )
                     )
-                    importedCases += 1
+                    importedCases.addCase(persistedCase)
                 } else {
-                    ignoredCases += 1
+                    ignoredCases.addCase(persistedCase)
                 }
             } else {
-                unknownCases.add(importedCase.ref.toString())
-//                listener.errors.add("${caseResource.ref.toEntity()} ist nicht im Bestand")
+                unknownCases.addCase(importedCase)
             }
         }
 
@@ -138,14 +141,11 @@ fun importCases(
         }
     }
 
-    if (unknownCases.isNotEmpty()) {
-        listener.errors.add("Nicht im Bestand: " + unknownCases.joinToString())
-    }
-
     return ImportResult(
         importType = listener.detectedImportType,
         importedCases = importedCases,
         ignoredCases = ignoredCases,
+        unknownCases = unknownCases,
         errors = listener.errors
     )
 }
