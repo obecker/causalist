@@ -61,7 +61,6 @@ export default function Content() {
         api.getCases(statusQuery, typeQuery, settledOnly)
             .then(response => {
                 setCases(response.data && response.data.cases.map(c => {
-                    c.reference = `${c.ref.entity} ${c.ref.register} ${c.ref.number}/${c.ref.year.toString().padStart(2, '0')}`;
                     if (c.id === recentlyUpdatedId) {
                         c.recentlyUpdated = true;
                     }
@@ -145,13 +144,13 @@ export default function Content() {
         if (search === '') {
             return true;
         }
-        const props = ['parties', 'area', 'caseMemo', 'statusNote', 'reference'];
+        const props = ['parties', 'area', 'caseMemo', 'statusNote'];
         for (const prop of props) {
             if (aCase[prop] && aCase[prop].toLowerCase().indexOf(search) !== -1) {
                 return true;
             }
         }
-        return false;
+        return aCase.ref.value.toLowerCase().indexOf(search) !== -1
     }
 
     function emptyCase() {
@@ -471,7 +470,7 @@ function CasesList({cases, loadingSpinner, recentlyUpdatedId, openEditModal, ope
                     {aCase.ref && // a case without ref is placeholder for an empty week
                         <>
                             <div className="flex justify-end w-full items-baseline">
-                                <span className="grow flex-none text-right">{aCase.reference}</span>
+                                <span className="grow flex-none text-right">{aCase.ref.value}</span>
                                 <span className="basis-4 flex-none text-left font-bold text-teal-600 text-xs ml-1 ">
                                     {typeMap[aCase.type]}
                                 </span>

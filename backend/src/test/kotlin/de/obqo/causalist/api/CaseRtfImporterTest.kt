@@ -43,21 +43,21 @@ class CaseRtfImporterTest : DescribeSpec({
 
         it("should import cases from an RTF document") {
             // given
-            val refExisting = "00123O18-00113"
-            val refUpdated = "00123O18-00209"
-            val refSettled = "00123O19-00124"
+            val refExisting = Reference.parseValue( "123 O 113/18")
+            val refUpdated = Reference.parseValue("123 O 209/18")
+            val refSettled = Reference.parseValue("123 O 124/19")
 
             val existingDate = LocalDate.of(2023, 12, 10)
             caseService.persist(
-                aCase().withOwnerId(userId).withRef(Reference.parseId(refExisting)).withStatus(Status.SESSION)
+                aCase().withOwnerId(userId).withRef(refExisting).withStatus(Status.SESSION)
                     .withParties("Existing".encrypt(secretKey)).withType(CHAMBER).withReceivedOn(existingDate)
             )
             caseService.persist(
-                aCase().withOwnerId(userId).withRef(Reference.parseId(refUpdated)).withStatus(Status.SESSION)
+                aCase().withOwnerId(userId).withRef(refUpdated).withStatus(Status.SESSION)
                     .withParties("Updated".encrypt(secretKey)).withType(CHAMBER).withReceivedOn(existingDate)
             )
             caseService.persist(
-                aCase().withOwnerId(userId).withRef(Reference.parseId(refSettled)).withStatus(Status.SETTLED)
+                aCase().withOwnerId(userId).withRef(refSettled).withStatus(Status.SETTLED)
                     .withParties("Settled".encrypt(secretKey)).withType(CHAMBER).withReceivedOn(existingDate)
             )
 
@@ -70,9 +70,9 @@ class CaseRtfImporterTest : DescribeSpec({
 
             // then
             importResult.importType shouldBe ImportType.NEW_CASES
-            importResult.importedCases.shouldContainExactly("123 O 358/14", "123 O 209/18", "123 O 124/19", "123 O 195/19", "123 O 54/21", "123 O 202/21", "123 S 4/23", "123 S 5/23")
-            importResult.ignoredCases.shouldContainExactly(Reference.parseId(refExisting).toString())
-            importResult.unknownCases.shouldBeEmpty()
+            importResult.importedCaseRefs.shouldContainExactly("123 O 358/14", "123 O 209/18", "123 O 124/19", "123 O 195/19", "123 O 54/21", "123 O 202/21", "123 S 4/23", "123 S 5/23")
+            importResult.ignoredCaseRefs.shouldContainExactly(refExisting.toValue())
+            importResult.unknownCaseRefs.shouldBeEmpty()
             importResult.errors.shouldContainExactly(
                 "Unerkanntes Aktenzeichen: 123 Z 54/23",
                 "Unerkannter Bearbeiter: Referendar"
@@ -80,7 +80,7 @@ class CaseRtfImporterTest : DescribeSpec({
 
             val persistedCases = caseService.findByOwner(userId, null, emptyList(), false).toList()
             persistedCases shouldHaveSize 9
-            persistedCases.map { it.ref.toString() }.shouldContainExactly(
+            persistedCases.map { it.ref.toValue() }.shouldContainExactly(
                 "123 O 358/14",
                 "123 O 113/18",
                 "123 O 209/18",
@@ -108,23 +108,23 @@ class CaseRtfImporterTest : DescribeSpec({
             )
             val refsWithExistingDate = listOf(refExisting, refUpdated, refSettled)
             persistedCases.shouldForAll {
-                val expectedReceivedOn = if (refsWithExistingDate.contains(it.ref.toId())) existingDate else importDate
+                val expectedReceivedOn = if (refsWithExistingDate.contains(it.ref)) existingDate else importDate
                 it.receivedOn shouldBe expectedReceivedOn
             }
             val refsWithSession = listOf(refExisting, refUpdated)
             persistedCases.shouldForAll {
-                val expectedStatus = if (refsWithSession.contains(it.ref.toId())) Status.SESSION else Status.UNKNOWN
+                val expectedStatus = if (refsWithSession.contains(it.ref)) Status.SESSION else Status.UNKNOWN
                 it.status shouldBe expectedStatus
             }
         }
 
         it("should import received date from an RTF document") {
             // given
-            val ref1 = "00123O21-00202"
-            val ref2 = "00123O19-00195"
+            val ref1 = Reference.parseValue("123 O 202/21")
+            val ref2 = Reference.parseValue("123 O 195/19")
 
-            caseService.persist(aCase().withOwnerId(userId).withRef(Reference.parseId(ref1)))
-            caseService.persist(aCase().withOwnerId(userId).withRef(Reference.parseId(ref2))
+            caseService.persist(aCase().withOwnerId(userId).withRef(ref1))
+            caseService.persist(aCase().withOwnerId(userId).withRef(ref2)
                 .withReceivedOn(LocalDate.of(2019, 8, 29)))
 
             val inputStream = ImportResult::class.java.getResourceAsStream("CasesToUpdateReceivedOn.rtf")
@@ -135,36 +135,36 @@ class CaseRtfImporterTest : DescribeSpec({
 
             // then
             importResult.importType shouldBe ImportType.UPDATED_RECEIVED_DATES
-            importResult.importedCases.shouldContainExactly(Reference.parseId(ref1).toString())
-            importResult.ignoredCases.shouldContainExactly(Reference.parseId(ref2).toString())
-            importResult.unknownCases.shouldContainExactly("123 O 201/22", "123 O 207/22")
+            importResult.importedCaseRefs.shouldContainExactly(ref1.toValue())
+            importResult.ignoredCaseRefs.shouldContainExactly(ref2.toValue())
+            importResult.unknownCaseRefs.shouldContainExactly("123 O 201/22", "123 O 207/22")
             importResult.errors.shouldContainExactly(
                 "Unerkanntes Aktenzeichen: 123 Z 46/20",
                 "Unerkanntes Datum 2021-01-02 für Aktenzeichen 123 O 3/21"
             )
 
-            caseService.get(userId, ref1).shouldNotBeNull().apply {
+            caseService.get(userId, ref1.toId()).shouldNotBeNull().apply {
                 receivedOn shouldBe LocalDate.of(2021, 10, 1)
             }
-            caseService.get(userId, ref2).shouldNotBeNull().apply {
+            caseService.get(userId, ref2.toId()).shouldNotBeNull().apply {
                 receivedOn shouldBe LocalDate.of(2019, 8, 29)
             }
         }
 
         it("should import session dates from an RTF document") {
             // given
-            val refIdChamber1 = "00123O21-00202"
-            val refIdSingle1 = "00123O21-00054"
-            val refIdChamber2 = "00123O19-00195"
-            val refIdSingle2 = "00123O19-00124"
-            val refIdNotUpdated = "00123S23-00004"
+            val refChamber1 = Reference.parseValue("123 O 202/21")
+            val refSingle1 = Reference.parseValue("123 O 54/21")
+            val refChamber2 = Reference.parseValue("123 O 195/19")
+            val refSingle2 = Reference.parseValue("123 O 124/19")
+            val refNotUpdated = Reference.parseValue("123 S 4/23")
 
-            caseService.persist(aCase().withOwnerId(userId).withRef(Reference.parseId(refIdChamber1)).withType(CHAMBER))
-            caseService.persist(aCase().withOwnerId(userId).withRef(Reference.parseId(refIdSingle1)).withType(SINGLE))
-            caseService.persist(aCase().withOwnerId(userId).withRef(Reference.parseId(refIdChamber2)).withType(CHAMBER))
-            caseService.persist(aCase().withOwnerId(userId).withRef(Reference.parseId(refIdSingle2)).withType(SINGLE))
+            caseService.persist(aCase().withOwnerId(userId).withRef(refChamber1).withType(CHAMBER))
+            caseService.persist(aCase().withOwnerId(userId).withRef(refSingle1).withType(SINGLE))
+            caseService.persist(aCase().withOwnerId(userId).withRef(refChamber2).withType(CHAMBER))
+            caseService.persist(aCase().withOwnerId(userId).withRef(refSingle2).withType(SINGLE))
             caseService.persist(
-                aCase().withOwnerId(userId).withRef(Reference.parseId(refIdNotUpdated)).withType(SINGLE)
+                aCase().withOwnerId(userId).withRef(refNotUpdated).withType(SINGLE)
                     .withStatus(Status.DECISION)
                     .withDueDate(LocalDate.of(2024, 1, 19))
                     .withTodoDate(LocalDate.of(2024, 1, 15))
@@ -178,35 +178,35 @@ class CaseRtfImporterTest : DescribeSpec({
 
             // then
             importResult.importType shouldBe ImportType.UPDATED_DUE_DATES
-            importResult.importedCases.shouldContainExactly("123 O 202/21", "123 O 54/21", "123 O 195/19", "123 O 124/19")
-            importResult.ignoredCases.shouldContainExactly(Reference.parseId(refIdNotUpdated).toString())
-            importResult.unknownCases.shouldContainExactly("123 O 1/23")
+            importResult.importedCaseRefs.shouldContainExactly("123 O 202/21", "123 O 54/21", "123 O 195/19", "123 O 124/19")
+            importResult.ignoredCaseRefs.shouldContainExactly(refNotUpdated.toValue())
+            importResult.unknownCaseRefs.shouldContainExactly("123 O 1/23")
             importResult.errors.shouldContainExactly(
                 "Unerkanntes Aktenzeichen: 123 Z 46/20",
                 "Unerkanntes Datum 2024-01-12 für Aktenzeichen 123 O 3/21"
             )
 
-            caseService.get(userId, refIdChamber1).shouldNotBeNull().apply {
+            caseService.get(userId, refChamber1.toId()).shouldNotBeNull().apply {
                 status shouldBe Status.SESSION
                 dueDate shouldBe LocalDate.of(2024, 1, 9)
                 todoDate shouldBe LocalDate.of(2024, 1, 2)
             }
-            caseService.get(userId, refIdSingle1).shouldNotBeNull().apply {
+            caseService.get(userId, refSingle1.toId()).shouldNotBeNull().apply {
                 status shouldBe Status.SESSION
                 dueDate shouldBe LocalDate.of(2024, 1, 10)
                 todoDate shouldBe LocalDate.of(2024, 1, 9)
             }
-            caseService.get(userId, refIdChamber2).shouldNotBeNull().apply {
+            caseService.get(userId, refChamber2.toId()).shouldNotBeNull().apply {
                 status shouldBe Status.DECISION
                 dueDate shouldBe LocalDate.of(2024, 1, 12)
                 todoDate shouldBe LocalDate.of(2024, 1, 5)
             }
-            caseService.get(userId, refIdSingle2).shouldNotBeNull().apply {
+            caseService.get(userId, refSingle2.toId()).shouldNotBeNull().apply {
                 status shouldBe Status.DECISION
                 dueDate shouldBe LocalDate.of(2024, 1, 15)
                 todoDate shouldBe LocalDate.of(2024, 1, 12) // moved to Friday
             }
-            caseService.get(userId, refIdNotUpdated).shouldNotBeNull().apply {
+            caseService.get(userId, refNotUpdated.toId()).shouldNotBeNull().apply {
                 status shouldBe Status.DECISION
                 dueDate shouldBe LocalDate.of(2024, 1, 19)
                 todoDate shouldBe LocalDate.of(2024, 1, 15) // unchanged
@@ -222,9 +222,9 @@ class CaseRtfImporterTest : DescribeSpec({
 
             // then
             importResult.importType.shouldBeNull()
-            importResult.importedCases.shouldBeEmpty()
-            importResult.ignoredCases.shouldBeEmpty()
-            importResult.unknownCases.shouldBeEmpty()
+            importResult.importedCaseRefs.shouldBeEmpty()
+            importResult.ignoredCaseRefs.shouldBeEmpty()
+            importResult.unknownCaseRefs.shouldBeEmpty()
             importResult.errors shouldHaveSingleElement "Es konnten leider keine Daten in der RTF-Datei erkannt werden."
 
         }

@@ -89,14 +89,14 @@ val importResultLens = causalistJson.autoBody<ImportResult>().toLens()
 
 object Spec {
 
-    private val referenceId = "00123O23-00001"
-    private val referenceSample = Reference.parseId(referenceId).toResource()
-    private val caseSampleGet = CaseResource(
-        referenceId, referenceSample, Type.SINGLE.name, "", "", "",
+    private val reference = Reference.parseValue("123 O 1/23")
+    private val referenceSample = reference.toResource()
+    private val getCaseSample = CaseResource(
+        reference.toId(), referenceSample, Type.SINGLE.name, "", "", "",
         Status.SESSION.name, "", LocalDate.now(), null, LocalDate.now().plusDays(7), null, null, Instant.now()
     )
-    private val caseSamplePost = caseSampleGet.copy(id = null, updatedAt = null)
-    private val casesSample = CasesResource(listOf(caseSampleGet))
+    private val postCaseSample = getCaseSample.copy(id = null, updatedAt = null)
+    private val casesSample = CasesResource(listOf(getCaseSample))
     private val importResultSample = ImportResult(
         ImportType.NEW_CASES,
         listOf("123 O 45/23", "123 O 67/23", "123 O 12/24"),
@@ -117,8 +117,8 @@ object Spec {
     val createCase = "/cases" meta {
         operationId = "createCase"
         summary = "create case"
-        receiving(caseLens to caseSamplePost)
-        returning(CREATED, caseLens to caseSampleGet)
+        receiving(caseLens to postCaseSample)
+        returning(CREATED, caseLens to getCaseSample)
     } bindContract POST
 
     val importCases = "/cases/import" meta {
@@ -132,7 +132,7 @@ object Spec {
     val getCase = "/cases" / Path.string().of("refId") meta {
         operationId = "getCase"
         summary = "get case by ID"
-        returning(OK, caseLens to caseSampleGet)
+        returning(OK, caseLens to getCaseSample)
     } bindContract GET
 
     val putCase = "/cases" / Path.string().of("refId") meta {

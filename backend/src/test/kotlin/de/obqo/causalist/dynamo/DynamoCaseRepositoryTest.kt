@@ -6,6 +6,7 @@ import de.obqo.causalist.aCase
 import de.obqo.causalist.mutableReference
 import de.obqo.causalist.withOwnerId
 import de.obqo.causalist.withRef
+import de.obqo.causalist.withRefId
 import de.obqo.causalist.withSettledOn
 import de.obqo.causalist.withStatus
 import de.obqo.causalist.withType
@@ -56,12 +57,12 @@ class DynamoCaseRepositoryTest : DescribeSpec({
             // given
             val ownerId1 = UUID.randomUUID()
             val ownerId2 = UUID.randomUUID()
-            val case11 = repo.save(aCase().withOwnerId(ownerId1).withRef("00303O23-00124"))
-            val case12 = repo.save(aCase().withOwnerId(ownerId1).withRef("00303O23-00123"))
-            val case13 = repo.save(aCase().withOwnerId(ownerId1).withRef("00033O23-00444"))
-            val case21 = repo.save(aCase().withOwnerId(ownerId2).withRef("00303O23-00125"))
+            val case11 = repo.save(aCase().withOwnerId(ownerId1).withRefId("00303O23-00124"))
+            val case12 = repo.save(aCase().withOwnerId(ownerId1).withRefId("00303O23-00123"))
+            val case13 = repo.save(aCase().withOwnerId(ownerId1).withRefId("00033O23-00444"))
+            val case21 = repo.save(aCase().withOwnerId(ownerId2).withRefId("00303O23-00125"))
             // not active
-            repo.save(aCase().withOwnerId(ownerId2).withRef("00303O23-00126").withStatus(Status.SETTLED))
+            repo.save(aCase().withOwnerId(ownerId2).withRefId("00303O23-00126").withStatus(Status.SETTLED))
 
             // then
             repo.findByOwner(ownerId1).shouldContainExactly(case13, case12, case11)
@@ -78,7 +79,10 @@ class DynamoCaseRepositoryTest : DescribeSpec({
             val case13 = repo.save(aCase().withOwnerId(ownerId1).withRef(reference.next()).withType(Type.CHAMBER))
             val case2 = repo.save(aCase().withOwnerId(ownerId2).withRef(reference.next()).withType(Type.CHAMBER))
             // not active
-            repo.save(aCase().withOwnerId(ownerId2).withRef(reference.next()).withType(Type.CHAMBER).withStatus(Status.SETTLED))
+            repo.save(
+                aCase().withOwnerId(ownerId2).withRef(reference.next()).withType(Type.CHAMBER)
+                    .withStatus(Status.SETTLED)
+            )
 
             // then
             repo.findByOwner(ownerId1, type = Type.SINGLE).shouldContainExactly(case11, case12)
@@ -116,7 +120,8 @@ class DynamoCaseRepositoryTest : DescribeSpec({
             ).shouldContainExactly(case13)
             repo.findByOwner(ownerId2, status = listOf(Status.SESSION)).shouldContainExactly(case2)
             repo.findByOwner(ownerId2, status = listOf(Status.DECISION)).shouldBeEmpty()
-            repo.findByOwner(ownerId1, status = listOf(Status.SETTLED)).shouldBeEmpty() // not active, therefore not found
+            repo.findByOwner(ownerId1, status = listOf(Status.SETTLED))
+                .shouldBeEmpty() // not active, therefore not found
         }
 
         it("should find active cases by ownerId, type, and status") {
@@ -177,16 +182,16 @@ class DynamoCaseRepositoryTest : DescribeSpec({
             )
             val case21 = repo.save(
                 aCase().withOwnerId(ownerId2).withRef(reference.next()).withStatus(Status.SETTLED)
-                // without settledOn date (shouldn't happen actually) -> will not be found
-            )
-            val case22 = repo.save(
-                aCase().withOwnerId(ownerId2).withRef(reference.next()).withStatus(Status.SETTLED)
                     .withSettledOn(LocalDate.of(2023, 11, 11))
+            )
+            repo.save(
+                aCase().withOwnerId(ownerId2).withRef(reference.next()).withStatus(Status.SETTLED)
+                // without settledOn date (shouldn't happen actually) -> will not be found
             )
 
             // then
             repo.findByOwner(ownerId1, settled = true).shouldContainExactly(case15, case13, case12, case14)
-            repo.findByOwner(ownerId2, settled = true).shouldContainExactly(case22)
+            repo.findByOwner(ownerId2, settled = true).shouldContainExactly(case21)
         }
 
         it("should find settled cases by owner and type") {

@@ -1,9 +1,10 @@
 package de.obqo.causalist
 
+import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
-fun aReference() = Reference.parseId("00123O23-00001")
+fun aReference() = Reference.parseValue("123 O 1/23")
 
 fun Reference.next() = copy(number = RefNumber.of(number.value + 1))
 
@@ -30,7 +31,8 @@ fun aCase() = Case(
 
 fun Case.withOwnerId(uuid: UUID) = copy(ownerId = uuid)
 fun Case.withRef(ref: Reference) = copy(ref = ref)
-fun Case.withRef(ref: String) = withRef(Reference.parseId(ref))
+fun Case.withRefId(ref: String) = withRef(Reference.parseId(ref))
+fun Case.withRefValue(ref: String) = withRef(Reference.parseValue(ref))
 fun Case.withType(type: Type) = copy(type = type)
 fun Case.withParties(parties: String) = copy(parties = parties)
 fun Case.withArea(area: String) = copy(area = area)
@@ -41,3 +43,4 @@ fun Case.withReceivedOn(receivedOn: LocalDate) = copy(receivedOn = receivedOn)
 fun Case.withSettledOn(settledOn: LocalDate) = copy(settledOn = settledOn)
 fun Case.withDueDate(dueDate: LocalDate) = copy(dueDate = dueDate)
 fun Case.withTodoDate(todoDate: LocalDate) = copy(todoDate = todoDate)
+fun Case.withUpdatedAt(instant: Instant) = copy(updatedAt = instant)

@@ -6,10 +6,6 @@ import com.rtfparserkit.parser.standard.StandardRtfParser
 import com.rtfparserkit.rtf.Command
 import de.obqo.causalist.Case
 import de.obqo.causalist.CaseService
-import de.obqo.causalist.RefEntity
-import de.obqo.causalist.RefNumber
-import de.obqo.causalist.RefRegister
-import de.obqo.causalist.RefYear
 import de.obqo.causalist.Reference
 import de.obqo.causalist.Status.DECISION
 import de.obqo.causalist.Status.SESSION
@@ -33,13 +29,15 @@ enum class ImportType {
 @JsonSerializable
 data class ImportResult(
     val importType: ImportType?,
-    val importedCases: List<String>,
-    val ignoredCases: List<String>,
-    val unknownCases: List<String>,
+    val importedCaseRefs: List<String>,
+    val ignoredCaseRefs: List<String>,
+    val unknownCaseRefs: List<String>,
     val errors: List<String>
 )
 
-private fun MutableList<String>.addCase(case: Case) = add(case.ref.toString())
+private val localDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+private fun MutableList<String>.addCase(case: Case) = add(case.ref.toValue())
 
 fun importCases(
     stream: InputStream,
@@ -54,16 +52,16 @@ fun importCases(
 
     parser.parse(source, listener)
 
-    val importedCases = mutableListOf<String>()
-    val ignoredCases = mutableListOf<String>()
-    val unknownCases = mutableListOf<String>()
+    val importedCaseRefs = mutableListOf<String>()
+    val ignoredCaseRefs = mutableListOf<String>()
+    val unknownCaseRefs = mutableListOf<String>()
     when (listener.detectedImportType) {
         ImportType.NEW_CASES -> listener.newCases.forEach { caseResource ->
             val importedCase = caseResource.toEntity(currentUserId, secretKey)
             val persistedCase = caseService.get(importedCase)
             if (persistedCase == null) {
                 caseService.persist(importedCase)
-                importedCases.addCase(importedCase)
+                importedCaseRefs.addCase(importedCase)
             } else {
                 var updatedCase: Case = persistedCase
                 if (importedCase.type != persistedCase.type) {
@@ -74,10 +72,10 @@ fun importCases(
                 }
 
                 if (updatedCase === persistedCase) {
-                    ignoredCases.addCase(persistedCase)
+                    ignoredCaseRefs.addCase(persistedCase)
                 } else {
                     caseService.update(updatedCase)
-                    importedCases.addCase(updatedCase)
+                    importedCaseRefs.addCase(updatedCase)
                 }
             }
         }
@@ -88,12 +86,12 @@ fun importCases(
             if (persistedCase != null) {
                 if (persistedCase.receivedOn != importedCase.receivedOn) {
                     caseService.update(persistedCase.copy(receivedOn = importedCase.receivedOn))
-                    importedCases.addCase(persistedCase)
+                    importedCaseRefs.addCase(persistedCase)
                 } else {
-                    ignoredCases.addCase(persistedCase)
+                    ignoredCaseRefs.addCase(persistedCase)
                 }
             } else {
-                unknownCases.addCase(importedCase)
+                unknownCaseRefs.addCase(importedCase)
 
             }
         }
@@ -127,12 +125,12 @@ fun importCases(
                             todoDate = todoDate
                         )
                     )
-                    importedCases.addCase(persistedCase)
+                    importedCaseRefs.addCase(persistedCase)
                 } else {
-                    ignoredCases.addCase(persistedCase)
+                    ignoredCaseRefs.addCase(persistedCase)
                 }
             } else {
-                unknownCases.addCase(importedCase)
+                unknownCaseRefs.addCase(importedCase)
             }
         }
 
@@ -143,9 +141,9 @@ fun importCases(
 
     return ImportResult(
         importType = listener.detectedImportType,
-        importedCases = importedCases,
-        ignoredCases = ignoredCases,
-        unknownCases = unknownCases,
+        importedCaseRefs = importedCaseRefs,
+        ignoredCaseRefs = ignoredCaseRefs,
+        unknownCaseRefs = unknownCaseRefs,
         errors = listener.errors
     )
 }
@@ -212,6 +210,8 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
             detectedImportType = importType
         }
     }
+
+    private fun parseReference(refString: String) = runCatching { Reference.parseValue(refString) }.getOrNull()
 
     private fun processNewCase() {
         checkImportType(ImportType.NEW_CASES)
@@ -324,26 +324,5 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
                 todoDate = null
             )
         )
-    }
-
-    companion object {
-
-        private val referenceParser = Regex("(\\d+)\\s*([A-Z]+)\\s*(\\d+)/(\\d+)")
-
-        private fun parseReference(string: String) = referenceParser.matchEntire(string)?.let {
-            try {
-                val (entity, register, number, year) = it.destructured
-                Reference(
-                    RefEntity.parse(entity),
-                    RefRegister.parse(register),
-                    RefNumber.parse(number),
-                    RefYear.parse(year)
-                )
-            } catch (ex: RuntimeException) {
-                null
-            }
-        }
-
-        private val localDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
     }
 }

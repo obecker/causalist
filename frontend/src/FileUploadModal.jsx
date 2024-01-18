@@ -112,9 +112,9 @@ export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
                                         <div className="mt-5 pt-5 border-t border-dashed border-t-teal-700 flex flex-col">
                                             <div className="font-semibold mb-2">{header(result.importType)}</div>
                                             <div>
-                                                <ImportResultDetails importType={result.importType} casesType={IMPORTED} cases={result.importedCases}/>
-                                                <ImportResultDetails importType={result.importType} casesType={IGNORED} cases={result.ignoredCases}/>
-                                                <ImportResultDetails importType={result.importType} casesType={UNKNOWN} cases={result.unknownCases}/>
+                                                <ImportResultDetails importType={result.importType} casesType={IMPORTED} refs={result.importedCaseRefs}/>
+                                                <ImportResultDetails importType={result.importType} casesType={IGNORED} refs={result.ignoredCaseRefs}/>
+                                                <ImportResultDetails importType={result.importType} casesType={UNKNOWN} refs={result.unknownCaseRefs}/>
                                                 <ol className="text-rose-700 mt-2">
                                                     {result.errors.map((error, idx) =>
                                                         <li key={idx} className="mt-1">{error}</li>)}
@@ -139,11 +139,11 @@ export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
     );
 }
 
-function ImportResultDetails({importType, casesType, cases}) {
+function ImportResultDetails({importType, casesType, refs}) {
 
     const [detailsOpen, setDetailsOpen] = useState(false);
 
-    let num = cases.length;
+    let num = refs.length;
     let casesText;
     if (importType === 'NEW_CASES') {
         if (casesType === IMPORTED) {
@@ -175,18 +175,18 @@ function ImportResultDetails({importType, casesType, cases}) {
     return (
         <div className="w-full">
             <div className={`flex gap-1 align-bottom 
-                             ${cases.length ? 'cursor-pointer hover:underline' : ''}
+                             ${refs.length ? 'cursor-pointer hover:underline' : ''}
                              ${detailsOpen ? 'font-semibold' : ''}`}
-                 onClick={() => setDetailsOpen(o => cases.length && !o)}>
+                 onClick={() => setDetailsOpen(o => refs.length && !o)}>
                 <div>{casesText}</div>
-                {cases.length > 0 && (detailsOpen
+                {refs.length > 0 && (detailsOpen
                     ? <ChevronUpIcon className="size-6 cursor-pointer"/>
                     : <ChevronDownIcon className="size-6 cursor-pointer"/>
                 )}
             </div>
-            {cases.length > 0 && detailsOpen &&
+            {refs.length > 0 && detailsOpen &&
                 <ul className="w-full grid grid-cols-4 gap-x-1 gap-y-0.5 mb-4">
-                    {cases.map((ref, i) => <li key={i}>{ref}</li>)}
+                    {refs.map((ref, i) => <li key={i}>{ref}</li>)}
                 </ul>
             }
         </div>

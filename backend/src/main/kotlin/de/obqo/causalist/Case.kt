@@ -66,24 +66,37 @@ class RefYear private constructor(value: Int) : IntValue(value) {
     companion object : ZeroPaddedIntValueFactory<RefYear>(::RefYear, 0, 2)
 }
 
-// Aktenzeichen, 303 O 456/23
+// Aktenzeichen, 123 O 456/23
 data class Reference(
     val entity: RefEntity,
     val register: RefRegister,
     val number: RefNumber,
     val year: RefYear
 ) {
-    override fun toString() = "$entity $register $number/${year.show()}"
     fun toId() = toId(this)
 
+    fun toValue() = toValue(this)
+
+    override fun toString() = toValue()
+
     companion object {
+
+        private val idRegex = Regex("(?<entity>\\d+)(?<register>[A-Z]+)(?<year>\\d+)-(?<number>\\d+)")
+        private val valueRegex = Regex("(?<entity>\\d+)\\s*(?<register>[A-Z]+)\\s*(?<number>\\d+)/(?<year>\\d+)")
+        private val regexGroups = listOf("entity", "register", "number", "year")
 
         private fun toId(ref: Reference) =
             "${ref.entity.idPart()}${ref.register.idPart()}${ref.year.idPart()}-${ref.number.idPart()}"
 
-        private val idParser = Regex("(\\d+)([A-Z]+)(\\d+)-(\\d+)")
-        fun parseId(value: String): Reference = idParser.matchEntire(value)?.destructured?.let {
-            val (entity, register, year, number) = it
+        fun parseId(id: String): Reference = parse(id, idRegex)
+
+        private fun toValue(ref: Reference) =
+            "${ref.entity} ${ref.register} ${ref.number}/${ref.year.show()}"
+
+        fun parseValue(value: String) = parse(value, valueRegex)
+
+        private fun parse(value: String, regex: Regex) = regex.matchEntire(value)?.let { result ->
+            val (entity, register, number, year) = regexGroups.map { result.groups[it]?.value!! }
             Reference(
                 RefEntity.parse(entity),
                 RefRegister.parse(register),

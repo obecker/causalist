@@ -60,7 +60,7 @@ export default function DeleteModal({isOpen, setIsOpen, caseResource, forceUpdat
                                             transform transition-all overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl ">
                                 <Dialog.Title as="h3"
                                               className="text-lg font-semibold leading-6 text-stone-900 text-center text-pretty">
-                                    Verfahren {caseResource.reference} aus dem Bestand löschen?
+                                    Verfahren {caseResource.ref.value} aus dem Bestand löschen?
                                 </Dialog.Title>
                                 <div className="w-full mt-4">
                                     {caseResource.parties}

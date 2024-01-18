@@ -22,7 +22,8 @@ data class ReferenceResource(
     val entity: Int,
     val register: String,
     val number: Int,
-    val year: Int
+    val year: Int,
+    val value: String?
 )
 
 @JsonSerializable
@@ -49,7 +50,7 @@ data class CasesResource(
 )
 
 fun Reference.toResource() = ReferenceResource(
-    entity.value, register.value, number.value, year.value
+    entity.value, register.value, number.value, year.value, toValue()
 )
 
 fun ReferenceResource.toEntity() = Reference(
