@@ -289,7 +289,8 @@ export default function Content() {
                                     h-[42px]"> {/* same height as status filter button row */}
                         <input type="text" placeholder="Suche" value={search} ref={searchRef}
                                className="block w-full pr-8 bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-700 focus:border-teal-700"
-                               onChange={e => setSearch(e.target.value)}/>
+                               onChange={e => setSearch(e.target.value)}
+                               onKeyDown={e => e.key === 'Escape' && setSearch('')}/>
                         <div
                             className={`absolute bottom-0 top-0 right-0 pr-2.5 py-3 cursor-pointer ${search ? 'text-stone-900' : 'text-stone-400'}`}
                             onClick={() => {
