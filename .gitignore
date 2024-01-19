@@ -28,6 +28,9 @@ bin/
 ### VS Code ###
 .vscode/
 
+### SDKMAN
+.sdkmanrc
+
 ### Mac OS ###
 .DS_Store
 
