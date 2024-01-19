@@ -47,7 +47,8 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
         setRefEntity((caseResource.ref.entity || '').toString());
         setRefRegister(caseResource.ref.register || '');
         setRefNo((caseResource.ref.number || '').toString());
-        setRefYear((caseResource.ref.year && caseResource.ref.year.toString().padStart(2, '0')) || '');
+        const year = caseResource.ref.year;
+        setRefYear((year && year.toString().padStart(2, '0')) || '');
         setCaseType(caseResource.type || '');
         setCaseParties(caseResource.parties || '');
         setCaseArea(caseResource.area || '');

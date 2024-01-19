@@ -102,7 +102,7 @@ export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
                                                className="flex w-28 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-stone-200 text-teal-700 shadow-sm hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus:ring-teal-700 focus:border-teal-700 cursor-pointer">
                                             Datei wählen
                                         </label>
-                                        <div className="grow w-max py-1.5">{selectedFile && selectedFile.name}</div>
+                                        <div className="grow w-max py-1.5">{selectedFile?.name}</div>
                                         <button disabled={selectedFile === null} onClick={importCases}
                                                 className="flex w-28 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-teal-700 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700">
                                             Hochladen

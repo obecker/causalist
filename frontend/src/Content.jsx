@@ -60,7 +60,7 @@ export default function Content() {
         setLoading(true);
         api.getCases(statusQuery, typeQuery, settledOnly)
             .then(response => {
-                setCases(response.data && response.data.cases.map(c => {
+                setCases(response.data?.cases.map(c => {
                     if (c.id === recentlyUpdatedId) {
                         c.recentlyUpdated = true;
                     }
@@ -159,7 +159,7 @@ export default function Content() {
 
     function forceUpdate(updated) {
         setReloadCases(b => !b);
-        setRecentlyUpdatedId(updated && updated.id);
+        setRecentlyUpdatedId(updated?.id);
     }
 
     function logout() {
