@@ -1,0 +1,36 @@
+# This workflow will build the backend project with Gradle
+# For more information see:
+# https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+# TODO requires https://github.com/gradle/wrapper-validation-action/issues/59 to be resolved
+#      - name: Validate Gradle Wrapper
+#        uses: gradle/wrapper-validation-action@v1 # https://github.com/marketplace/actions/gradle-wrapper-validation
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2 # https://github.com/marketplace/actions/gradle-build-action
+        with:
+          build-root-directory: backend
+          arguments: build
+      - name: Create build artifacts
+        uses: actions/upload-artifact@v4 # https://github.com/marketplace/actions/upload-a-build-artifact
+        if: always()
+        with:
+          name: reports
+          path: backend/build/reports
