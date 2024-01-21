@@ -1,11 +1,11 @@
 import com.adarshr.gradle.testlogger.theme.ThemeType
 
 plugins {
-    kotlin("jvm") version "1.9.22"
-    id("com.google.devtools.ksp") version "1.9.22-1.0.16"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("com.adarshr.test-logger") version "4.0.0"
-    id("de.obqo.decycle") version "1.1.0"
+    kotlin("jvm") version libs.versions.kotlin.get()
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.test.logger)
+    alias(libs.plugins.decycle)
     application
 }
 
@@ -19,7 +19,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
 
-    implementation(platform("org.http4k:http4k-bom:5.13.0.0"))
+    implementation(platform(libs.http4k.bom))
     implementation("org.http4k:http4k-core")
     implementation("org.http4k:http4k-contract")
     implementation("org.http4k:http4k-multipart")
@@ -28,33 +28,27 @@ dependencies {
     }
     implementation("org.http4k:http4k-serverless-lambda")
 
-    implementation(platform("org.http4k:http4k-connect-bom:5.6.6.0"))
+    implementation(platform(libs.http4k.connect.bom))
     implementation("org.http4k:http4k-connect-amazon-dynamodb")
 
-    val kotshiVersion = "2.15.0"
-    implementation("se.ansman.kotshi:api:$kotshiVersion")
-    ksp("se.ansman.kotshi:compiler:$kotshiVersion")
-    implementation("com.github.joniles:rtfparserkit:1.16.0")
+    implementation(libs.kotshi.api)
+    ksp(libs.kotshi.compiler)
+    implementation(libs.rtfparserkit)
 
-    implementation(platform("org.slf4j:slf4j-bom:2.0.11"))
+    implementation(platform(libs.slf4j.bom))
     implementation("org.slf4j:slf4j-api")
     implementation("org.slf4j:slf4j-simple")
-    implementation("io.github.oshai:kotlin-logging-jvm:6.0.2")
+    implementation(libs.kotlin.logging)
 
-    testImplementation(platform("io.kotest:kotest-bom:5.8.0"))
+    testImplementation(platform(libs.kotest.bom))
     testImplementation("io.kotest:kotest-framework-api-jvm")
     testImplementation("io.kotest:kotest-assertions-core-jvm")
     testImplementation("io.kotest:kotest-framework-datatest")
-//    testImplementation("io.kotest:kotest-extensions-jvm")
-//    testImplementation("io.kotest:kotest-property")
-//    testImplementation("io.kotest:kotest-assertions-json")
-    testImplementation("io.mockk:mockk:1.13.9")
-    testRuntimeOnly("io.kotest:kotest-runner-junit5")
-
-//    testImplementation("org.http4k:http4k-testing-approval")
-//    testImplementation("org.http4k:http4k-testing-hamkrest")
-//    testImplementation("org.http4k:http4k-testing-kotest")
+    testImplementation("org.http4k:http4k-testing-kotest")
     testImplementation("org.http4k:http4k-connect-amazon-dynamodb-fake")
+    testImplementation(libs.mockk)
+
+    testRuntimeOnly("io.kotest:kotest-runner-junit5")
 }
 
 kotlin {

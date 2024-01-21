@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: backend
+    schedule:
+      interval: daily
+    assignees:
+      - obecker
+    commit-message:
+      prefix: ":arrow_up: "
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    assignees:
+      - obecker
+    commit-message:
+      prefix: ":arrow_up: "
