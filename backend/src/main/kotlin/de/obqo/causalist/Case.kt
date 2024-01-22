@@ -17,12 +17,15 @@ enum class Type {
 
 enum class Status {
     UNKNOWN, // unbekannt (neu importiert)
+    LEGAL_AID, // (Antrag auf) Prozesskostenhilfe
     ADVANCE_PAYMENT_PENDING, // warten auf Kostenvorschuss
     WRITTEN_PRELIMINARY_PROCEDURE, // schriftliches Vorverfahren
+    @Deprecated("to be merged with WRITTEN_PRELIMINARY_PROCEDURE")
     ORDER_FOR_EVIDENCE, // Beweisbeschluss
     AT_THE_APPRAISER, // beim Sachverständigen
     APPRAISERS_REPORT, // Gutachten liegt vor
-    SESSION_TO_BE_SCHEDULED, // kann terminiert werden
+    @Deprecated("to be merged with APPRAISERS_REPORT")
+    SESSION_TO_BE_SCHEDULED, // kann terminiert werden - deprecated
     SESSION, // Verhandlung ist anberaumt
     DECISION, // Verkündungstermin
     SETTLED // erledigt

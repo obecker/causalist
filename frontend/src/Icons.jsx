@@ -7,6 +7,15 @@ function Svg({className, children}) {
     )
 }
 
+export function LegalAidIcon({className}) {
+    return (
+        <Svg className={className}>
+            <path fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+                  d="M1.5 18v-12h1.5a3.5 3.5 0 0 1 0 7h-1.5zM9 6v12m0-4.5l5-7.5m.5 12l-3.4-6.8zM17 6v12m5.5 0v-12m0 5.5h-5.5"/>
+        </Svg>
+    );
+}
+
 export function WrittenPreliminaryProcedureIcon({className}) {
     return (
         <Svg className={className}>
@@ -14,21 +23,6 @@ export function WrittenPreliminaryProcedureIcon({className}) {
                   d="M4 19h-2v-17h13v2M17 15v6h-13v-17h13v4M6.75 7.5h7.5m0 2.5h-7.5" />
             <path strokeWidth="0.75" strokeLinejoin="round"
                   d="M19 8.75l-10 8-.75 1.625 1.75-.375 10-8m.75-.6l1-.8a.8 .8 0 0 0-1-1.25l-1 .8" />
-        </Svg>
-    );
-}
-
-export function OrderForEvidenceIcon({className}) {
-    return (
-        <Svg className={className}>
-            <path fill="none" strokeWidth="1.25" strokeLinejoin="round" strokeLinecap="round"
-                  d="M7 19h-3v-17h13v3.2" />
-            <path strokeWidth="1.25" fill="none"
-                  d="M14 6.5a7 7 0 1 1 0 14a7 7 0 1 1 0-14" />
-            <path strokeWidth=".75" fill="none" strokeLinecap="round"
-                  d="M14 8.5a5 5 0 0 0-5 5" transform="rotate(135 14 13.5)"/>
-            <path strokeWidth=".75" strokeLinejoin="round"
-                  d="M18.5 19.5l2.5 3 1.5-1.5-3-2.5z" />
         </Svg>
     );
 }

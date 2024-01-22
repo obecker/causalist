@@ -1,10 +1,10 @@
-import {CalendarDaysIcon, CurrencyEuroIcon, QuestionMarkCircleIcon} from "@heroicons/react/24/solid";
+import {CurrencyEuroIcon, QuestionMarkCircleIcon} from "@heroicons/react/24/solid";
 import React from "react";
 import {
     AppraisersReportIcon,
     AtTheAppraiserIcon,
     DecisionIcon,
-    OrderForEvidenceIcon,
+    LegalAidIcon,
     SessionIcon,
     SettledIcon,
     WrittenPreliminaryProcedureIcon
@@ -12,12 +12,11 @@ import {
 
 const statusMap = {
     UNKNOWN: QuestionMarkCircleIcon,
+    LEGAL_AID: LegalAidIcon,
     ADVANCE_PAYMENT_PENDING: CurrencyEuroIcon,
     WRITTEN_PRELIMINARY_PROCEDURE: WrittenPreliminaryProcedureIcon,
-    ORDER_FOR_EVIDENCE: OrderForEvidenceIcon,
     AT_THE_APPRAISER: AtTheAppraiserIcon,
     APPRAISERS_REPORT: AppraisersReportIcon,
-    SESSION_TO_BE_SCHEDULED: CalendarDaysIcon,
     SESSION: SessionIcon,
     DECISION: DecisionIcon,
     SETTLED: SettledIcon,
@@ -27,12 +26,11 @@ export const statusKeys = Object.keys(statusMap);
 
 export const statusLabels = {
     UNKNOWN: "Unbekannt",
-    ADVANCE_PAYMENT_PENDING: "Kostenvorschuss ausstehend / PKH",
+    LEGAL_AID: "PKH-Antrag offen",
+    ADVANCE_PAYMENT_PENDING: "Kostenvorschuss ausstehend",
     WRITTEN_PRELIMINARY_PROCEDURE: "Schriftliches Vorverfahren",
-    ORDER_FOR_EVIDENCE: "Beweisbeschluss",
     AT_THE_APPRAISER: "Beim Sachverständigen / beim OLG",
     APPRAISERS_REPORT: "Gutachten liegt vor",
-    SESSION_TO_BE_SCHEDULED: "Kann terminiert werden",
     SESSION: "Verhandlung terminiert",
     DECISION: "Verkündungstermin",
     SETTLED: "Erledigt",
@@ -40,5 +38,5 @@ export const statusLabels = {
 
 export function StatusIcon({status, className}) {
     const iconClasses = className || "size-6";
-    return React.createElement(statusMap[status], {className: iconClasses})
+    return statusMap[status] && React.createElement(statusMap[status], {className: iconClasses})
 }

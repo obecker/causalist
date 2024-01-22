@@ -1,6 +1,10 @@
 package de.obqo.causalist.app
 
 import de.obqo.causalist.Config
+import de.obqo.causalist.Status.APPRAISERS_REPORT
+import de.obqo.causalist.Status.ORDER_FOR_EVIDENCE
+import de.obqo.causalist.Status.SESSION_TO_BE_SCHEDULED
+import de.obqo.causalist.Status.WRITTEN_PRELIMINARY_PROCEDURE
 import de.obqo.causalist.api.authentication
 import de.obqo.causalist.api.httpApi
 import de.obqo.causalist.caseService
@@ -77,6 +81,22 @@ private fun buildApi(
     val caseService = caseService(caseRepository)
 
     val authentication = authentication(userService)
+
+    // migration of deprecated status values
+    userRepository.findAll().forEach { user ->
+        val migrated = caseRepository.findByOwner(user.id, status = listOf(ORDER_FOR_EVIDENCE, SESSION_TO_BE_SCHEDULED))
+            .map {
+                it.copy(
+                    status = when (it.status) {
+                        ORDER_FOR_EVIDENCE -> WRITTEN_PRELIMINARY_PROCEDURE
+                        SESSION_TO_BE_SCHEDULED -> APPRAISERS_REPORT
+                        else -> error(it.status) // must not happen
+                    }
+                )
+            }
+            .toList()
+        caseRepository.save(migrated)
+    }
 
     return httpApi(authentication, caseService)
 }

@@ -236,7 +236,7 @@ export default function Content() {
                     {/* h-[42px] -> same height as status filter button row */}
                     <div className="inline-flex flex-1 sm:order-last md:order-none relative h-[42px]">
                         <input type="text" placeholder="Suche" value={search} ref={searchRef}
-                               className="block w-full pr-8 bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-700 focus:border-teal-700"
+                               className="block w-full min-w-20 pr-8 bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-700 focus:border-teal-700"
                                onChange={e => setSearch(e.target.value)}
                                onKeyDown={e => e.key === 'Escape' && setSearch('')}/>
                         <div
@@ -255,14 +255,14 @@ export default function Content() {
                         {/* new case button */}
                         <div className="inline-flex">
                             <button
-                                className="flex w-full justify-center rounded-lg md:rounded-r-none px-3 py-2 text-sm font-semibold leading-6 bg-teal-700 text-white border-r border-white hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                                className="flex w-full justify-center rounded-lg sm:rounded-r-none px-3 py-2 text-sm font-semibold leading-6 bg-teal-700 text-white border-r border-white hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                                 onClick={openEditModal}>
                                 <PlusCircleIcon className="size-6 relative top-0.5"/>
                                 <span className="pl-2 lg:inline hidden">Neu</span>
                             </button>
                         </div>
                         {/* rtf upload */}
-                        <div className="hidden md:inline-flex">
+                        <div className="hidden sm:inline-flex">
                             <button
                                 className="flex w-full justify-center rounded-r-lg bg-teal-700 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                                 onClick={() => setUploadOpen(true)}>
@@ -382,7 +382,7 @@ function StatusFilter({statusQuery, setStatusQuery, settledOnly}) {
                             title={statusLabels[status]}
                             className={buttonClasses}
                             onClick={() => toggleStatus(status)}>
-                        <StatusIcon status={status} className="w-5 sm:w-6 h-6 mx-auto"/>
+                        <StatusIcon status={status} className="size-6 mx-auto"/>
                     </button>
                 ))
             }
