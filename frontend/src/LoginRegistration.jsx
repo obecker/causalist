@@ -1,5 +1,6 @@
 import {CheckCircleIcon, ExclamationCircleIcon, XCircleIcon} from "@heroicons/react/20/solid";
 import {EyeIcon, EyeSlashIcon} from "@heroicons/react/24/outline";
+import clsx from "clsx/lite";
 import {useContext, useEffect, useRef, useState} from "react";
 import {ApiContext} from "./ApiProvider";
 import FailureAlert from "./FailureAlert";
@@ -203,6 +204,11 @@ function FormInput({
         inputRef.current.focus();
     }
 
+    const inputClasses = clsx('block w-full rounded-lg border-0 py-1.5 text-stone-900 shadow-sm',
+        'ring-1 ring-inset ring-stone-300 placeholder:text-stone-400 focus:ring-2 focus:ring-inset focus:ring-teal-700',
+        'sm:text-sm sm:leading-6',
+        reveal && 'pr-9');
+
     return (
         <div>
             <label htmlFor={name} className="block text-sm font-medium leading-6 text-stone-900">{label}</label>
@@ -212,10 +218,7 @@ function FormInput({
                     name={name}
                     inputMode={inputMode}
                     ref={inputRef}
-                    className={`block w-full rounded-lg border-0 py-1.5 text-stone-900 shadow-sm 
-                                ring-1 ring-inset ring-stone-300 placeholder:text-stone-400 
-                                focus:ring-2 focus:ring-inset focus:ring-teal-700 sm:text-sm sm:leading-6
-                                ${reveal ? 'pr-9' : ''}`}
+                    className={inputClasses}
                     type={revealed ? 'text' : type}
                     required="required"
                     minLength={3}
@@ -236,12 +239,15 @@ function FormInput({
 }
 
 function FormSubmit({label, disabled}) {
+    const buttonClasses = clsx('flex w-full justify-center rounded-lg px-3 py-1.5 text-sm font-semibold leading-6',
+        'text-white bg-teal-700 hover:bg-teal-600 shadow-sm disabled:bg-stone-300 disabled:cursor-not-allowed',
+        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
     return (
         <div>
             <button
                 type="submit"
                 disabled={disabled}
-                className="flex w-full justify-center rounded-lg bg-teal-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700">
+                className={buttonClasses}>
                 {label}
             </button>
         </div>

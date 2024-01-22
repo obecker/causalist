@@ -1,6 +1,7 @@
 import {Dialog, Listbox, Transition} from '@headlessui/react'
 import {ChevronDownIcon, ChevronUpIcon} from "@heroicons/react/24/solid";
 import {useMediaQuery} from "@uidotdev/usehooks";
+import clsx from "clsx/lite";
 import {Fragment, useContext, useEffect, useRef, useState} from 'react'
 import {ApiContext} from "./ApiProvider";
 import FailureAlert from "./FailureAlert";
@@ -119,7 +120,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
         const onlyNumbers = /^[0-9]+$/;
         let refEntityFailed = !onlyNumbers.test(refEntity) || refEntity.length > 5;
         let refRegisterFailed = !['O', 'OH', 'S', 'T'].includes(refRegister);
-        let refNoFailed = !onlyNumbers.test(refNo) || refNo.length > 5;
+        let refNoFailed = !onlyNumbers.test(refNo) || refNo.length > 5 || +refNo === 0;
         let refYearFailed = !onlyNumbers.test(refYear) || refYear.length !== 2;
         let caseTypeFailed = caseType !== 'SINGLE' && caseType !== 'CHAMBER';
         let caseReceivedOnFailed = caseReceivedOn === '';
@@ -171,6 +172,9 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
         e.preventDefault();
     }
 
+    const panelClasses = clsx('w-full min-w-[322px] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl',
+        'transform transition-all overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl');
+
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
@@ -198,8 +202,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                             leaveTo="opacity-0 scale-95"
                         >
                             {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
-                            <div className="w-full min-w-[322px] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl
-                                            transform transition-all overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl ">
+                            <div className={panelClasses}>
                                 <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-stone-900">
                                     {caseResource.id ? 'Verfahren bearbeiten' : 'Neues Verfahren'}
                                 </Dialog.Title>
@@ -214,25 +217,25 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                        onKeyDown={(e) => focusNextOnSpace(e, refRegisterInput)}
                                                        onPaste={pasteReference}
                                                        onChange={(e) => setRefEntity(e.target.value.trim())}
-                                                       className={`mr-1 w-16 border-0 rounded-l-lg focus:ring-2 focus:ring-teal-700 ${(refEntityFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                                       className={`mr-1 w-16 border-0 rounded-l-lg focus:ring-2 focus:ring-teal-700 ${refEntityFailure ? 'bg-rose-100' : 'bg-stone-50'}`}/>
                                                 <input minLength="1" maxLength="2" tabIndex="2"
                                                        value={refRegister}
                                                        ref={refRegisterInput}
                                                        onKeyDown={(e) => focusNextOnSpace(e, refNoInput)}
                                                        onChange={(e) => setRefRegister(e.target.value.trim().toUpperCase())}
-                                                       className={`mr-1 w-12 border-0 focus:ring-2 focus:ring-teal-700 ${(refRegisterFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                                       className={`mr-1 w-12 border-0 focus:ring-2 focus:ring-teal-700 ${refRegisterFailure ? 'bg-rose-100' : 'bg-stone-50'}`}/>
                                                 <input minLength="1" maxLength="4" tabIndex="3"
                                                        value={refNo}
                                                        ref={refNoInput}
                                                        onKeyDown={(e) => focusNextOnSpace(e, refYearInput)}
                                                        onChange={(e) => setRefNo(e.target.value.trim())}
-                                                       className={`w-16 border-0 focus:ring-2 focus:ring-teal-700 ${(refNoFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                                       className={`w-16 border-0 focus:ring-2 focus:ring-teal-700 ${refNoFailure ? 'bg-rose-100' : 'bg-stone-50'}`}/>
                                                 <span>/</span>
                                                 <input minLength="2" maxLength="2" tabIndex="4"
                                                        value={refYear}
                                                        ref={refYearInput}
                                                        onChange={(e) => setRefYear(e.target.value.trim())}
-                                                       className={`w-12 border-0 rounded-r-lg focus:ring-2 focus:ring-teal-700 ${(refYearFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                                       className={`w-12 border-0 rounded-r-lg focus:ring-2 focus:ring-teal-700 ${refYearFailure ? 'bg-rose-100' : 'bg-stone-50'}`}/>
                                             </div>
                                         </div>
                                         <div className="sm:col-span-2 xl:col-span-1 sm:pt-2">
@@ -241,7 +244,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                     <input type="radio" name="type" value="SINGLE" tabIndex="5"
                                                            checked={caseType === "SINGLE"}
                                                            onChange={() => setCaseType('SINGLE')}
-                                                           className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 ${(caseTypeFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                                           className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}/>
                                                     Einzelrichter
                                                 </label>
                                             </div>
@@ -250,7 +253,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                     <input type="radio" name="type" value="CHAMBER" tabIndex="6"
                                                            checked={caseType === "CHAMBER"}
                                                            onChange={() => setCaseType('CHAMBER')}
-                                                           className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 ${(caseTypeFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                                           className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}/>
                                                     Kammersache</label>
                                             </div>
                                         </div>
@@ -274,36 +277,45 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                             <label htmlFor="status"
                                                    className="block mb-2 text-sm font-medium">Status</label>
                                             <Listbox id="status" value={caseStatus} onChange={setNewStatus}>
-                                                {({open}) => (
-                                                    <div className="relative">
-                                                        <Listbox.Button tabIndex={xlWidth ? 8 : 9}
-                                                                        className={`text-sm bg-stone-50 border border-stone-300 rounded-lg 
-                                                                    outline-none focus:ring-teal-700 focus:ring-2 focus:border-teal-700
-                                                                    ${open ? 'ring-teal-700 ring-2 border-teal-700' : ''} 
-                                                                    shadow-sm w-full p-2.5 flex justify-stretch items-center`}>
-                                                            <StatusIcon status={caseStatus}
-                                                                        className="size-6 mr-2 flex-none"/>
-                                                            <div className="flex-auto text-left">
-                                                                {statusLabels[caseStatus]}
-                                                            </div>
-                                                            {open ? <ChevronUpIcon className="size-4 flex-none"/>
-                                                                : <ChevronDownIcon className="size-4 flex-none"/>}
-                                                        </Listbox.Button>
-                                                        <Listbox.Options
-                                                            className="absolute w-full lg:max-h-72 overflow-y-auto mt-0.5 py-2 z-20 bg-stone-50 border rounded-lg shadow shadow-stone-400 outline-none">
-                                                            {statusKeys.map((status) => (
-                                                                <Listbox.Option key={status} value={status}
-                                                                                className="flex px-2 py-1 ui-active:!bg-teal-700 ui-active:text-white ui-selected:bg-stone-200">
-                                                                    <StatusIcon status={status}
-                                                                                className="size-6 mr-2 flex-none"/>
-                                                                    <div className="flex-auto text-sm text-left">
-                                                                        {statusLabels[status]}
-                                                                    </div>
-                                                                </Listbox.Option>
-                                                            ))}
-                                                        </Listbox.Options>
-                                                    </div>
-                                                )}
+                                                {({open}) => {
+                                                    const buttonClasses = clsx('text-sm bg-stone-50',
+                                                        'border border-stone-300 rounded-lg outline-none',
+                                                        'focus:ring-teal-700 focus:ring-2 focus:border-teal-700',
+                                                        open && 'ring-teal-700 ring-2 border-teal-700',
+                                                        'shadow-sm w-full p-2.5 flex justify-stretch items-center');
+                                                    const optionsClasses = clsx('absolute w-full lg:max-h-72',
+                                                        'overflow-y-auto mt-0.5 py-2 z-20 bg-stone-50 border',
+                                                        'rounded-lg shadow shadow-stone-400 outline-none');
+                                                    const optionClasses = clsx('flex px-2 py-1',
+                                                        'ui-active:!bg-teal-700 ui-active:text-white',
+                                                        'ui-selected:bg-stone-200');
+                                                    return (
+                                                        <div className="relative">
+                                                            <Listbox.Button tabIndex={xlWidth ? 8 : 9}
+                                                                            className={buttonClasses}>
+                                                                <StatusIcon status={caseStatus}
+                                                                            className="size-6 mr-2 flex-none"/>
+                                                                <div className="flex-auto text-left">
+                                                                    {statusLabels[caseStatus]}
+                                                                </div>
+                                                                {open ? <ChevronUpIcon className="size-4 flex-none"/>
+                                                                    : <ChevronDownIcon className="size-4 flex-none"/>}
+                                                            </Listbox.Button>
+                                                            <Listbox.Options className={optionsClasses}>
+                                                                {statusKeys.map((status) => (
+                                                                    <Listbox.Option key={status} value={status}
+                                                                                    className={optionClasses}>
+                                                                        <StatusIcon status={status}
+                                                                                    className="size-6 mr-2 flex-none"/>
+                                                                        <div className="flex-auto text-sm text-left">
+                                                                            {statusLabels[status]}
+                                                                        </div>
+                                                                    </Listbox.Option>
+                                                                ))}
+                                                            </Listbox.Options>
+                                                        </div>
+                                                    )
+                                                }}
                                             </Listbox>
                                         </div>
                                         <div className="sm:col-span-6 lg:col-span-2">
@@ -329,7 +341,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                    value={caseReceivedOn}
                                                    onChange={(e) => setCaseReceivedOn(e.target.value)}
                                                    onFocus={(e) => e.target.defaultValue = ""}
-                                                   className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 ${(caseReceivedOnFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                                   className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 ${caseReceivedOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}/>
                                         </div>
                                         <div className="sm:col-span-3 lg:col-span-1">
                                             <label htmlFor="settledOn"
@@ -338,7 +350,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                    value={caseSettledOn}
                                                    onChange={(e) => setCaseSettledOn(e.target.value)}
                                                    onFocus={(e) => e.target.defaultValue = ""}
-                                                   className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 ${(caseSettledOnFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                                   className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 ${caseSettledOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}/>
                                         </div>
                                         <div className="sm:col-span-3 lg:col-span-1">
                                             <label htmlFor="todoDate"
@@ -347,7 +359,7 @@ export default function EditModal({isOpen, setIsOpen, caseResource, forceUpdate}
                                                    value={caseTodoDate}
                                                    onChange={(e) => setCaseTodoDate(e.target.value)}
                                                    onFocus={(e) => e.target.defaultValue = ""}
-                                                   className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 ${(caseTodoDateFailure && 'bg-rose-100') || 'bg-stone-50'}`}/>
+                                                   className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 ${caseTodoDateFailure ? 'bg-rose-100' : 'bg-stone-50'}`}/>
                                         </div>
                                         <div className="sm:col-span-3 lg:col-span-1">
                                             <label htmlFor="dueDate"

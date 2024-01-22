@@ -1,6 +1,7 @@
 import {Dialog, Transition} from "@headlessui/react";
 import {XMarkIcon} from "@heroicons/react/24/outline";
 import {ChevronDownIcon, ChevronUpIcon} from "@heroicons/react/24/solid";
+import clsx from "clsx/lite";
 import {Fragment, useContext, useEffect, useState} from "react";
 import {ApiContext} from "./ApiProvider";
 import FailureAlert from "./FailureAlert";
@@ -57,6 +58,19 @@ export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
         }
     }
 
+    const panelClasses = clsx('w-full max-w-lg transform transition-all overflow-hidden rounded-2xl bg-white',
+        'p-6 text-left align-middle shadow-xl');
+    const fileInputClasses = clsx('flex w-28 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
+        'leading-6 text-teal-700 bg-stone-200 hover:bg-stone-100 shadow-sm',
+        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
+        'focus:ring-teal-700 focus:border-teal-700 cursor-pointer');
+    const fileUploadClasses = clsx('flex w-28 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
+        'leading-6 text-white bg-teal-700 hover:bg-teal-600 shadow-sm disabled:bg-stone-300 disabled:cursor-not-allowed',
+        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
+    const closeButtonClasses = clsx('w-28 mt-2 ml-auto rounded-md px-3 py-1.5 text-center text-sm font-semibold',
+        'leading-6 text-white bg-teal-700 hover:bg-teal-600 shadow-sm',
+        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
+
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-10" onClose={close}>
@@ -84,8 +98,7 @@ export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
                             leaveTo="opacity-0 scale-95"
                         >
                             {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
-                            <div className="w-full max-w-lg
-                                            transform transition-all overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl ">
+                            <div className={panelClasses}>
                                 <Dialog.Title as="h3"
                                               className="text-lg font-semibold leading-6 text-stone-900 flex justify-between">
                                     RTF-Datei importieren
@@ -99,32 +112,33 @@ export default function FileUploadModal({isOpen, setIsOpen, forceUpdate}) {
                                         <input type="file" accept=".rtf" className="hidden" id="fileinput"
                                                onChange={(e) => setSelectedFile(e.target.files[0])}/>
                                         <label htmlFor="fileinput"
-                                               className="flex w-28 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-stone-200 text-teal-700 shadow-sm hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus:ring-teal-700 focus:border-teal-700 cursor-pointer">
+                                               className={fileInputClasses}>
                                             Datei wählen
                                         </label>
                                         <div className="grow w-max py-1.5">{selectedFile?.name}</div>
                                         <button disabled={selectedFile === null} onClick={importCases}
-                                                className="flex w-28 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-teal-700 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700">
+                                                className={fileUploadClasses}>
                                             Hochladen
                                         </button>
                                     </div>
                                     {result &&
-                                        <div className="mt-5 pt-5 border-t border-dashed border-t-teal-700 flex flex-col">
+                                        <div
+                                            className="mt-5 pt-5 border-t border-dashed border-t-teal-700 flex flex-col">
                                             <div className="font-semibold mb-2">{header(result.importType)}</div>
                                             <div>
-                                                <ImportResultDetails importType={result.importType} casesType={IMPORTED} refs={result.importedCaseRefs}/>
-                                                <ImportResultDetails importType={result.importType} casesType={IGNORED} refs={result.ignoredCaseRefs}/>
-                                                <ImportResultDetails importType={result.importType} casesType={UNKNOWN} refs={result.unknownCaseRefs}/>
+                                                <ImportResultDetails importType={result.importType} casesType={IMPORTED}
+                                                                     refs={result.importedCaseRefs}/>
+                                                <ImportResultDetails importType={result.importType} casesType={IGNORED}
+                                                                     refs={result.ignoredCaseRefs}/>
+                                                <ImportResultDetails importType={result.importType} casesType={UNKNOWN}
+                                                                     refs={result.unknownCaseRefs}/>
                                                 <ol className="text-rose-700 mt-2">
                                                     {result.errors.map((error, idx) =>
                                                         <li key={idx} className="mt-1">{error}</li>)}
                                                 </ol>
                                             </div>
                                             <button onClick={close}
-                                                    className="w-28 mt-2 ml-auto rounded-md px-3 py-1.5 text-center text-sm font-semibold leading-6
-                                                               bg-teal-700 text-white shadow-sm hover:bg-teal-600
-                                                               focus-visible:outline focus-visible:outline-2
-                                                               focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                                                    className={closeButtonClasses}
                                             >Schließen
                                             </button>
                                         </div>
@@ -174,14 +188,14 @@ function ImportResultDetails({importType, casesType, refs}) {
 
     return (
         <div className="w-full">
-            <div className={`flex gap-1 align-bottom 
-                             ${refs.length ? 'cursor-pointer hover:underline' : ''}
-                             ${detailsOpen ? 'font-semibold' : ''}`}
+            <div className={"flex gap-1 align-bottom"
+                + (refs.length ? ' cursor-pointer hover:underline' : '')
+                + (detailsOpen ? ' font-semibold' : '')}
                  onClick={() => setDetailsOpen(o => refs.length && !o)}>
                 <div>{casesText}</div>
                 {refs.length > 0 && (detailsOpen
-                    ? <ChevronUpIcon className="size-6 cursor-pointer"/>
-                    : <ChevronDownIcon className="size-6 cursor-pointer"/>
+                        ? <ChevronUpIcon className="size-6 cursor-pointer"/>
+                        : <ChevronDownIcon className="size-6 cursor-pointer"/>
                 )}
             </div>
             {refs.length > 0 && detailsOpen &&
