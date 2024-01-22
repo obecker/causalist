@@ -50,9 +50,7 @@ resource "aws_iam_policy" "dynamodb" {
           "dynamodb:GetItem",
           "dynamodb:UpdateItem",
           "dynamodb:DeleteItem",
-          "dynamodb:Query",
-          "dynamodb:Scan",
-          "dynamodb:BatchWriteItem"
+          "dynamodb:Query"
         ]
         Resource = [
           "${aws_dynamodb_table.db_users.arn}",

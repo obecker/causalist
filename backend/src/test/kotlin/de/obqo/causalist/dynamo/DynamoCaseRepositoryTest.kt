@@ -103,7 +103,7 @@ class DynamoCaseRepositoryTest : DescribeSpec({
             )
             val case14 = repo.save(aCase().withOwnerId(ownerId1).withRef(reference.next()).withStatus(Status.DECISION))
             val case15 =
-                repo.save(aCase().withOwnerId(ownerId1).withRef(reference.next()).withStatus(Status.ORDER_FOR_EVIDENCE))
+                repo.save(aCase().withOwnerId(ownerId1).withRef(reference.next()).withStatus(Status.LEGAL_AID))
             val case16 = repo.save(aCase().withOwnerId(ownerId1).withRef(reference.next()).withStatus(Status.SESSION))
             repo.save(aCase().withOwnerId(ownerId1).withRef(reference.next()).withStatus(Status.SETTLED)) // not active
             val case2 = repo.save(aCase().withOwnerId(ownerId2).withRef(reference.next()).withStatus(Status.SESSION))
@@ -112,7 +112,7 @@ class DynamoCaseRepositoryTest : DescribeSpec({
             repo.findByOwner(ownerId1, status = listOf(Status.SESSION)).shouldContainExactly(case12, case16)
             repo.findByOwner(
                 ownerId1,
-                status = listOf(Status.DECISION, Status.UNKNOWN, Status.ORDER_FOR_EVIDENCE, Status.APPRAISERS_REPORT)
+                status = listOf(Status.DECISION, Status.UNKNOWN, Status.LEGAL_AID, Status.APPRAISERS_REPORT)
             ).shouldContainExactly(case11, case14, case15)
             repo.findByOwner(
                 ownerId1,
