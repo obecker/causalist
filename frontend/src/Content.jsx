@@ -362,6 +362,8 @@ function StatusFilter({statusQuery, setStatusQuery, settledOnly}) {
         'disabled:!text-stone-900 disabled:!bg-white',
         'disabled:opacity-40 disabled:cursor-not-allowed');
 
+    const debouncedStatusQuery = useDebounce(statusQuery, 300);
+
     function toggleStatus(status) {
         const statusSet = new Set(statusQuery);
         if (statusSet.has(status)) {
@@ -370,6 +372,18 @@ function StatusFilter({statusQuery, setStatusQuery, settledOnly}) {
             statusSet.add(status);
         }
         setStatusQuery([...statusSet])
+    }
+
+    function invertStatus(status) {
+        const statusSet = new Set(debouncedStatusQuery);
+        if (statusSet.size === 1 && statusSet.has(status)) {
+            statusKeys.forEach((s) => statusSet.add(s));
+            statusSet.delete(status);
+        } else {
+            statusSet.clear();
+            statusSet.add(status);
+        }
+        setStatusQuery([...statusSet]);
     }
 
     return (
@@ -381,7 +395,8 @@ function StatusFilter({statusQuery, setStatusQuery, settledOnly}) {
                             data-selected={statusQuery.indexOf(status) !== -1}
                             title={statusLabels[status]}
                             className={buttonClasses}
-                            onClick={() => toggleStatus(status)}>
+                            onClick={() => toggleStatus(status)}
+                            onDoubleClick={() => invertStatus(status)}>
                         <StatusIcon status={status} className="size-6 mx-auto"/>
                     </button>
                 ))
