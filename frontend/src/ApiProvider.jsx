@@ -36,61 +36,61 @@ export default function ApiProvider({children}) {
         }
     }
 
-    const api = {};
+    const api = {
+        register(username, password) {
+            return client.post('/register', {username: username, password: password})
+                .catch(commonFailureHandler(400, 409));
+        },
 
-    api.register = function (username, password) {
-        return client.post('/register', {username: username, password: password})
-            .catch(commonFailureHandler(400, 409));
-    }
+        login(username, password) {
+            return client.post('/login', {username: username, password: password})
+                .then(response => {
+                    setApiKey(response.data.token);
+                    return response;
+                })
+                .catch(commonFailureHandler(403));
+        },
 
-    api.login = function (username, password) {
-        return client.post('/login', {username: username, password: password})
-            .then(response => {
-                setApiKey(response.data.token);
-                return response;
-            })
-            .catch(commonFailureHandler(403));
-    }
+        logout() {
+            return setApiKey(null);
+        },
 
-    api.logout = function () {
-        setApiKey(null);
-    }
+        getCases(status, type, settled) {
+            return client.get('/cases', {
+                headers: {...authorization},
+                params: {status: status, type: type, settled: settled}
+            }).catch(commonFailureHandler());
+        },
 
-    api.getCases = function (status, type, settled) {
-        return client.get('/cases', {
-            headers: {...authorization},
-            params: {status: status, type: type, settled: settled}
-        }).catch(commonFailureHandler());
-    }
+        getCase(id) {
+            return client.get('/cases/' + id, {headers: {...authorization}})
+                .catch(commonFailureHandler());
+        },
 
-    api.getCase = function (id) {
-        return client.get('/cases/' + id, {headers: {...authorization}})
-            .catch(commonFailureHandler())
-    }
+        importCases(file) {
+            const formData = new FormData();
+            formData.append("upload", file, file.name);
+            formData.append("date", today());
+            return client.post('/cases/import', formData, {
+                headers: {...authorization, 'Content-Type': 'multipart/form-data'}
+            }).catch(commonFailureHandler());
+        },
 
-    api.importCases = function (file) {
-        const formData = new FormData();
-        formData.append("upload", file, file.name);
-        formData.append("date", today());
-        return client.post('/cases/import', formData, {
-            headers: {...authorization, 'Content-Type': 'multipart/form-data'}
-        }).catch(commonFailureHandler())
-    }
+        persistCase(caseData) {
+            return client.post('/cases', caseData, {headers: {...authorization}})
+                .catch(commonFailureHandler(400, 409));
+        },
 
-    api.persistCase = function (caseData) {
-        return client.post('/cases', caseData, {headers: {...authorization}})
-            .catch(commonFailureHandler(400, 409))
-    }
+        updateCase(caseData) {
+            return client.put('/cases/' + caseData.id, caseData, {headers: {...authorization}})
+                .catch(commonFailureHandler(400, 409));
+        },
 
-    api.updateCase = function (caseData) {
-        return client.put('/cases/' + caseData.id, caseData, {headers: {...authorization}})
-            .catch(commonFailureHandler(400, 409))
-    }
-
-    api.deleteCase = function (id) {
-        return client.delete('/cases/' + id, {headers: {...authorization}})
-            .catch(commonFailureHandler())
-    }
+        deleteCase(id) {
+            return client.delete('/cases/' + id, {headers: {...authorization}})
+                .catch(commonFailureHandler());
+        }
+    };
 
     return (
         <ApiContext.Provider value={api}>
