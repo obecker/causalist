@@ -202,7 +202,7 @@ export default function Content() {
             {/* header */}
             <div
                 className="mb-8 flex flex-row justify-between items-baseline border-b-2 border-b-stone-400 border-solid">
-                <div className="font-semibold mb-2 flex flex-row justify-start items-baseline">
+                <div className="font-cinzel font-semibold mb-2 flex flex-row justify-start items-baseline">
                     <img src="/logo.svg" alt="Logo" className="mr-2 my-auto size-5"/>
                     <span>Causalist</span>
                 </div>

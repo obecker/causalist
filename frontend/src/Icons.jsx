@@ -10,7 +10,7 @@ function Svg({className, children}) {
 export function LegalAidIcon({className}) {
     return (
         <Svg className={className}>
-            <path fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+            <path fill="none" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"
                   d="M1.5 18v-12h1.5a3.5 3.5 0 0 1 0 7h-1.5zM9 6v12m0-4.5l5-7.5m.5 12l-3.4-6.8zM17 6v12m5.5 0v-12m0 5.5h-5.5"/>
         </Svg>
     );

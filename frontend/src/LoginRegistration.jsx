@@ -59,7 +59,7 @@ function LoginForm({successMessage, setSuccessMessage, toggleForm}) {
 
     return (
         <>
-            <h2 className="mt-8 text-center text-2xl font-bold leading-9 tracking-tight text-stone-900">
+            <h2 className="mt-8 text-center text-2xl font-cinzel font-semibold leading-9 tracking-tight text-stone-900">
                 Causalist Login
             </h2>
             {successMessage &&
@@ -150,7 +150,7 @@ function RegistrationForm({setSuccessMessage, toggleForm}) {
 
     return (
         <>
-            <h2 className="mt-8 text-center text-2xl font-bold leading-9 tracking-tight text-stone-900">
+            <h2 className="mt-8 text-center text-2xl font-cinzel font-semibold leading-9 tracking-tight text-stone-900">
                 Causalist Registrierung
             </h2>
             <FailureAlert message={registrationFailure} className="mt-8"/>

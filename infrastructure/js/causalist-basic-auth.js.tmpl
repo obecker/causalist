@@ -1,7 +1,7 @@
 function handler(event) {
     var request = event.request;
     var requestUri = request.uri;
-    var allowedExtensions = ["js", "css", "png", "svg", "ico", "json"];
+    var allowedExtensions = ["js", "css", "png", "svg", "ico", "json", "ttf"];
     var actualExtension = requestUri.substring(requestUri.lastIndexOf(".") + 1);
 
     if (allowedExtensions.includes(actualExtension)) {

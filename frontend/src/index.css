@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+    font-family: "Cabin";
+    src: url("fonts/Cabin-VariableFont_wdth,wght.ttf");
+}
+@font-face {
+    font-family: "Cabin";
+    src: url("fonts/Cabin-Italic-VariableFont_wdth,wght.ttf");
+    font-style: italic;
+}
+@font-face {
+    font-family: "Cinzel";
+    src: url("fonts/Cinzel-VariableFont_wght.ttf");
+}
