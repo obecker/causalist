@@ -44,7 +44,7 @@ export default function Content() {
     const [isEditOpen, setEditOpen] = useState(false);
     const [isUploadOpen, setUploadOpen] = useState(false);
     const [isDeleteOpen, setDeleteOpen] = useState(false);
-    const [caseResource, setCaseResource] = useState(emptyCase());
+    const [selectedCase, setSelectedCase] = useState(null);
     const [todosOnly, setTodosOnly] = useState(false);
     const [settledOnly, setSettledOnly] = useState(false);
     const [reloadCases, setReloadCases] = useState(true);
@@ -154,10 +154,6 @@ export default function Content() {
         return aCase.ref.value.toLowerCase().indexOf(search) !== -1
     }
 
-    function emptyCase() {
-        return {ref: {}};
-    }
-
     function forceUpdate(updated) {
         setReloadCases(b => !b);
         setRecentlyUpdatedId(updated?.id);
@@ -167,36 +163,26 @@ export default function Content() {
         api.logout();
     }
 
-    function openEditModal(event, id) {
+    function openEditModal(event, aCase) {
         event.stopPropagation();
-        if (id) {
-            api.getCase(id)
-                .then(response => {
-                    setCaseResource(response.data);
-                    setEditOpen(true);
-                    setErrorMessage('');
-                })
-                .catch(error => setErrorMessage(error.userMessage));
-        } else {
-            setCaseResource(emptyCase());
-            setEditOpen(true);
-        }
+        setSelectedCase(aCase);
+        setEditOpen(true);
     }
 
     function openDeleteModal(aCase) {
-        setCaseResource(aCase);
+        setSelectedCase(aCase);
         setDeleteOpen(true);
     }
 
     return (
         <>
             {/* modals */}
-            <EditModal isOpen={isEditOpen} setIsOpen={setEditOpen} caseResource={caseResource}
+            <EditModal isOpen={isEditOpen} setIsOpen={setEditOpen} selectedCase={selectedCase}
                        forceUpdate={forceUpdate}/>
 
             <FileUploadModal isOpen={isUploadOpen} setIsOpen={setUploadOpen} forceUpdate={forceUpdate}/>
 
-            <DeleteModal isOpen={isDeleteOpen} setIsOpen={setDeleteOpen} caseResource={caseResource}
+            <DeleteModal isOpen={isDeleteOpen} setIsOpen={setDeleteOpen} selectedCase={selectedCase}
                          forceUpdate={forceUpdate}/>
 
             {/* header */}
@@ -502,7 +488,7 @@ function CasesList({cases, loadingSpinner, recentlyUpdatedId, openEditModal, ope
                             data-open={openCase === aCase.id}
                             className={liClasses}
                             onClick={() => clickCase(aCase.ref && aCase.id)}
-                            onDoubleClick={e => openEditModal(e, aCase.ref && aCase.id)}>
+                            onDoubleClick={e => openEditModal(e, aCase.ref && aCase)}>
                             {aCase.newWeek &&
                                 <div className={weekMarkerClasses}>
                                     KW {aCase.todoWeekOfYear} vom {formattedDate(startOfWeek(aCase.todoDate))}
@@ -562,7 +548,7 @@ function CasesList({cases, loadingSpinner, recentlyUpdatedId, openEditModal, ope
                                             <div className="flex">
                                                 <button
                                                     className={editButtonClasses}
-                                                    onClick={e => openEditModal(e, aCase.id)}>
+                                                    onClick={e => openEditModal(e, aCase)}>
                                                     <PencilIcon className="size-4 mr-2"/>
                                                     Bearbeiten
                                                 </button>
@@ -605,7 +591,7 @@ function CasesList({cases, loadingSpinner, recentlyUpdatedId, openEditModal, ope
                                             {aCase.statusNote && <span title="Status-Notiz"> - {aCase.statusNote}</span>}
                                         </div>
                                         {aCase.memo &&
-                                            <div title="Anmerkung" className="col-start-3 col-end-5 px-2 italic">
+                                            <div title="Anmerkung" className="col-start-3 col-end-5 px-2 italic whitespace-pre-wrap">
                                                 {aCase.memo}
                                             </div>
                                         }

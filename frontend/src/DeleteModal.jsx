@@ -5,7 +5,7 @@ import {ApiContext} from "./ApiProvider";
 import FailureAlert from "./FailureAlert";
 import {statusLabels} from "./Status";
 
-export default function DeleteModal({isOpen, setIsOpen, caseResource, forceUpdate}) {
+export default function DeleteModal({isOpen, setIsOpen, selectedCase, forceUpdate}) {
 
     const api = useContext(ApiContext);
 
@@ -22,7 +22,7 @@ export default function DeleteModal({isOpen, setIsOpen, caseResource, forceUpdat
     }
 
     function deleteCase() {
-        api.deleteCase(caseResource.id)
+        api.deleteCase(selectedCase.id)
             .then(() => {
                 close();
                 forceUpdate();
@@ -41,7 +41,7 @@ export default function DeleteModal({isOpen, setIsOpen, caseResource, forceUpdat
         'disabled:bg-stone-300 disabled:cursor-not-allowed',
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
 
-    return (
+    return (selectedCase &&
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-10" onClose={close}>
                 <Transition.Child
@@ -71,13 +71,13 @@ export default function DeleteModal({isOpen, setIsOpen, caseResource, forceUpdat
                             <div className={panelClasses}>
                                 <Dialog.Title as="h3"
                                               className="text-lg font-semibold leading-6 text-stone-900 text-center text-pretty">
-                                    Verfahren {caseResource.ref.value} aus dem Bestand löschen?
+                                    Verfahren {selectedCase.ref.value} aus dem Bestand löschen?
                                 </Dialog.Title>
                                 <div className="w-full mt-4">
-                                    {caseResource.parties}
+                                    {selectedCase.parties}
                                 </div>
                                 <div className="w-full mt-2">
-                                    Status: {statusLabels[caseResource.status]}
+                                    Status: {statusLabels[selectedCase.status]}
                                 </div>
                                 <FailureAlert message={errorMessage} className="my-4"/>
                                 <div className="w-full mt-4">
