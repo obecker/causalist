@@ -35,6 +35,7 @@ resource "aws_lambda_function" "backend" {
       CAUSALIST_ENCRYPTION_KEY = var.encryption_key
       CAUSALIST_PASSWORD_SALT  = var.password_salt
       CAUSALIST_SIGNING_SECRET = var.signing_secret
+      JAVA_TOOL_OPTIONS        = "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     }
   }
 }
