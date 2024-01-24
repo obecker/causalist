@@ -1,6 +1,6 @@
 import {useSessionStorage} from "@uidotdev/usehooks";
 import axios from "axios";
-import {createContext} from "react";
+import {createContext, useRef} from "react";
 import {today} from "./utils";
 
 export const ApiContext = createContext({});
@@ -9,15 +9,28 @@ export default function ApiProvider({children}) {
 
     const [apiKey, setApiKey] = useSessionStorage('apiKey', null);
 
+    const controller = useRef();
+
     const client = axios.create({
         baseURL: "/api"
     });
 
     const authorization = {Authorization: `Bearer ${apiKey}`};
 
+    function abortPreviousRequest() {
+        controller.current?.abort();
+        controller.current = new AbortController();
+    }
+
+    function signal() {
+        return controller.current?.signal;
+    }
+
     function commonFailureHandler(...expectedStatuses) {
         return function (error) {
-            if (!error.response) {
+            if (error.code === 'ERR_CANCELED') {
+                // aborted by the controller, nothing to do
+            } else if (!error.response) {
                 error.userMessage = "Du scheinst offline zu sein – der Server ist derzeit nicht erreichbar.";
             } else if (error.response.status === 401) {
                 // API key expired
@@ -56,9 +69,11 @@ export default function ApiProvider({children}) {
         },
 
         getCases(status, type, settled) {
+            abortPreviousRequest();
             return client.get('/cases', {
                 headers: {...authorization},
-                params: {status: status, type: type, settled: settled}
+                params: {status: status, type: type, settled: settled},
+                signal: signal()
             }).catch(commonFailureHandler());
         },
 
