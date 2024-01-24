@@ -40,7 +40,7 @@ export default function Content() {
     const [filteredCases, setFilteredCases] = useState(null);
     const [search, setSearch] = useState('');
     const [statusQuery, setStatusQuery] = useState([]);
-    const [typeQuery, setTypeQuery] = useState(null);
+    const [typeQuery, setTypeQuery] = useState([]);
     const [isEditOpen, setEditOpen] = useState(false);
     const [isUploadOpen, setUploadOpen] = useState(false);
     const [isDeleteOpen, setDeleteOpen] = useState(false);
@@ -59,7 +59,8 @@ export default function Content() {
 
     useEffect(() => {
         setLoading(true);
-        api.getCases(statusQuery, typeQuery, settledOnly)
+        // in the API, type is a single nullable parameter (i.e. SINGLE or CHAMBER or null)
+        api.getCases(statusQuery, typeQuery.length === 1 ? typeQuery[0] : null, settledOnly)
             .then(response => {
                 setCases(response.data?.cases.map(c => {
                     if (c.id === recentlyUpdatedId) {
@@ -317,18 +318,39 @@ function TypeFilter({typeQuery, setTypeQuery}) {
         'data-selected:shadow-inner data-selected:shadow-stone-400/50',
         'data-selected:hover:text-teal-100 data-selected:hover:bg-teal-700');
 
+    const debouncedTypeQuery = useDebounce(typeQuery, 300);
+
     function toggleType(type) {
-        setTypeQuery(t => t === type ? null : type);
+        const typeSet = new Set(typeQuery);
+        if (typeSet.has(type)) {
+            typeSet.delete(type);
+        } else {
+            typeSet.add(type);
+        }
+        setTypeQuery([...typeSet]);
+    }
+
+    function forceType(type) {
+        const typeSet = new Set(debouncedTypeQuery);
+        if (typeSet.size === 1 && typeSet.has(type)) {
+            typeKeys.forEach((s) => typeSet.add(s));
+            typeSet.delete(type);
+        } else {
+            typeSet.clear();
+            typeSet.add(type);
+        }
+        setTypeQuery([...typeSet]);
     }
 
     return (
         <div className="inline-flex rounded-lg shadow-sm" role="group">
             {
                 typeKeys.map(type => (
-                    <button type="button" key={type} data-selected={typeQuery === type}
+                    <button type="button" key={type} data-selected={typeQuery.includes(type)}
                             title={typeLabels[type]}
                             className={buttonClasses}
-                            onClick={() => toggleType(type)}>
+                            onClick={() => toggleType(type)}
+                            onDoubleClick={() => forceType(type)}>
                         {typeMap[type]}
                     </button>
                 ))
@@ -360,7 +382,7 @@ function StatusFilter({statusQuery, setStatusQuery, settledOnly}) {
         setStatusQuery([...statusSet])
     }
 
-    function invertStatus(status) {
+    function forceStatus(status) {
         const statusSet = new Set(debouncedStatusQuery);
         if (statusSet.size === 1 && statusSet.has(status)) {
             statusKeys.forEach((s) => statusSet.add(s));
@@ -378,11 +400,11 @@ function StatusFilter({statusQuery, setStatusQuery, settledOnly}) {
             {
                 filterStatusKeys.map(status => (
                     <button type="button" key={status} disabled={settledOnly}
-                            data-selected={statusQuery.indexOf(status) !== -1}
+                            data-selected={statusQuery.includes(status)}
                             title={statusLabels[status]}
                             className={buttonClasses}
                             onClick={() => toggleStatus(status)}
-                            onDoubleClick={() => invertStatus(status)}>
+                            onDoubleClick={() => forceStatus(status)}>
                         <StatusIcon status={status} className="size-6 mx-auto"/>
                     </button>
                 ))
