@@ -32,7 +32,7 @@ module.exports = {
         },
         fontFamily: {
             cabin: ["Cabin", "sans-serif"],
-            cinzel: ["Cinzel", "serif"],
+            kaushanScript: ["KaushanScript"],
         }
     },
     plugins: [

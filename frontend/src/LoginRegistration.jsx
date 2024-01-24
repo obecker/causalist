@@ -59,9 +59,10 @@ function LoginForm({successMessage, setSuccessMessage, toggleForm}) {
 
     return (
         <>
-            <h2 className="mt-8 text-center text-2xl font-cinzel font-semibold leading-9 tracking-tight text-stone-900">
-                Causalist Login
-            </h2>
+            <div className="text-center">
+                <h1 className="text-4xl mt-8 text-teal-800 font-kaushanScript">Causalist</h1>
+                <h2 className="text-2xl mt-4 font-semibold">Login</h2>
+            </div>
             {successMessage &&
                 <div className="flex items-center p-4 mt-8 text-sm text-teal-800 rounded-lg bg-teal-50"
                      role="alert">
@@ -150,9 +151,10 @@ function RegistrationForm({setSuccessMessage, toggleForm}) {
 
     return (
         <>
-            <h2 className="mt-8 text-center text-2xl font-cinzel font-semibold leading-9 tracking-tight text-stone-900">
-                Causalist Registrierung
-            </h2>
+            <div className="text-center">
+                <h1 className="text-4xl mt-8 text-teal-800 font-kaushanScript">Causalist</h1>
+                <h2 className="text-2xl mt-4 font-semibold">Registrierung</h2>
+            </div>
             <FailureAlert message={registrationFailure} className="mt-8"/>
             <form className="mt-8 space-y-6" action="#" method="POST" autoComplete="off" onSubmit={registration}>
                 <FormInput name="username" label="Nutzername" type="text" value={username} inputMode="email"
