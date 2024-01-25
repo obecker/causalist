@@ -1,3 +1,4 @@
+import eslintPlugin from "@nabla/vite-plugin-eslint";
 import react from '@vitejs/plugin-react';
 import {defineConfig} from 'vite';
 
@@ -11,7 +12,7 @@ export default defineConfig(() => {
         build: {
             outDir: 'build',
         },
-        plugins: [react()],
+        plugins: [react(), eslintPlugin()],
         server: {
             host: true, // make the server accessible in the local network
             port: 3000,
