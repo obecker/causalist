@@ -1,5 +1,13 @@
 version: 2
 updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    assignees:
+      - obecker
+    commit-message:
+      prefix: ":arrow_up: "
   - package-ecosystem: gradle
     directory: backend
     schedule:
@@ -8,10 +16,18 @@ updates:
       - obecker
     commit-message:
       prefix: ":arrow_up: "
-  - package-ecosystem: github-actions
-    directory: /
+  - package-ecosystem: npm
+    directory: frontend
     schedule:
-      interval: weekly
+      interval: daily
+    assignees:
+      - obecker
+    commit-message:
+      prefix: ":arrow_up: "
+  - package-ecosystem: terraform
+    directory: infrastructure
+    schedule:
+      interval: daily
     assignees:
       - obecker
     commit-message:
