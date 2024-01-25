@@ -35,7 +35,7 @@
     "start": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint 'src/**/*.{js,jsx}'"
+    "lint": "eslint 'src/**/*.{js,jsx}' '*.{js,mjs}'"
   },
   "browserslist": {
     "production": [

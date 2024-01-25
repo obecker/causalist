@@ -1,8 +1,9 @@
-import globals from 'globals';
 import js from '@eslint/js';
-import reactRecommended from 'eslint-plugin-react/configs/recommended.js';
 import stylistic from '@stylistic/eslint-plugin';
+import reactRecommended from 'eslint-plugin-react/configs/recommended.js';
+import globals from 'globals';
 
+// noinspection JSUnusedGlobalSymbols
 export default [
   js.configs.recommended,
   reactRecommended,
@@ -12,7 +13,7 @@ export default [
     'arrow-parens': 'always',
   }),
   {
-    files: ['src/**/*.js', 'src/**/*.jsx'],
+    files: ['src/**/*.{js,jsx}', '*.{js,mjs}'],
     settings: {
       react: {
         version: 'detect',
