@@ -245,21 +245,21 @@ export default function Content() {
             {/* new case button */}
             <div className="inline-flex">
               <button
-                className="flex w-full justify-center rounded-lg sm:rounded-r-none px-3 py-2 text-sm font-semibold leading-6 bg-teal-700 text-white border-r border-white hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                className="flex w-full items-center rounded-lg sm:rounded-r-none px-3 py-2 text-sm font-semibold leading-6 bg-teal-700 text-white border-r border-white hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                 onClick={openEditModal}
               >
-                <PlusCircleIcon className="size-6 relative top-0.5" />
-                <span className="pl-2 lg:inline hidden">Neu</span>
+                <PlusCircleIcon className="size-6 inline" />
+                <span className="ms-2 lg:inline hidden">Neu</span>
               </button>
             </div>
             {/* rtf upload */}
             <div className="hidden sm:inline-flex">
               <button
-                className="flex w-full justify-center rounded-r-lg bg-teal-700 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                className="flex w-full items-center rounded-r-lg bg-teal-700 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                 onClick={() => setUploadOpen(true)}
               >
-                <ArrowDownOnSquareIcon className="size-6" />
-                <span className="pl-2 lg:inline hidden">RTF Import</span>
+                <ArrowDownOnSquareIcon className="size-6 inline" />
+                <span className="ms-2 lg:inline hidden">RTF Import</span>
               </button>
             </div>
           </div>
@@ -508,10 +508,10 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
 
   const olClasses = clsx('grid grid-cols-cases md:grid-cols-cases-md lg:grid-cols-cases-lg',
     loadingSpinner && 'opacity-25');
-  const editButtonClasses = clsx('flex w-full self-start px-3 py-2 rounded-l-lg leading-4 text-sm font-semibold',
+  const editButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-l-lg leading-4 text-sm font-semibold',
     'text-white shadow-sm bg-teal-700 hover:bg-teal-600 border-r-white border-r',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
-  const deleteButtonClasses = clsx('flex w-full px-3 py-2 rounded-lg leading-4 text-sm font-semibold',
+  const deleteButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-lg leading-4 text-sm font-semibold',
     'text-rose-700 shadow-sm border border-stone-300 bg-white hover:bg-stone-100');
 
   return (
@@ -599,13 +599,13 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                   leaveTo="opacity-0 hidden"
                 >
                   <div className="col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5 relative">
-                    <div className="flex">
+                    <div className="flex justify-between items-center">
                       <button className={editButtonClasses} onClick={e => openEditModal(e, aCase)}>
-                        <PencilIcon className="size-4 mr-2" />
+                        <PencilIcon className="size-4 me-2 inline" />
                         Bearbeiten
                       </button>
                       <button
-                        className="self-start p-2 rounded-r-lg text-white bg-teal-700 hover:bg-teal-600"
+                        className="p-2 rounded-r-lg text-white bg-teal-700 hover:bg-teal-600"
                         onClick={e => toggleDropdown(e, aCase.id)}
                         onDoubleClick={e => e.stopPropagation()}
                       >
@@ -626,7 +626,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                           onClick={e => openDelete(e, aCase)}
                           onDoubleClick={e => e.stopPropagation()}
                         >
-                          <TrashIcon className="size-4 mr-2" />
+                          <TrashIcon className="size-4 me-2 inline" />
                           Löschen
                         </button>
                       </li>

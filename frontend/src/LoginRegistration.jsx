@@ -187,7 +187,7 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
           onInput={removeWhitespace}
           onChange={e => setUsername(e.target.value)}
         >
-          <div className="text-xs mt-1 flex align-middle justify-start gap-4">
+          <div className="text-xs mt-1 flex justify-start">
             <ValidationInfo value={username} isValid={usernameValidation} label="min 4 Zeichen" />
           </div>
         </FormInput>
@@ -199,7 +199,7 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
           reveal={true}
           onChange={e => setPassword(e.target.value)}
         >
-          <div className="text-xs mt-1 flex align-middle justify-start gap-4">
+          <div className="text-xs mt-1 flex justify-start gap-5">
             <ValidationInfo value={password} isValid={passwordValidationLength} label="min 10 Zeichen" />
             <ValidationInfo value={password} isValid={passwordValidationCase} label="aAbBcC" />
             <ValidationInfo value={password} isValid={passwordValidationNonAlpha} label="123!?#&" />
@@ -307,8 +307,8 @@ function ValidationInfo({ value, isValid, label }) {
   }
 
   return (
-    <span className={`flex ${validationColor()}`}>
-      <ValidationIcon value={value} isValid={isValid} className="size-4 mr-0.5" />
+    <span className={`flex items-center ${validationColor()}`}>
+      <ValidationIcon value={value} isValid={isValid} className="size-4 me-1 inline" />
       {label}
     </span>
   );

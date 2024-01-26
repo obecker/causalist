@@ -359,22 +359,22 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                       </label>
                       <Listbox id="status" disabled={fieldsDisabled} value={caseStatus} onChange={setNewStatus}>
                         {({ open }) => {
-                          const buttonClasses = clsx('text-sm bg-stone-50 border border-stone-300 rounded-lg',
-                            'outline-none shadow-sm w-full p-2.5 flex justify-stretch items-center',
+                          const buttonClasses = clsx('flex items-center p-2 w-full text-sm bg-stone-50',
+                            'border border-stone-300 rounded-lg outline-none shadow-sm',
                             'focus:ring-teal-700 focus:ring-2 focus:border-teal-700',
                             open && 'ring-teal-700 ring-2 border-teal-700',
                             fieldsDisabled && 'cursor-wait');
                           const optionsClasses = clsx('absolute w-full lg:max-h-72 overflow-y-auto mt-0.5 py-2',
                             'z-20 bg-stone-50 border rounded-lg shadow shadow-stone-400 outline-none');
-                          const optionClasses
-                            = 'flex px-2 py-1 ui-active:!bg-teal-700 ui-active:text-white ui-selected:bg-stone-200';
+                          const optionClasses = clsx('flex items-center px-2 py-1',
+                            'ui-active:!bg-teal-700 ui-active:text-white ui-selected:bg-stone-200');
                           return (
                             <div className="relative">
                               <Listbox.Button tabIndex={xlWidth ? 8 : 9} className={buttonClasses}>
-                                <StatusIcon status={caseStatus} className="size-6 mr-2 flex-none" />
-                                <div className="flex-auto text-left">
+                                <StatusIcon status={caseStatus} className="size-6 me-2 flex-none inline" />
+                                <span className="flex-auto text-left">
                                   {statusLabels[caseStatus]}
-                                </div>
+                                </span>
                                 {open
                                   ? <ChevronUpIcon className="size-4 flex-none" />
                                   : <ChevronDownIcon className="size-4 flex-none" />}
@@ -382,10 +382,10 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                               <Listbox.Options className={optionsClasses}>
                                 {statusKeys.map(status => (
                                   <Listbox.Option key={status} value={status} className={optionClasses}>
-                                    <StatusIcon status={status} className="size-6 mr-2 flex-none" />
-                                    <div className="flex-auto text-sm text-left">
+                                    <StatusIcon status={status} className="size-6 me-2 flex-none inline" />
+                                    <span className="flex-auto text-sm text-left">
                                       {statusLabels[status]}
-                                    </div>
+                                    </span>
                                   </Listbox.Option>
                                 ))}
                               </Listbox.Options>
