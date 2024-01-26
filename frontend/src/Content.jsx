@@ -339,28 +339,28 @@ function TypeFilter({ typeQuery, setTypeQuery }) {
     'data-selected:shadow-inner data-selected:shadow-stone-400/50',
     'data-selected:hover:text-teal-100 data-selected:hover:bg-teal-700');
 
-  const debouncedTypeQuery = useDebounce(typeQuery, 300);
-
   function toggleType(type) {
-    const typeSet = new Set(typeQuery);
-    if (typeSet.has(type)) {
-      typeSet.delete(type);
-    } else {
-      typeSet.add(type);
-    }
-    setTypeQuery([...typeSet]);
+    setTypeQuery((tq) => {
+      const typeSet = new Set(tq);
+      if (typeSet.has(type)) {
+        typeSet.delete(type);
+      } else {
+        typeSet.add(type);
+      }
+      return [...typeSet];
+    });
   }
 
   function forceType(type) {
-    const typeSet = new Set(debouncedTypeQuery);
-    if (typeSet.size === 1 && typeSet.has(type)) {
-      typeKeys.forEach(s => typeSet.add(s));
-      typeSet.delete(type);
-    } else {
-      typeSet.clear();
-      typeSet.add(type);
-    }
-    setTypeQuery([...typeSet]);
+    setTypeQuery((tq) => {
+      const newTypeQuery = [];
+      if (tq.length === 0 || (tq.length === 1 && tq[0] === type)) {
+        typeKeys.filter(t => t !== type).forEach(t => newTypeQuery.push(t));
+      } else {
+        newTypeQuery.push(type);
+      }
+      return newTypeQuery;
+    });
   }
 
   return (
@@ -393,28 +393,28 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
     'data-selected:hover:text-teal-100 data-selected:hover:bg-teal-700',
     'disabled:!text-stone-900 disabled:!bg-white disabled:opacity-40 disabled:cursor-not-allowed');
 
-  const debouncedStatusQuery = useDebounce(statusQuery, 300);
-
   function toggleStatus(status) {
-    const statusSet = new Set(statusQuery);
-    if (statusSet.has(status)) {
-      statusSet.delete(status);
-    } else {
-      statusSet.add(status);
-    }
-    setStatusQuery([...statusSet]);
+    setStatusQuery((sq) => {
+      const statusSet = new Set(sq);
+      if (statusSet.has(status)) {
+        statusSet.delete(status);
+      } else {
+        statusSet.add(status);
+      }
+      return [...statusSet];
+    });
   }
 
   function forceStatus(status) {
-    const statusSet = new Set(debouncedStatusQuery);
-    if (statusSet.size === 1 && statusSet.has(status)) {
-      statusKeys.forEach(s => statusSet.add(s));
-      statusSet.delete(status);
-    } else {
-      statusSet.clear();
-      statusSet.add(status);
-    }
-    setStatusQuery([...statusSet]);
+    setStatusQuery((sq) => {
+      const newStatusQuery = [];
+      if (sq.length === 0 || (sq.length === 1 && sq[0] === status)) {
+        statusKeys.filter(s => s !== status).forEach(s => newStatusQuery.push(s));
+      } else {
+        newStatusQuery.push(status);
+      }
+      return newStatusQuery;
+    });
   }
 
   return (
