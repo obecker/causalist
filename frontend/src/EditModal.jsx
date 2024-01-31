@@ -62,7 +62,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     setCaseDueDate('');
     setCaseTodoDate('');
 
-    if (selectedCase) {
+    if (selectedCase && isOpen) {
       setFieldsDisabled(true);
       api.getCase(selectedCase.id)
         .then((response) => {
@@ -97,7 +97,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     setCaseReceivedOnFailure(false);
     setCaseSettledOnFailure(false);
     setCaseTodoDateFailure(false);
-  }, [selectedCase]);
+  }, [selectedCase, isOpen]);
 
   function close() {
     setErrorOnLoad('');
