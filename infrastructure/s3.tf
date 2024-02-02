@@ -1,6 +1,9 @@
+###
+### Public S3 bucket for the frontend
+###
+
 resource "aws_s3_bucket" "frontend" {
-  bucket        = "${var.env == "prod" ? "" : format("%s.", var.env)}causalist.de"
-  force_destroy = "false"
+  bucket = "${var.env == "prod" ? "" : format("%s.", var.env)}causalist.de"
 }
 
 resource "aws_s3_bucket_ownership_controls" "frontend" {
@@ -42,4 +45,30 @@ resource "aws_s3_object" "frontend" {
     : startswith(each.key, "assets") ? "max-age=31536000" : "max-age=86400")
 
   acl = "public-read"
+}
+
+
+###
+### Private S3 bucket for uploaded case documents
+###
+
+locals {
+  documents_bucket = "causalist-case-documents-${var.env}"
+}
+
+resource "aws_s3_bucket" "documents" {
+  bucket = local.documents_bucket
+}
+
+resource "aws_s3_bucket_ownership_controls" "documents" {
+  bucket = aws_s3_bucket.documents.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "documents" {
+  depends_on = [aws_s3_bucket_ownership_controls.documents]
+  bucket     = aws_s3_bucket.documents.id
+  acl        = "private"
 }

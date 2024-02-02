@@ -3,16 +3,23 @@ package de.obqo.causalist.app
 import de.obqo.causalist.Config
 import de.obqo.causalist.api.authentication
 import de.obqo.causalist.api.httpApi
+import de.obqo.causalist.caseDocumentService
 import de.obqo.causalist.caseService
+import de.obqo.causalist.dynamo.dynamoCaseDocumentRepository
 import de.obqo.causalist.dynamo.dynamoCaseRepository
 import de.obqo.causalist.dynamo.dynamoUserRepository
+import de.obqo.causalist.s3.S3BucketWrapper
 import de.obqo.causalist.userService
-import org.http4k.client.Java8HttpClient
+import org.http4k.client.JavaHttpClient
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey
+import org.http4k.connect.amazon.AWS_REGION
 import org.http4k.connect.amazon.dynamodb.DynamoDb
 import org.http4k.connect.amazon.dynamodb.Http
 import org.http4k.connect.amazon.dynamodb.model.TableName
+import org.http4k.connect.amazon.s3.Http
+import org.http4k.connect.amazon.s3.S3Bucket
+import org.http4k.connect.amazon.s3.model.BucketName
 import org.http4k.core.Filter
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
@@ -36,11 +43,16 @@ fun main() {
     val environment = Environment.fromResource(envResource)
 
     val dynamoDbUriFilter = environment["DYNAMODB_URI"]?.let { SetBaseUriFrom(Uri.of(it)) } ?: Filter.NoOp
-    val dynamoDb = DynamoDb.Http(
-        env = environment,
-        http = dynamoDbUriFilter.then(Java8HttpClient())
+    val dynamoHttp = dynamoDbUriFilter.then(JavaHttpClient())
+
+    val s3UriFilter = environment["S3_URI"]?.let { SetBaseUriFrom(Uri.of(it)) } ?: Filter.NoOp
+    val s3Http = s3UriFilter.then(JavaHttpClient())
+
+    val api = buildApi(
+        environment = environment,
+        dynamoHttp = dynamoHttp,
+        s3Http = s3Http
     )
-    val api = buildApi(environment, dynamoDb)
 
     // smoke test that the DB is available
     val response = api(Request(method = Method.POST, "/api/login").body("""{"username":"foo","password":""}"""))
@@ -53,30 +65,46 @@ fun main() {
 // entrypoint for the AWS Lambda Runtime
 @Suppress("Unused")
 class ApiLambdaHandler : ApiGatewayV2LambdaFunction(AppLoader {
-    val environment = Environment.from(it)
-    val dynamoDb = DynamoDb.Http(
-        env = environment,
-        http = Java8HttpClient()
-    )
-    buildApi(environment, dynamoDb)
+    val client = JavaHttpClient()
+    buildApi(Environment.from(it), client, client)
 })
 
 private fun buildApi(
     environment: Environment,
-    dynamoDb: DynamoDb
+    dynamoHttp: HttpHandler,
+    s3Http: HttpHandler
 ): HttpHandler {
     Config.init(environment)
 
     val usersTableKey = EnvironmentKey.value(TableName).required("CAUSALIST_USERS_TABLE")
     val casesTableKey = EnvironmentKey.value(TableName).required("CAUSALIST_CASES_TABLE")
+    val caseDocumentsTableKey = EnvironmentKey.value(TableName).required("CAUSALIST_CASE_DOCUMENTS_TABLE")
+    val caseDocumentsBucketNameKey = EnvironmentKey.value(BucketName).required("CAUSALIST_CASE_DOCUMENTS_BUCKET")
+
+    val dynamoDb = DynamoDb.Http(
+        env = environment,
+        http = dynamoHttp
+    )
 
     val userRepository = dynamoUserRepository(dynamoDb, usersTableKey(environment))
     val userService = userService(userRepository)
 
-    val caseRepository = dynamoCaseRepository(dynamoDb, casesTableKey(environment))
-    val caseService = caseService(caseRepository)
-
     val authentication = authentication(userService)
 
-    return httpApi(authentication, caseService)
+    val bucketName = caseDocumentsBucketNameKey(environment)
+    val s3Bucket = S3Bucket.Http(
+        bucketName = bucketName,
+        bucketRegion = AWS_REGION(environment),
+        env = environment,
+        http = s3Http
+    )
+    val s3BucketWrapper = S3BucketWrapper(bucketName, s3Bucket)
+
+    val caseDocumentRepository = dynamoCaseDocumentRepository(dynamoDb, caseDocumentsTableKey(environment))
+    val caseDocumentService = caseDocumentService(caseDocumentRepository, s3BucketWrapper)
+
+    val caseRepository = dynamoCaseRepository(dynamoDb, casesTableKey(environment))
+    val caseService = caseService(caseRepository, caseDocumentService)
+
+    return httpApi(authentication, caseService, caseDocumentService)
 }

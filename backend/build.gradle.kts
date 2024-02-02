@@ -30,6 +30,7 @@ dependencies {
 
     implementation(platform(libs.http4k.connect.bom))
     implementation("org.http4k:http4k-connect-amazon-dynamodb")
+    implementation("org.http4k:http4k-connect-amazon-s3")
 
     implementation(libs.kotshi.api)
     ksp(libs.kotshi.compiler)
@@ -46,6 +47,7 @@ dependencies {
     testImplementation("io.kotest:kotest-framework-datatest")
     testImplementation("org.http4k:http4k-testing-kotest")
     testImplementation("org.http4k:http4k-connect-amazon-dynamodb-fake")
+    testImplementation("org.http4k:http4k-connect-amazon-s3-fake")
     testImplementation(libs.mockk)
 
     testRuntimeOnly("io.kotest:kotest-runner-junit5")

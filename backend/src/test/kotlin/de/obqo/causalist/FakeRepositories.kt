@@ -1,5 +1,6 @@
 package de.obqo.causalist
 
+import de.obqo.causalist.dynamo.dynamoCaseDocumentRepository
 import de.obqo.causalist.dynamo.dynamoCaseRepository
 import de.obqo.causalist.dynamo.dynamoUserRepository
 import org.http4k.connect.amazon.dynamodb.FakeDynamoDb
@@ -14,5 +15,11 @@ val fakeUserRepository = dynamoUserRepository(
 val fakeCaseRepository = dynamoCaseRepository(
     dynamoDb = FakeDynamoDb().client(),
     TableName.of("Cases"),
+    createTable = true
+)
+
+val fakeCaseDocumentRepository = dynamoCaseDocumentRepository(
+    dynamoDb = FakeDynamoDb().client(),
+    TableName.of("CaseDocuments"),
     createTable = true
 )

@@ -30,12 +30,14 @@ resource "aws_lambda_function" "backend" {
 
   environment {
     variables = {
-      CAUSALIST_USERS_TABLE    = local.users_table
-      CAUSALIST_CASES_TABLE    = local.cases_table
-      CAUSALIST_ENCRYPTION_KEY = var.encryption_key
-      CAUSALIST_PASSWORD_SALT  = var.password_salt
-      CAUSALIST_SIGNING_SECRET = var.signing_secret
-      JAVA_TOOL_OPTIONS        = "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+      JAVA_TOOL_OPTIONS               = "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+      CAUSALIST_USERS_TABLE           = local.users_table
+      CAUSALIST_CASES_TABLE           = local.cases_table
+      CAUSALIST_CASE_DOCUMENTS_TABLE  = local.documents_table
+      CAUSALIST_CASE_DOCUMENTS_BUCKET = local.documents_bucket
+      CAUSALIST_ENCRYPTION_KEY        = var.encryption_key
+      CAUSALIST_PASSWORD_SALT         = var.password_salt
+      CAUSALIST_SIGNING_SECRET        = var.signing_secret
     }
   }
 }
@@ -51,13 +53,35 @@ resource "aws_iam_policy" "dynamodb" {
           "dynamodb:GetItem",
           "dynamodb:UpdateItem",
           "dynamodb:DeleteItem",
-          "dynamodb:Query"
+          "dynamodb:Query",
         ]
         Resource = [
           "${aws_dynamodb_table.db_users.arn}",
           "${aws_dynamodb_table.db_users.arn}/index/*",
           "${aws_dynamodb_table.db_cases.arn}",
-          "${aws_dynamodb_table.db_cases.arn}/index/*"
+          "${aws_dynamodb_table.db_cases.arn}/index/*",
+          "${aws_dynamodb_table.db_documents.arn}",
+          "${aws_dynamodb_table.db_documents.arn}/index/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "s3_documents" {
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+        ]
+        Resource = [
+          "${aws_s3_bucket.documents.arn}",
+          "${aws_s3_bucket.documents.arn}/*"
         ]
       }
     ]
@@ -67,6 +91,11 @@ resource "aws_iam_policy" "dynamodb" {
 resource "aws_iam_role_policy_attachment" "dynamodb_policy" {
   role       = aws_iam_role.backend.name
   policy_arn = aws_iam_policy.dynamodb.arn
+}
+
+resource "aws_iam_role_policy_attachment" "s3_documents_policy" {
+  role       = aws_iam_role.backend.name
+  policy_arn = aws_iam_policy.s3_documents.arn
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_policy" {

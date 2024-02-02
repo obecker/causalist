@@ -12,6 +12,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldNotContain
+import java.io.ByteArrayInputStream
 
 class CryptoUtilsTest : DescribeSpec({
 
@@ -52,7 +53,7 @@ class CryptoUtilsTest : DescribeSpec({
     it("should encrypt and decrypt string") {
         // given
         val key = generatePasswordAesKey("password", "salt")
-        val plaintext = "Hello World!"
+        val plaintext = "Hello String!"
 
         // when
         val ciphertext = plaintext.encrypt(key)
@@ -86,5 +87,27 @@ class CryptoUtilsTest : DescribeSpec({
         verifyPasswordHash(password, hash1) shouldBe true
         verifyPasswordHash(password, hash2) shouldBe true
         verifyPasswordHash(password, hash3) shouldBe false
+    }
+
+    it("should encrypt and decrypt inputstream") {
+        // given
+        val key = generatePasswordAesKey("password", "salt")
+        val plainBytes = "Hello Stream!".toByteArray()
+        val plainStream = ByteArrayInputStream(plainBytes)
+
+        // when
+        val cipherStream = plainStream.encrypt(key)
+        val cipherBytes = cipherStream.readAllBytes()
+
+        // then
+        cipherBytes shouldNotBe plainBytes
+        cipherBytes.size shouldNotBe plainBytes.size
+
+        // when
+        val decryptedStream = ByteArrayInputStream(cipherBytes).decrypt(key)
+        val decryptedBytes = decryptedStream.readAllBytes()
+
+        // then
+        decryptedBytes shouldBe plainBytes
     }
 })

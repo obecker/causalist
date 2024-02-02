@@ -1,5 +1,6 @@
 package de.obqo.causalist.api
 
+import de.obqo.causalist.CaseDocumentService
 import de.obqo.causalist.CaseService
 import de.obqo.causalist.UserService
 import io.kotest.core.spec.style.DescribeSpec
@@ -18,8 +19,9 @@ class ApiTest: DescribeSpec( {
             // given
             val userServiceMock = mockk<UserService>()
             val caseServiceMock = mockk<CaseService>()
+            val caseDocumentServiceMock = mockk<CaseDocumentService>()
 
-            val api = httpApi(authentication(userServiceMock), caseServiceMock)
+            val api = httpApi(authentication(userServiceMock), caseServiceMock, caseDocumentServiceMock)
 
             // when
             val response = api(Request(Method.GET, "/api/docs/openapi.json"))

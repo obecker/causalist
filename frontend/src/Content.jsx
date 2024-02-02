@@ -1,4 +1,5 @@
 import { Listbox, Transition } from '@headlessui/react';
+import { ChevronLeftIcon, PaperClipIcon } from '@heroicons/react/20/solid';
 import {
   ArrowDownOnSquareIcon,
   ArrowPathIcon,
@@ -16,8 +17,9 @@ import DeleteModal from './DeleteModal';
 import EditModal from './EditModal';
 import FailureAlert from './FailureAlert';
 import FileUploadModal from './FileUploadModal';
-import { statusKeys, statusLabels } from './status.js';
-import StatusIcon from './StatusIcon.jsx';
+import RtfImportModal from './RtfImportModal';
+import { statusKeys, statusLabels } from './status';
+import StatusIcon from './StatusIcon';
 import { startOfWeek } from './utils';
 
 const typeMap = {
@@ -33,6 +35,11 @@ const typeLabels = {
 
 const filterStatusKeys = statusKeys.filter(value => value !== 'SETTLED');
 
+function ignoreEvent(e) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+
 export default function Content() {
   const api = useContext(ApiContext);
 
@@ -42,12 +49,14 @@ export default function Content() {
   const [statusQuery, setStatusQuery] = useState([]);
   const [typeQuery, setTypeQuery] = useState([]);
   const [isEditOpen, setEditOpen] = useState(false);
+  const [isImportOpen, setImportOpen] = useState(false);
   const [isUploadOpen, setUploadOpen] = useState(false);
   const [isDeleteOpen, setDeleteOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState(null);
   const [todosOnly, setTodosOnly] = useState(false);
   const [settledOnly, setSettledOnly] = useState(false);
   const [reloadCases, setReloadCases] = useState(true);
+  const [reloadDocuments, setReloadDocuments] = useState(true);
   const [recentlyUpdatedId, setRecentlyUpdatedId] = useState();
   const [loading, setLoading] = useState(false);
   const delayedLoading = useDebounce(loading, 1000);
@@ -170,6 +179,11 @@ export default function Content() {
     setEditOpen(true);
   }
 
+  function openUploadModal(aCase) {
+    setSelectedCase(aCase);
+    setUploadOpen(true);
+  }
+
   function openDeleteModal(aCase) {
     setSelectedCase(aCase);
     setDeleteOpen(true);
@@ -180,7 +194,8 @@ export default function Content() {
       {/* modals */}
       <EditModal isOpen={isEditOpen} setIsOpen={setEditOpen} selectedCase={selectedCase} forceUpdate={forceUpdate} />
 
-      <FileUploadModal isOpen={isUploadOpen} setIsOpen={setUploadOpen} forceUpdate={forceUpdate} />
+      <RtfImportModal isOpen={isImportOpen} setIsOpen={setImportOpen} forceUpdate={forceUpdate} />
+      <FileUploadModal isOpen={isUploadOpen} setIsOpen={setUploadOpen} selectedCase={selectedCase} forceUpdate={() => setReloadDocuments(b => !b)} />
 
       <DeleteModal isOpen={isDeleteOpen} setIsOpen={setDeleteOpen} selectedCase={selectedCase} forceUpdate={forceUpdate} />
 
@@ -256,7 +271,7 @@ export default function Content() {
             <div className="hidden sm:inline-flex">
               <button
                 className="flex w-full items-center rounded-r-lg bg-teal-700 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-                onClick={() => setUploadOpen(true)}
+                onClick={() => setImportOpen(true)}
               >
                 <ArrowDownOnSquareIcon className="size-6 inline" />
                 <span className="ms-2 lg:inline hidden">RTF Import</span>
@@ -325,7 +340,10 @@ export default function Content() {
         loadingSpinner={loadingSpinner}
         recentlyUpdatedId={recentlyUpdatedId}
         openEditModal={openEditModal}
+        openUploadModal={openUploadModal}
         openDeleteModal={openDeleteModal}
+        reloadDocuments={reloadDocuments}
+        setReloadDocuments={setReloadDocuments}
       />
     </>
   );
@@ -439,29 +457,46 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
   );
 }
 
-function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, openDeleteModal }) {
-  const [openCase, setOpenCase] = useState(null);
+function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, openUploadModal, openDeleteModal, reloadDocuments, setReloadDocuments }) {
+  const api = useContext(ApiContext);
+
+  const [openCaseId, setOpenCaseId] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [clickedCase, setClickedCase] = useState(null);
-  const singleClickedCase = useDebounce(clickedCase, 300);
+  const [clickedCaseId, setClickedCaseId] = useState(null);
+  const singleClickedCaseId = useDebounce(clickedCaseId, 300);
+  const [documents, setDocuments] = useState([]);
+  const [selectedDocumentId, setSelectedDocumentId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    if (openCase && (recentlyUpdatedId || !cases.map(c => c.id).includes(openCase))) {
-      setOpenCase(null);
+    if (openCaseId && (recentlyUpdatedId || !cases.map(c => c.id).includes(openCaseId))) {
+      setOpenCaseId(null);
     }
-  }, [cases, recentlyUpdatedId, openCase]);
+  }, [cases, recentlyUpdatedId, openCaseId]);
 
   useEffect(() => {
-    if (singleClickedCase && clickedCase && singleClickedCase === clickedCase) {
-      setOpenCase(o => o === clickedCase ? null : clickedCase);
+    if (singleClickedCaseId && clickedCaseId && singleClickedCaseId === clickedCaseId) {
+      setOpenCaseId(o => o === clickedCaseId ? null : clickedCaseId);
       setOpenDropdown(null);
-      setClickedCase(null);
+      setClickedCaseId(null);
     }
-  }, [singleClickedCase]);
+  }, [singleClickedCaseId]);
+
+  useEffect(() => {
+    setSelectedDocumentId(null);
+    setErrorMessage(null);
+    if (openCaseId) {
+      api.getCaseDocuments(openCaseId)
+        .then(response => setDocuments(response.data.documents))
+        .catch(error => setErrorMessage(error.userMessage));
+    } else {
+      setDocuments([]);
+    }
+  }, [openCaseId, reloadDocuments]);
 
   function clickCase(id) {
     // double-click toggles clickedCase
-    setClickedCase(c => c === id ? null : id);
+    setClickedCaseId(c => c === id ? null : id);
   }
 
   function toggleDropdown(event, id) {
@@ -469,10 +504,48 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
     setOpenDropdown(o => o === id ? null : id);
   }
 
+  function openUpload(event, aCase) {
+    event.stopPropagation();
+    setOpenDropdown(null);
+    openUploadModal(aCase);
+  }
+
   function openDelete(event, aCase) {
     event.stopPropagation();
     setOpenDropdown(null);
     openDeleteModal(aCase);
+  }
+
+  function downloadDocument(event, id, docId, filename) {
+    ignoreEvent(event);
+    api.downloadCaseDocument(id, docId).then((response) => {
+      const href = URL.createObjectURL(response.data);
+      const link = document.createElement('a');
+      link.href = href;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(href);
+    }).catch((error) => {
+      if (error.response.status === 404) {
+        setErrorMessage(`Hmm, es gibt zwar einen Eintrag für ${filename}, aber das Dokument selbst ist nicht mehr da. 😕`);
+      } else {
+        setErrorMessage(error.userMessage);
+      }
+    });
+  }
+
+  function selectDocument(event, docId) {
+    event.stopPropagation();
+    setSelectedDocumentId(docId);
+  }
+
+  function deleteDocument(event, caseId, docId) {
+    event.stopPropagation();
+    api.deleteCaseDocument(caseId, docId).then(() => {
+      setReloadDocuments(b => !b);
+    }).catch(error => setErrorMessage(error.userMessage));
   }
 
   function formattedDate(date) {
@@ -511,8 +584,10 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
   const editButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-l-lg leading-4 text-sm font-semibold',
     'text-white shadow-sm bg-teal-700 hover:bg-teal-600 border-r-white border-r',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
-  const deleteButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-lg leading-4 text-sm font-semibold',
-    'text-rose-700 shadow-sm border border-stone-300 bg-white hover:bg-stone-100');
+  const uploadButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-t-lg leading-4 text-sm font-semibold',
+    'shadow-sm border border-stone-300 bg-white hover:bg-stone-100');
+  const deleteButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-b-lg leading-4 text-sm font-semibold',
+    'text-rose-700 shadow-sm border border-stone-300 border-t-0 bg-white hover:bg-stone-100');
 
   return (
     <ol className={olClasses}>
@@ -523,15 +598,15 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
       )}
       {cases.map((aCase) => {
         const liClasses = clsx('col-span-full grid grid-cols-subgrid border-y border-y-stone-50',
-          'data-open:border-y-stone-700 data-open:hover:border-y-teal-700 hover:text-teal-700',
-          aCase.ref && 'hover:border-y-stone-300 cursor-pointer py-2', todoBg(aCase.todoDate),
+          'data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900 hover:text-teal-700',
+          aCase.ref && 'hover:border-y-stone-300 cursor-pointer data-open:cursor-auto py-2', todoBg(aCase.todoDate),
           recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
           aCase.newWeek && 'relative mt-20 first:mt-8 border-t-teal-700');
         const weekMarkerClasses = 'absolute -top-6 right-0 py-1 px-7 text-xs bg-teal-700 text-white rounded-t-lg';
         return (
           <li
             key={aCase.id}
-            data-open={openCase === aCase.id}
+            data-open={openCaseId === aCase.id}
             className={liClasses}
             onClick={() => clickCase(aCase.ref && aCase.id)}
             onDoubleClick={e => openEditModal(e, aCase.ref && aCase)}
@@ -553,7 +628,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                   <StatusIcon status={aCase.status} className="size-6 mx-auto" />
                 </div>
                 <div
-                  data-open={openCase === aCase.id}
+                  data-open={openCaseId === aCase.id}
                   className="px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:md:mr-4"
                 >
                   <span title={aCase.parties ? 'Parteien' : null}>{aCase.parties}</span>
@@ -573,7 +648,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                 </div>
                 <div
                   title={aCase.area ? 'Rechtsgebiet' : null}
-                  data-open={openCase === aCase.id}
+                  data-open={openCaseId === aCase.id}
                   className="hidden lg:inline px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:mr-4"
                 >
                   {aCase.area}
@@ -588,7 +663,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                   {formattedDate(isSettled(aCase) ? aCase.settledOn : aCase.dueDate)}
                 </div>
                 <Transition
-                  show={openCase === aCase.id}
+                  show={openCaseId === aCase.id}
                   appear={true}
                   className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4"
                   enter="transition-opacity duration-100 ease-out"
@@ -607,7 +682,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       <button
                         className="p-2 rounded-r-lg text-white bg-teal-700 hover:bg-teal-600"
                         onClick={e => toggleDropdown(e, aCase.id)}
-                        onDoubleClick={e => e.stopPropagation()}
+                        onDoubleClick={ignoreEvent}
                       >
                         {
                           openDropdown === aCase.id
@@ -622,9 +697,19 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                     >
                       <li>
                         <button
+                          className={uploadButtonClasses}
+                          onClick={e => openUpload(e, aCase)}
+                          onDoubleClick={ignoreEvent}
+                        >
+                          <PaperClipIcon className="size-4 me-2 inline" />
+                          Hochladen
+                        </button>
+                      </li>
+                      <li>
+                        <button
                           className={deleteButtonClasses}
                           onClick={e => openDelete(e, aCase)}
-                          onDoubleClick={e => e.stopPropagation()}
+                          onDoubleClick={ignoreEvent}
                         >
                           <TrashIcon className="size-4 me-2 inline" />
                           Löschen
@@ -656,7 +741,51 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       {aCase.memo}
                     </div>
                   )}
-                  <div className="col-start-3 md:col-end-5 lg:col-end-7 text-xs flex flex-col sm:flex-row justify-between px-2 gap-2">
+                  {documents.length > 0 && (
+                    <div className="col-start-3 col-end-5 px-2 text-sm">
+                      <ol>
+                        {
+                          documents.map(doc => (
+                            <li key={doc.id} className="flex items-center">
+                              <PaperClipIcon className="size-3.5 inline me-1" />
+                              <a
+                                href="#"
+                                className="text-teal-700 hover:text-teal-800 hover:underline"
+                                onClick={e => downloadDocument(e, aCase.id, doc.id, doc.filename)}
+                                onDoubleClick={ignoreEvent}
+                              >
+                                {doc.filename}
+                              </a>
+                              <XMarkIcon
+                                className={clsx('size-3 inline ms-2 hover:text-teal-700 hover:cursor-pointer',
+                                  selectedDocumentId === doc.id && 'hidden')}
+                                title="Löschen"
+                                onClick={e => selectDocument(e, doc.id)}
+                                onDoubleClick={ignoreEvent}
+                              />
+                              <div className={clsx('self-start inline-flex items-center ms-2', selectedDocumentId !== doc.id && 'hidden')}>
+                                <ChevronLeftIcon
+                                  className="size-3 cursor-pointer inline"
+                                  onClick={e => selectDocument(e, null)}
+                                  onDoubleClick={ignoreEvent}
+                                />
+                                <span className="ms-1 font-semibold">Löschen?</span>
+                                <TrashIcon
+                                  className="inline size-3 ms-1 cursor-pointer"
+                                  onClick={e => deleteDocument(e, aCase.id, doc.id)}
+                                  onDoubleClick={ignoreEvent}
+                                />
+                              </div>
+                            </li>
+                          ))
+                        }
+                      </ol>
+                    </div>
+                  )}
+                  <FailureAlert message={errorMessage} className="col-start-3 md:col-end-5 lg:col-end-7" />
+                  <div
+                    className="col-start-3 md:col-end-5 lg:col-end-7 text-xs flex flex-col sm:flex-row justify-between px-2 gap-2"
+                  >
                     <div>
                       {`Eingegangen am ${formattedDate(aCase.receivedOn)}`}
                     </div>

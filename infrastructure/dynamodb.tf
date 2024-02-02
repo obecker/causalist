@@ -1,7 +1,8 @@
 locals {
-  table_suffix = var.env == "prod" ? "" : title(var.env)
-  users_table  = "CausalistUsers${local.table_suffix}"
-  cases_table  = "CausalistCases${local.table_suffix}"
+  table_suffix    = var.env == "prod" ? "" : title(var.env)
+  users_table     = "CausalistUsers${local.table_suffix}"
+  cases_table     = "CausalistCases${local.table_suffix}"
+  documents_table = "CausalistCaseDocuments${local.table_suffix}"
 }
 
 resource "aws_dynamodb_table" "db_users" {
@@ -58,6 +59,33 @@ resource "aws_dynamodb_table" "db_cases" {
   local_secondary_index {
     name            = "SettledIndex"
     range_key       = "settledOn"
+    projection_type = "ALL"
+  }
+}
+
+resource "aws_dynamodb_table" "db_documents" {
+  name                        = local.documents_table
+  billing_mode                = "PAY_PER_REQUEST"
+  deletion_protection_enabled = true
+  hash_key                    = "ownerId"
+  range_key                   = "id"
+
+  attribute {
+    name = "ownerId"
+    type = "S"
+  }
+  attribute {
+    name = "id"
+    type = "S"
+  }
+  attribute {
+    name = "ref"
+    type = "S"
+  }
+
+  local_secondary_index {
+    name            = "ReferenceIndex"
+    range_key       = "ref"
     projection_type = "ALL"
   }
 }

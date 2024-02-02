@@ -5,15 +5,26 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.sequences.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.Runs
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
 
 class CaseServiceTest : DescribeSpec({
 
     describe("CaseService") {
         val caseRepository = fakeCaseRepository
-        val caseService = caseService(caseRepository)
+        val caseDocumentService = mockk<CaseDocumentService>()
+        val caseService = caseService(caseRepository, caseDocumentService)
+
+        every { caseDocumentService.getForCase(any()) } returns emptySequence()
+        every { caseDocumentService.move(any(), any(), any()) } just Runs
 
         afterEach {
             caseRepository.deleteAll()
+            clearMocks(caseDocumentService, answers = false)
         }
 
         it("should persist new case") {
@@ -72,6 +83,10 @@ class CaseServiceTest : DescribeSpec({
             caseRepository.get(case.ownerId, oldReference) shouldBe null
             caseRepository.get(case.ownerId, newReference) shouldBe movedCase
             caseRepository.findAll() shouldHaveSize 1
+
+            verify {
+                caseDocumentService.move(case.ownerId, oldReference.toId(), newReference.toId())
+            }
         }
 
         it("should prevent moving a case to an existing case") {
@@ -87,6 +102,10 @@ class CaseServiceTest : DescribeSpec({
             }
             caseRepository.get(case.ownerId, oldReference) shouldBe case
             caseRepository.get(case.ownerId, newReference) shouldBe existingCase
+
+            verify(inverse = true) {
+                caseDocumentService.move(case.ownerId, oldReference.toId(), newReference.toId())
+            }
         }
     }
 })

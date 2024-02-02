@@ -153,7 +153,7 @@ interface CaseService {
     fun findByOwner(ownerId: UUID, type: Type?, status: List<Status>, settled: Boolean): Sequence<Case>
 }
 
-fun caseService(repository: CaseRepository): CaseService = object : CaseService {
+fun caseService(repository: CaseRepository, caseDocumentService: CaseDocumentService): CaseService = object : CaseService {
     override fun persist(case: Case): Case {
         if (repository.get(case) != null) {
             throw CaseExistsException()
@@ -169,14 +169,20 @@ fun caseService(repository: CaseRepository): CaseService = object : CaseService 
     }
 
     override fun move(case: Case, fromReference: Reference): Case {
-        persist(case)
+        persist(case) // must come first - might fail with CaseExistsException
         repository.delete(case.ownerId, fromReference.toId())
+        caseDocumentService.move(case.ownerId, fromReference.toId(), case.ref.toId())
         return case
     }
 
     override fun get(ownerId: UUID, refId: String) = repository.get(ownerId, refId)
 
-    override fun delete(case: Case) = repository.delete(case)
+    override fun delete(case: Case) {
+        caseDocumentService.getForCase(case).forEach { document ->
+            caseDocumentService.delete(document)
+        }
+        repository.delete(case)
+    }
 
     override fun findByOwner(ownerId: UUID, type: Type?, status: List<Status>, settled: Boolean) =
         repository.findByOwner(ownerId, type, status, settled)

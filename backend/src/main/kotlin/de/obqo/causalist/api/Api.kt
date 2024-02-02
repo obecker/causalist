@@ -2,9 +2,12 @@ package de.obqo.causalist.api
 
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import de.obqo.causalist.CaseDocumentService
 import de.obqo.causalist.CaseExistsException
 import de.obqo.causalist.CaseMissingException
 import de.obqo.causalist.CaseService
+import de.obqo.causalist.CryptoUtils.decrypt
+import de.obqo.causalist.CryptoUtils.encrypt
 import de.obqo.causalist.Reference
 import de.obqo.causalist.Status
 import de.obqo.causalist.Type
@@ -20,6 +23,7 @@ import org.http4k.contract.openapi.v3.OpenApi3ApiRenderer
 import org.http4k.contract.security.BearerAuthSecurity
 import org.http4k.contract.ui.swaggerUiLite
 import org.http4k.core.Body
+import org.http4k.core.ContentType
 import org.http4k.core.Filter
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.DELETE
@@ -49,16 +53,19 @@ import org.http4k.lens.Query
 import org.http4k.lens.RequestContextKey
 import org.http4k.lens.StringBiDiMappings.enum
 import org.http4k.lens.Validator
+import org.http4k.lens.binary
 import org.http4k.lens.boolean
 import org.http4k.lens.localDate
 import org.http4k.lens.map
 import org.http4k.lens.multipartForm
 import org.http4k.lens.string
+import org.http4k.lens.uuid
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import se.ansman.kotshi.KotshiJsonAdapterFactory
 import java.time.Instant
 import java.time.LocalDate
+import java.util.UUID
 
 private val logger: KLogger = KotlinLogging.logger {}
 
@@ -87,6 +94,11 @@ val datePart = MultipartFormField.string().localDate().required("date")
 val importCasesFormLens = Body.multipartForm(Validator.Strict, uploadPart, datePart).toLens()
 val importResultLens = causalistJson.autoBody<ImportResult>().toLens()
 
+val filenamePart = MultipartFormField.string().required("filename")
+val uploadCaseDocumentLens = Body.multipartForm(Validator.Strict, uploadPart, filenamePart).toLens()
+val caseDocumentLens = causalistJson.autoBody<CaseDocumentResource>().toLens()
+val caseDocumentsLens = causalistJson.autoBody<CaseDocumentsResource>().toLens()
+
 object Spec {
 
     private val reference = Reference.parseValue("123 O 1/23")
@@ -104,6 +116,8 @@ object Spec {
         listOf("123 O 4/23"),
         listOf("Unknown reference")
     )
+    private val documentSample = CaseDocumentResource(UUID.randomUUID(), "foobar.txt")
+    private val documentsSample = CaseDocumentsResource(listOf(documentSample))
 
     val listCases = "/cases" meta {
         operationId = "listCases"
@@ -146,9 +160,41 @@ object Spec {
         summary = "delete case by ID"
         returning(NO_CONTENT)
     } bindContract DELETE
+
+    val uploadDocument = "/cases" / Path.string().of("refId") / "documents" meta {
+        operationId = "uploadDocument"
+        summary = "upload a document for a case"
+        preFlightExtraction = PreFlightExtraction.IgnoreBody // avoid reading the multipart stream twice
+        receiving(uploadCaseDocumentLens)
+        returning(OK, caseDocumentLens to documentSample)
+    } bindContract POST
+
+    val downloadDocument = "/cases" / Path.string().of("refId") / "documents" / Path.uuid().of("docId") meta {
+        val contentType = ContentType.OCTET_STREAM
+        operationId = "downloadDocument"
+        summary = "download a document"
+        produces += contentType
+        returning(OK, Body.binary(contentType).toLens() to "example".byteInputStream())
+    } bindContract GET
+
+    val deleteDocument = "/cases" / Path.string().of("refId") / "documents" / Path.uuid().of("docId") meta {
+        operationId = "deleteDocument"
+        summary = "delete a document"
+        returning(NO_CONTENT)
+    } bindContract DELETE
+
+    val getDocuments = "/cases" / Path.string().of("refId") / "documents" meta {
+        operationId = "getDocuments"
+        summary = "get the list of attached documents for a case"
+        returning(OK, caseDocumentsLens to documentsSample)
+    } bindContract GET
 }
 
-fun httpApi(authentication: Authentication, caseService: CaseService): HttpHandler {
+fun httpApi(
+    authentication: Authentication,
+    caseService: CaseService,
+    caseDocumentService: CaseDocumentService
+): HttpHandler {
     val contexts = RequestContexts()
     val userContextKey = RequestContextKey.required<UserContext>(contexts)
 
@@ -241,16 +287,65 @@ fun httpApi(authentication: Authentication, caseService: CaseService): HttpHandl
         } ?: Response(NOT_FOUND)
     }
 
+    fun uploadDocument(refId: String, @Suppress("UNUSED_PARAMETER") unused: String): HttpHandler = { request ->
+        logger.info { "Upload document" }
+        val (userId, encryptionKey) = userContextKey(request)
+        val doc = uploadCaseDocumentLens(request).use {
+            val file = uploadPart(it)
+            val filename = filenamePart(it)
+            caseDocumentService.upload(
+                userId,
+                refId,
+                filename.encrypt(encryptionKey),
+                file.content.encrypt(encryptionKey)
+            )
+        }
+        Response(OK).with(caseDocumentLens of doc.toResource(encryptionKey))
+    }
+
+    fun downloadDocument(refId: String, @Suppress("UNUSED_PARAMETER") unused: String, docId: UUID): HttpHandler = { request ->
+        logger.info { "Download document $docId" }
+        val (userId, encryptionKey) = userContextKey(request)
+        caseDocumentService.download(userId, docId, refId)?.decrypt(encryptionKey)?.let {
+            Response(OK).body(it)
+        } ?: Response(NOT_FOUND)
+    }
+
+    fun deleteDocument(refId: String, @Suppress("UNUSED_PARAMETER") unused: String, docId: UUID): HttpHandler = { request ->
+        logger.info { "Delete document $docId" }
+        val (userId) = userContextKey(request)
+        caseDocumentService.delete(userId, docId, refId)
+        Response(NO_CONTENT)
+    }
+
+    fun getDocuments(refId: String, @Suppress("UNUSED_PARAMETER") unused: String): HttpHandler = { request ->
+        logger.info { "Download documents for case ${Reference.parseId(refId)}" }
+        val (userId, encryptionKey) = userContextKey(request)
+        caseService.get(userId, refId)?.let { case -> caseDocumentService.getForCase(case) }
+            ?.let { documents ->
+                Response(OK).with(
+                    caseDocumentsLens of documents.toList().toResource(encryptionKey)
+                )
+            }
+            ?: Response(NOT_FOUND)
+    }
+
     val bearerAuth = ServerFilters.BearerAuth(userContextKey, authentication.contextLookup)
 
     val api = contract {
 
-        routes += Spec.listCases to ::listCases
-        routes += Spec.createCase to ::createCase
-        routes += Spec.importCases to ::importCases
-        routes += Spec.getCase to ::getCase
-        routes += Spec.putCase to ::updateCase
-        routes += Spec.deleteCase to ::deleteCase
+        routes += listOf(
+            Spec.listCases to ::listCases,
+            Spec.createCase to ::createCase,
+            Spec.importCases to ::importCases,
+            Spec.getCase to ::getCase,
+            Spec.putCase to ::updateCase,
+            Spec.deleteCase to ::deleteCase,
+            Spec.uploadDocument to ::uploadDocument,
+            Spec.downloadDocument to ::downloadDocument,
+            Spec.deleteDocument to ::deleteDocument,
+            Spec.getDocuments to ::getDocuments
+        )
 
         // generate OpenApi spec with non-reflective JSON provider
         renderer = OpenApi3(

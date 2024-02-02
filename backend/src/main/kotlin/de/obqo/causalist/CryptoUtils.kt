@@ -1,8 +1,12 @@
 package de.obqo.causalist
 
+import java.io.ByteArrayInputStream
+import java.io.InputStream
+import java.io.SequenceInputStream
 import java.security.SecureRandom
 import java.util.Base64
 import javax.crypto.Cipher
+import javax.crypto.CipherInputStream
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
@@ -74,10 +78,11 @@ object CryptoUtils {
      * The result is a Base64 encoded string containing the IV and the cipher text.
      */
     fun String.encrypt(secretKey: SecretKey): String {
-        val plainTextBytes = toByteArray()
         val iv = randomBytes(IV_LENGTH_BYTE)
         val cipher = Cipher.getInstance(ENCRYPT_ALGO)
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, GCMParameterSpec(TAG_LENGTH_BIT, iv))
+
+        val plainTextBytes = toByteArray()
         val cipherText = cipher.doFinal(plainTextBytes)
         return encodeBase64(iv + cipherText)
     }
@@ -89,10 +94,36 @@ object CryptoUtils {
     fun String.decrypt(secretKey: SecretKey): String {
         val cipherTextBytes = decodeBase64(this)
         val iv = cipherTextBytes.copyOfRange(0, IV_LENGTH_BYTE)
-        val cipherText = cipherTextBytes.copyOfRange(IV_LENGTH_BYTE, cipherTextBytes.size)
         val cipher = Cipher.getInstance(ENCRYPT_ALGO)
         cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(TAG_LENGTH_BIT, iv))
+
+        val cipherText = cipherTextBytes.copyOfRange(IV_LENGTH_BYTE, cipherTextBytes.size)
         val plainText = cipher.doFinal(cipherText)
         return String(plainText, UTF_8)
+    }
+
+    /**
+     * Encrypts the given [InputStream] with the given [SecretKey] using AES/GCM/NoPadding.
+     * The result is an [InputStream] containing the IV and the cipher bytes.
+     */
+    fun InputStream.encrypt(secretKey: SecretKey): InputStream {
+        val iv = randomBytes(IV_LENGTH_BYTE)
+        val cipher = Cipher.getInstance(ENCRYPT_ALGO)
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, GCMParameterSpec(TAG_LENGTH_BIT, iv))
+
+        val cipherStream = CipherInputStream(this, cipher)
+        return SequenceInputStream(ByteArrayInputStream(iv), cipherStream)
+    }
+
+    /**
+     * Decrypts the given [InputStream] with the given [SecretKey] using AES/GCM/NoPadding.
+     * The given [InputStream] must start with the bytes of the IV.
+     */
+    fun InputStream.decrypt(secretKey: SecretKey): InputStream {
+        val iv = readNBytes(IV_LENGTH_BYTE)
+        val cipher = Cipher.getInstance(ENCRYPT_ALGO)
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(TAG_LENGTH_BIT, iv))
+
+        return CipherInputStream(this, cipher)
     }
 }

@@ -27,13 +27,14 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import java.time.LocalDate
 import java.util.UUID
 
 class CaseRtfImporterTest : DescribeSpec({
     describe("CaseRtfImporter") {
 
-        val caseService = caseService(fakeCaseRepository)
+        val caseService = caseService(fakeCaseRepository, mockk())
         val userId = UUID.randomUUID()
         val secretKey = generateRandomAesKey()
 

@@ -1,6 +1,7 @@
 package de.obqo.causalist.api
 
 import de.obqo.causalist.Case
+import de.obqo.causalist.CaseDocument
 import de.obqo.causalist.CryptoUtils.decrypt
 import de.obqo.causalist.CryptoUtils.encrypt
 import de.obqo.causalist.RefEntity
@@ -49,6 +50,17 @@ data class CasesResource(
     val cases: List<CaseResource>
 )
 
+@JsonSerializable
+data class CaseDocumentResource(
+    val id: UUID,
+    val filename: String
+)
+
+@JsonSerializable
+data class CaseDocumentsResource(
+    val documents: List<CaseDocumentResource>
+)
+
 fun Reference.toResource() = ReferenceResource(
     entity.value, register.value, number.value, year.value, toValue()
 )
@@ -89,4 +101,12 @@ fun CaseResource.toEntity(ownerId: UUID, encryptionKey: SecretKey) = Case(
     // updatedAt will be automatically set
 )
 
-fun List<Case>.toResource(encryptionKey: SecretKey) = CasesResource(this.map { it.toResource(encryptionKey) })
+fun List<Case>.toResource(encryptionKey: SecretKey) = CasesResource(map { it.toResource(encryptionKey) })
+
+fun CaseDocument.toResource(encryptionKey: SecretKey) = CaseDocumentResource(
+    id = id,
+    filename = filename.decrypt(encryptionKey)
+)
+
+fun List<CaseDocument>.toResource(encryptionKey: SecretKey) =
+    CaseDocumentsResource(map { it.toResource(encryptionKey) }.sortedBy { it.filename })

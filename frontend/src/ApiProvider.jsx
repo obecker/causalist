@@ -77,7 +77,7 @@ export default function ApiProvider({ children }) {
     },
 
     getCase(id) {
-      return client.get('/cases/' + id, { headers: { ...authorization } })
+      return client.get(`/cases/${id}`, { headers: { ...authorization } })
         .catch(commonFailureHandler());
     },
 
@@ -96,12 +96,38 @@ export default function ApiProvider({ children }) {
     },
 
     updateCase(caseData) {
-      return client.put('/cases/' + caseData.id, caseData, { headers: { ...authorization } })
+      return client.put(`/cases/${caseData.id}`, caseData, { headers: { ...authorization } })
         .catch(commonFailureHandler(400, 409));
     },
 
     deleteCase(id) {
-      return client.delete('/cases/' + id, { headers: { ...authorization } })
+      return client.delete(`/cases/${id}`, { headers: { ...authorization } })
+        .catch(commonFailureHandler());
+    },
+
+    uploadCaseDocument(id, file) {
+      const formData = new FormData();
+      formData.append('upload', file, file.name);
+      formData.append('filename', file.name);
+      return client.post(`/cases/${id}/documents`, formData, {
+        headers: { ...authorization, 'Content-Type': 'multipart/form-data' },
+      }).catch(commonFailureHandler());
+    },
+
+    getCaseDocuments(id) {
+      return client.get(`/cases/${id}/documents`, { headers: { ...authorization } })
+        .catch(commonFailureHandler());
+    },
+
+    downloadCaseDocument(id, docId) {
+      return client.get(`/cases/${id}/documents/${docId}`, {
+        headers: { ...authorization },
+        responseType: 'blob',
+      }).catch(commonFailureHandler(404));
+    },
+
+    deleteCaseDocument(id, docId) {
+      return client.delete(`/cases/${id}/documents/${docId}`, { headers: { ...authorization } })
         .catch(commonFailureHandler());
     },
   };
