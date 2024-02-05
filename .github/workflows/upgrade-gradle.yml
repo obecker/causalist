@@ -1,0 +1,33 @@
+name: Gradle wrapper upgrade
+
+on:
+  schedule:
+    - cron: '* 5 * * *'
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Upgrade Gradle
+        id: gradleUpgrade
+        uses: EdwarDDay/upgrade-gradle-action@v1.2.1
+        with:
+          working-directory: backend
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v6.0.0
+        with:
+          commit-message: ":arrow_up: Upgrade gradle to ${{ steps.gradleUpgrade.outputs.gradle-version }}"
+          branch: "gradle_upgrade/version_${{ steps.gradleUpgrade.outputs.gradle-version }}"
+          base: main
+          delete-branch: true
+          title: ":arrow_up: Upgrade gradle to ${{ steps.gradleUpgrade.outputs.gradle-version }}"
+          body: |
+            ${{ steps.gradleUpgrade.outputs.version-information }}
+
+            Automated changes by [upgrade-gradle-action](https://github.com/EdwarDDay/upgrade-gradle-action) and [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub actions
+          labels: "dependencies,gradle"
