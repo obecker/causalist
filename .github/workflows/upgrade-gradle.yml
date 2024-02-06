@@ -2,11 +2,15 @@ name: Gradle wrapper upgrade
 
 on:
   schedule:
-    - cron: '* 5 * * *'
+    - cron: '15 4 * * *'
 
 jobs:
   upgrade:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout
@@ -31,3 +35,4 @@ jobs:
 
             Automated changes by [upgrade-gradle-action](https://github.com/EdwarDDay/upgrade-gradle-action) and [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub actions
           labels: "dependencies,gradle"
+          assignees: obecker
