@@ -3,21 +3,25 @@ name: Gradle wrapper upgrade
 on:
   schedule:
     - cron: '15 4 * * *'
+  pull_request:
 
 jobs:
   upgrade:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-      pull-requests: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Generate access token
+        uses: tibdex/github-app-token@v2.1.0
+        id: generate-token
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Upgrade Gradle
-        id: gradleUpgrade
+        id: upgrade-gradle
         uses: EdwarDDay/upgrade-gradle-action@v1.2.1
         with:
           working-directory: backend
@@ -25,13 +29,14 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6.0.0
         with:
-          commit-message: ":arrow_up: Upgrade gradle to ${{ steps.gradleUpgrade.outputs.gradle-version }}"
-          branch: "gradle_upgrade/version_${{ steps.gradleUpgrade.outputs.gradle-version }}"
+          token: ${{ steps.generate-token.outputs.token }}
+          commit-message: ":arrow_up: Upgrade gradle to ${{ steps.upgrade-gradle.outputs.gradle-version }}"
+          branch: "gradle_upgrade/version_${{ steps.upgrade-gradle.outputs.gradle-version }}"
           base: main
           delete-branch: true
-          title: ":arrow_up: Upgrade gradle to ${{ steps.gradleUpgrade.outputs.gradle-version }}"
+          title: ":arrow_up: Upgrade gradle to ${{ steps.upgrade-gradle.outputs.gradle-version }}"
           body: |
-            ${{ steps.gradleUpgrade.outputs.version-information }}
+            ${{ steps.upgrade-gradle.outputs.version-information }}
 
             Automated changes by [upgrade-gradle-action](https://github.com/EdwarDDay/upgrade-gradle-action) and [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub actions
           labels: "dependencies,gradle"
