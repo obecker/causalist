@@ -117,8 +117,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     }
   }
 
-  function focusNextOnSpace(event, next) {
-    if (event.key === ' ') {
+  function focusNextOnKey(event, key, next) {
+    if (event.key === key) {
       event.preventDefault();
       next.current.focus();
     }
@@ -253,7 +253,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                           tabIndex="1"
                           disabled={fieldsDisabled}
                           value={refEntity}
-                          onKeyDown={e => focusNextOnSpace(e, refRegisterInput)}
+                          onKeyDown={e => focusNextOnKey(e, ' ', refRegisterInput)}
                           onPaste={pasteReference}
                           onChange={e => setRefEntity(e.target.value.trim())}
                           className={`mr-1 w-16 border-0 rounded-l-lg focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refEntityFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
@@ -265,7 +265,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                           disabled={fieldsDisabled}
                           value={refRegister}
                           ref={refRegisterInput}
-                          onKeyDown={e => focusNextOnSpace(e, refNoInput)}
+                          onKeyDown={e => focusNextOnKey(e, ' ', refNoInput)}
                           onChange={e => setRefRegister(e.target.value.trim().toUpperCase())}
                           className={`mr-1 w-12 border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refRegisterFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                         />
@@ -276,7 +276,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                           disabled={fieldsDisabled}
                           value={refNo}
                           ref={refNoInput}
-                          onKeyDown={e => focusNextOnSpace(e, refYearInput)}
+                          onKeyDown={e => focusNextOnKey(e, '/', refYearInput)}
                           onChange={e => setRefNo(e.target.value.trim())}
                           className={`w-16 border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refNoFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                         />
