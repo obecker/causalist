@@ -23,7 +23,7 @@ export default {
       gridTemplateColumns: {
         'cases': '8.3rem 2.75rem 1fr',
         'cases-md': '8.3rem 2.75rem 1fr 6rem',
-        'cases-lg': '8.3rem 2.75rem 3fr 1fr 6rem 6rem',
+        'cases-lg': '8.3rem 2.75rem 3fr 2fr 6rem 6rem',
       },
       keyframes: {
         updated: {
