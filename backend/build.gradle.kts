@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.shadow)
     alias(libs.plugins.test.logger)
+    alias(libs.plugins.kover)
     alias(libs.plugins.decycle)
     application
 }
@@ -76,4 +77,18 @@ tasks.test {
 
 testlogger {
     theme = ThemeType.MOCHA
+}
+
+// https://kotlin.github.io/kotlinx-kover/gradle-plugin/configuring#configuring-default-reports
+koverReport {
+    filters {
+        excludes {
+            classes("de.obqo.causalist.api.Kotshi*") // generated
+        }
+    }
+    defaults {
+        html {
+            onCheck = true
+        }
+    }
 }
