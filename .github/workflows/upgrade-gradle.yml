@@ -1,8 +1,8 @@
-name: Gradle wrapper upgrade
+name: Check for Gradle upgrade
 
 on:
   schedule:
-    - cron: '15 4 * * *'
+    - cron: '15 4 * * 1,4' # Mon+Thu at 4:15
 
 jobs:
   upgrade:
