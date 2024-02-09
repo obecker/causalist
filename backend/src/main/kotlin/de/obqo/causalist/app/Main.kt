@@ -10,7 +10,7 @@ import de.obqo.causalist.dynamo.dynamoCaseRepository
 import de.obqo.causalist.dynamo.dynamoUserRepository
 import de.obqo.causalist.s3.S3BucketWrapper
 import de.obqo.causalist.userService
-import org.http4k.client.JavaHttpClient
+import org.http4k.client.Java8HttpClient
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey
 import org.http4k.connect.amazon.AWS_REGION
@@ -42,11 +42,13 @@ fun main() {
     println("Read environment from $envResource")
     val environment = Environment.fromResource(envResource)
 
+    val httpClient = Java8HttpClient()
+
     val dynamoDbUriFilter = environment["DYNAMODB_URI"]?.let { SetBaseUriFrom(Uri.of(it)) } ?: Filter.NoOp
-    val dynamoHttp = dynamoDbUriFilter.then(JavaHttpClient())
+    val dynamoHttp = dynamoDbUriFilter.then(httpClient)
 
     val s3UriFilter = environment["S3_URI"]?.let { SetBaseUriFrom(Uri.of(it)) } ?: Filter.NoOp
-    val s3Http = s3UriFilter.then(JavaHttpClient())
+    val s3Http = s3UriFilter.then(httpClient)
 
     val api = buildApi(
         environment = environment,
@@ -65,8 +67,8 @@ fun main() {
 // entrypoint for the AWS Lambda Runtime
 @Suppress("Unused")
 class ApiLambdaHandler : ApiGatewayV2LambdaFunction(AppLoader {
-    val client = JavaHttpClient()
-    buildApi(Environment.from(it), client, client)
+    val httpClient = Java8HttpClient()
+    buildApi(Environment.from(it), httpClient, httpClient)
 })
 
 private fun buildApi(
