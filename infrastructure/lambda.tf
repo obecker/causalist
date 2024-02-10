@@ -27,6 +27,11 @@ resource "aws_lambda_function" "backend" {
   memory_size      = 2048
   timeout          = 30
   source_code_hash = data.local_file.lambda_handler_lib.content_base64sha256
+  publish          = true
+
+  snap_start {
+    apply_on = "PublishedVersions"
+  }
 
   environment {
     variables = {
@@ -40,6 +45,12 @@ resource "aws_lambda_function" "backend" {
       CAUSALIST_SIGNING_SECRET        = var.signing_secret
     }
   }
+}
+
+resource "aws_lambda_alias" "backend" {
+  name             = "causalist-backend-alias-${var.env}"
+  function_name    = aws_lambda_function.backend.function_name
+  function_version = aws_lambda_function.backend.version
 }
 
 resource "aws_iam_policy" "dynamodb" {

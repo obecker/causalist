@@ -30,7 +30,7 @@ resource "aws_apigatewayv2_stage" "default" {
 resource "aws_apigatewayv2_integration" "backend" {
   api_id = aws_apigatewayv2_api.backend.id
 
-  integration_uri        = aws_lambda_function.backend.invoke_arn
+  integration_uri        = aws_lambda_alias.backend.invoke_arn
   integration_type       = "AWS_PROXY"
   payload_format_version = "2.0"
 }
@@ -52,6 +52,7 @@ resource "aws_lambda_permission" "backend" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.backend.function_name
+  qualifier     = aws_lambda_alias.backend.name
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"

@@ -14,6 +14,9 @@ import org.http4k.client.Java8HttpClient
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey
 import org.http4k.connect.amazon.AWS_REGION
+import org.http4k.connect.amazon.CredentialsChain
+import org.http4k.connect.amazon.Environment
+import org.http4k.connect.amazon.containercredentials.ContainerCredentials
 import org.http4k.connect.amazon.dynamodb.DynamoDb
 import org.http4k.connect.amazon.dynamodb.Http
 import org.http4k.connect.amazon.dynamodb.model.TableName
@@ -35,14 +38,14 @@ import org.http4k.server.asServer
 import org.http4k.serverless.ApiGatewayV2LambdaFunction
 import org.http4k.serverless.AppLoader
 
+private val httpClient = Java8HttpClient()
+
 // run the server locally with environment from .env or .env.<ENV>
 fun main() {
     val env: String? = System.getenv("ENV")?.lowercase()
     val envResource = env?.let { ".env.$it" } ?: ".env"
     println("Read environment from $envResource")
     val environment = Environment.fromResource(envResource)
-
-    val httpClient = Java8HttpClient()
 
     val dynamoDbUriFilter = environment["DYNAMODB_URI"]?.let { SetBaseUriFrom(Uri.of(it)) } ?: Filter.NoOp
     val dynamoHttp = dynamoDbUriFilter.then(httpClient)
@@ -67,7 +70,6 @@ fun main() {
 // entrypoint for the AWS Lambda Runtime
 @Suppress("Unused")
 class ApiLambdaHandler : ApiGatewayV2LambdaFunction(AppLoader {
-    val httpClient = Java8HttpClient()
     buildApi(Environment.from(it), httpClient, httpClient)
 })
 
@@ -83,9 +85,14 @@ private fun buildApi(
     val caseDocumentsTableKey = EnvironmentKey.value(TableName).required("CAUSALIST_CASE_DOCUMENTS_TABLE")
     val caseDocumentsBucketNameKey = EnvironmentKey.value(BucketName).required("CAUSALIST_CASE_DOCUMENTS_BUCKET")
 
+    val credentialsProvider = CredentialsChain.ContainerCredentials(environment, httpClient)
+        .orElse(CredentialsChain.Environment(environment))
+        .provider()
+
     val dynamoDb = DynamoDb.Http(
         env = environment,
-        http = dynamoHttp
+        http = dynamoHttp,
+        credentialsProvider = credentialsProvider
     )
 
     val userRepository = dynamoUserRepository(dynamoDb, usersTableKey(environment))
@@ -98,7 +105,8 @@ private fun buildApi(
         bucketName = bucketName,
         bucketRegion = AWS_REGION(environment),
         env = environment,
-        http = s3Http
+        http = s3Http,
+        credentialsProvider = credentialsProvider
     )
     val s3BucketWrapper = S3BucketWrapper(bucketName, s3Bucket)
 
