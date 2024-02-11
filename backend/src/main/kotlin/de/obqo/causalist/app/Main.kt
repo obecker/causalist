@@ -1,6 +1,9 @@
 package de.obqo.causalist.app
 
 import de.obqo.causalist.Config
+import de.obqo.causalist.Reference
+import de.obqo.causalist.Type
+import de.obqo.causalist.api.TokenSupport
 import de.obqo.causalist.api.authentication
 import de.obqo.causalist.api.httpApi
 import de.obqo.causalist.caseDocumentService
@@ -10,7 +13,10 @@ import de.obqo.causalist.dynamo.dynamoCaseRepository
 import de.obqo.causalist.dynamo.dynamoUserRepository
 import de.obqo.causalist.s3.S3BucketWrapper
 import de.obqo.causalist.userService
-import org.http4k.client.Java8HttpClient
+import org.crac.Context
+import org.crac.Core
+import org.crac.Resource
+import org.http4k.client.JavaHttpClient
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey
 import org.http4k.connect.amazon.AWS_REGION
@@ -37,8 +43,9 @@ import org.http4k.server.SunHttp
 import org.http4k.server.asServer
 import org.http4k.serverless.ApiGatewayV2LambdaFunction
 import org.http4k.serverless.AppLoader
+import java.util.UUID
 
-private val httpClient = Java8HttpClient()
+private val httpClient = JavaHttpClient()
 
 // run the server locally with environment from .env or .env.<ENV>
 fun main() {
@@ -69,8 +76,8 @@ fun main() {
 
 // entrypoint for the AWS Lambda Runtime
 @Suppress("Unused")
-class ApiLambdaHandler : ApiGatewayV2LambdaFunction(AppLoader {
-    buildApi(Environment.from(it), httpClient, httpClient)
+class ApiLambdaHandler : ApiGatewayV2LambdaFunction(AppLoader { env ->
+    buildApi(Environment.from(env), httpClient, httpClient)
 })
 
 private fun buildApi(
@@ -116,5 +123,35 @@ private fun buildApi(
     val caseRepository = dynamoCaseRepository(dynamoDb, casesTableKey(environment))
     val caseService = caseService(caseRepository, caseDocumentService)
 
-    return httpApi(authentication, caseService, caseDocumentService)
+    val api = httpApi(authentication, caseService, caseDocumentService)
+
+    fun doPriming() {
+        // Prime the application by executing some typical service functions
+        // https://aws.amazon.com/de/blogs/compute/reducing-java-cold-starts-on-aws-lambda-functions-with-snapstart/
+        val uuid = UUID.randomUUID()
+        val ref = Reference.parseValue("123 O 45/67")
+        caseService.get(uuid, Reference.parseId(ref.toId()))
+        caseService.findByOwner(uuid, Type.CHAMBER, de.obqo.causalist.Status.entries, false)
+        caseService.findByOwner(uuid, Type.SINGLE, emptyList(), true)
+
+        val token = TokenSupport.createToken(uuid, "pwdHash", "userSecret")
+        api(Request(method = Method.GET, "/api/cases").header("Authorization", "Bearer $token"))
+    }
+
+    return object : HttpHandler, Resource {
+
+        init {
+            Core.getGlobalContext().register(this)
+        }
+
+        override fun invoke(request: Request) = api(request)
+
+        override fun beforeCheckpoint(context: Context<out Resource>?) {
+            doPriming()
+        }
+
+        override fun afterRestore(context: Context<out Resource>?) {
+            // nothing to do
+        }
+    }
 }

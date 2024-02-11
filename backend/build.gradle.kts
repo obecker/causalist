@@ -43,6 +43,8 @@ dependencies {
     implementation("org.slf4j:slf4j-simple")
     implementation(libs.kotlin.logging)
 
+    implementation(libs.crac)
+
     testImplementation(platform(libs.kotest.bom))
     testImplementation("io.kotest:kotest-framework-api-jvm")
     testImplementation("io.kotest:kotest-assertions-core-jvm")

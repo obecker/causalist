@@ -10,6 +10,7 @@ kotshi-api = { module = "se.ansman.kotshi:api", version.ref = "kotshi" }
 kotshi-compiler = { module = "se.ansman.kotshi:compiler", version.ref = "kotshi" }
 rtfparserkit = "com.github.joniles:rtfparserkit:1.16.0"
 slf4j-bom = "org.slf4j:slf4j-bom:2.0.12"
+crac = "org.crac:crac:1.4.0"
 
 kotest-bom = "io.kotest:kotest-bom:5.8.0"
 mockk = "io.mockk:mockk:1.13.9"
