@@ -1,6 +1,9 @@
 package de.obqo.causalist.app
 
 import de.obqo.causalist.Config
+import de.obqo.causalist.CryptoUtils
+import de.obqo.causalist.CryptoUtils.decrypt
+import de.obqo.causalist.CryptoUtils.encrypt
 import de.obqo.causalist.Reference
 import de.obqo.causalist.Type
 import de.obqo.causalist.api.TokenSupport
@@ -126,7 +129,7 @@ private fun buildApi(
     val api = httpApi(authentication, caseService, caseDocumentService)
 
     fun doPriming() {
-        // Prime the application by executing some typical service functions
+        // Prime the application by executing some typical functions
         // https://aws.amazon.com/de/blogs/compute/reducing-java-cold-starts-on-aws-lambda-functions-with-snapstart/
         val uuid = UUID.randomUUID()
         val ref = Reference.parseValue("123 O 45/67")
@@ -136,6 +139,9 @@ private fun buildApi(
 
         val token = TokenSupport.createToken(uuid, "pwdHash", "userSecret")
         api(Request(method = Method.GET, "/api/cases").header("Authorization", "Bearer $token"))
+
+        val key = CryptoUtils.generateRandomAesKey()
+        token.encrypt(key).decrypt(key)
     }
 
     return object : HttpHandler, Resource {
