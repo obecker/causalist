@@ -115,6 +115,7 @@ data class Case(
     val status: Status,
     val statusNote: String?,
     val memo: String?,
+    val markerColor: String?,
     val receivedOn: LocalDate,
     val settledOn: LocalDate?,
     val dueDate: LocalDate?,

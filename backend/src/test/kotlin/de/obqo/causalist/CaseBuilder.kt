@@ -19,10 +19,11 @@ fun aCase() = Case(
     ref = aReference(),
     type = Type.SINGLE,
     parties = null,
-    memo = null,
     area = null,
     status = Status.UNKNOWN,
     statusNote = null,
+    memo = null,
+    markerColor = null,
     receivedOn = LocalDate.now(),
     settledOn = null,
     dueDate = null,
@@ -39,6 +40,7 @@ fun Case.withArea(area: String) = copy(area = area)
 fun Case.withStatus(status: Status) = copy(status = status)
 fun Case.withStatusNote(statusNote: String) = copy(statusNote = statusNote)
 fun Case.withMemo(memo: String) = copy(memo = memo)
+fun Case.withMarkerColor(color: String) = copy(markerColor = color)
 fun Case.withReceivedOn(receivedOn: LocalDate) = copy(receivedOn = receivedOn)
 fun Case.withSettledOn(settledOn: LocalDate) = copy(settledOn = settledOn)
 fun Case.withDueDate(dueDate: LocalDate) = copy(dueDate = dueDate)

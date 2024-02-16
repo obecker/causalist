@@ -29,6 +29,7 @@ private val areaAttr = Attribute.string().optional("area", ignoreNull = true)
 private val statusAttr = Attribute.enum<Status>().required("status")
 private val statusNoteAttr = Attribute.string().optional("statusNote", ignoreNull = true)
 private val memoAttr = Attribute.string().optional("memo", ignoreNull = true)
+private val markerColorAttr = Attribute.string().optional("markerColor", ignoreNull = true)
 private val receivedOnAttr = Attribute.localDate().required("receivedOn")
 private val settledOnAttr = Attribute.localDate().optional("settledOn", ignoreNull = true)
 private val dueDateAttr = Attribute.localDate().optional("dueDate", ignoreNull = true)
@@ -49,6 +50,7 @@ private val caseLens = BiDiLens<Item, Case>(
             status = statusAttr(item),
             statusNote = statusNoteAttr(item),
             memo = memoAttr(item),
+            markerColor = markerColorAttr(item),
             receivedOn = receivedOnAttr(item),
             settledOn = settledOnAttr(item),
             dueDate = dueDateAttr(item),
@@ -68,6 +70,7 @@ private val caseLens = BiDiLens<Item, Case>(
             statusAttr of case.status,
             statusNoteAttr of case.statusNote,
             memoAttr of case.memo,
+            markerColorAttr of case.markerColor,
             receivedOnAttr of case.receivedOn,
             settledOnAttr of case.settledOn, // SettledIndex sort key
             dueDateAttr of case.dueDate,

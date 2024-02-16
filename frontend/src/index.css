@@ -15,3 +15,39 @@
     font-family: "KaushanScript";
     src: url("fonts/KaushanScript-Regular.ttf");
 }
+
+input.marker.none {
+    /* stone-100 */
+    color: #f5f5f4;
+    background-color: #f5f5f4;
+}
+.marker.gray {
+    /* stone-600 */
+    color: #57534e;
+    background-color: #57534e;
+}
+.marker.red {
+    /* rose-600 */
+    color: #e11d48;
+    background-color: #e11d48;
+}
+.marker.yellow {
+    /* amber-500 */
+    color: #f59e0b;
+    background-color: #f59e0b;
+}
+.marker.green {
+    /* emerald-600 */
+    color: #059669;
+    background-color: #059669;
+}
+.marker.blue {
+    /* indigo-600 */
+    color: #4f46e5;
+    background-color: #4f46e5;
+}
+.marker.purple {
+    /* purple-600 */
+    color: #9333ea;
+    background-color: #9333ea;
+}

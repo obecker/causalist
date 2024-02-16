@@ -80,8 +80,8 @@ export default function Content() {
         setLoading(false);
         setForceSpinner(false);
         setErrorMessage('');
-        // remove the animation css class after about 2.5s (duration of delay + animation, see tailwind.config.js)
-        setTimeout(() => setRecentlyUpdatedId(undefined), 2600);
+        // remove the animation css class after about 1.5s (duration of delay + animation, see tailwind.config.js)
+        setTimeout(() => setRecentlyUpdatedId(undefined), 1600);
       })
       .catch(error => setErrorMessage(error.userMessage));
   }, [reloadCases, statusQuery, typeQuery, settledOnly]);
@@ -619,6 +619,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
             {aCase.ref && ( // a case without ref is a placeholder for an empty week
               <>
                 <div className="flex justify-end w-full items-baseline">
+                  <span className={`ml-2 size-3 rounded-full marker ${aCase.markerColor}`}></span>
                   <span className="grow flex-none text-right">{aCase.ref.value}</span>
                   <span className="basis-4 flex-none text-left font-bold text-teal-600 text-xs ml-1 ">
                     {typeMap[aCase.type]}

@@ -22,6 +22,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   const [caseStatus, setCaseStatus] = useState('');
   const [caseStatusNote, setCaseStatusNote] = useState('');
   const [caseMemo, setCaseMemo] = useState('');
+  const [caseMarkerColor, setCaseMarkerColor] = useState('');
   const [caseReceivedOn, setCaseReceivedOn] = useState('');
   const [caseSettledOn, setCaseSettledOn] = useState('');
   const [caseDueDate, setCaseDueDate] = useState('');
@@ -46,6 +47,9 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
 
   const xlWidth = useMediaQuery('(min-width: 1280px)');
 
+  // see index.css for corresponding CSS colors
+  const markerColors = ['', 'gray', 'red', 'yellow', 'green', 'blue', 'purple'];
+
   useEffect(() => {
     setRefEntity('');
     setRefRegister('');
@@ -57,6 +61,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     setCaseStatus('');
     setCaseStatusNote('');
     setCaseMemo('');
+    setCaseMarkerColor('');
     setCaseReceivedOn('');
     setCaseSettledOn('');
     setCaseDueDate('');
@@ -77,6 +82,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
           setCaseStatus(caseResource.status);
           setCaseStatusNote(caseResource.statusNote || '');
           setCaseMemo(caseResource.memo || '');
+          setCaseMarkerColor(caseResource.markerColor || '');
           setCaseReceivedOn(caseResource.receivedOn);
           setCaseSettledOn(caseResource.settledOn || '');
           setCaseDueDate(caseResource.dueDate || '');
@@ -181,6 +187,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
         status: caseStatus,
         statusNote: caseStatusNote,
         memo: caseMemo,
+        markerColor: caseMarkerColor,
         receivedOn: nullIfEmpty(caseReceivedOn),
         settledOn: nullIfEmpty(caseSettledOn),
         dueDate: nullIfEmpty(caseDueDate),
@@ -315,7 +322,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                             type="radio"
                             name="type"
                             value="CHAMBER"
-                            tabIndex="6"
+                            tabIndex="5"
                             disabled={fieldsDisabled}
                             checked={caseType === 'CHAMBER'}
                             onChange={() => setCaseType('CHAMBER')}
@@ -333,7 +340,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         id="parties"
                         name="parties"
                         value={caseParties}
-                        tabIndex="7"
+                        tabIndex="6"
                         disabled={fieldsDisabled}
                         onChange={e => setCaseParties(e.target.value)}
                         className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
@@ -346,7 +353,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                       <input
                         id="area"
                         name="area"
-                        tabIndex={xlWidth ? 9 : 8}
+                        tabIndex={xlWidth ? 8 : 7}
                         disabled={fieldsDisabled}
                         value={caseArea}
                         onChange={e => setCaseArea(e.target.value)}
@@ -370,7 +377,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                             'ui-active:!bg-teal-700 ui-active:text-white ui-selected:bg-stone-200');
                           return (
                             <div className="relative">
-                              <Listbox.Button tabIndex={xlWidth ? 8 : 9} className={buttonClasses}>
+                              <Listbox.Button tabIndex={xlWidth ? 7 : 8} className={buttonClasses}>
                                 <StatusIcon status={caseStatus} className="size-6 me-2 flex-none inline" />
                                 <span className="flex-auto text-left">
                                   {statusLabels[caseStatus]}
@@ -402,7 +409,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         id="statusNote"
                         name="statusNote"
                         rows="3"
-                        tabIndex="10"
+                        tabIndex="9"
                         disabled={fieldsDisabled}
                         value={caseStatusNote}
                         onChange={e => setCaseStatusNote(e.target.value)}
@@ -417,12 +424,32 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         id="caseMemo"
                         name="caseMemo"
                         rows="3"
-                        tabIndex="11"
+                        tabIndex="10"
                         disabled={fieldsDisabled}
                         value={caseMemo}
                         onChange={e => setCaseMemo(e.target.value)}
                         className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
                       />
+                    </div>
+                    <div className="col-span-full flex gap-5">
+                      <label className="text-sm font-medium">Markierung</label>
+                      <div className="flex gap-3">
+                        {
+                          markerColors.map(color => (
+                            <input
+                              key={color}
+                              type="radio"
+                              name="markerColor"
+                              value={color}
+                              tabIndex="11"
+                              disabled={fieldsDisabled}
+                              checked={color === caseMarkerColor}
+                              onChange={() => setCaseMarkerColor(color)}
+                              className={`size-4 self-center marker ${color || 'none'} border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait`}
+                            />
+                          ))
+                        }
+                      </div>
                     </div>
                     <div className="sm:col-span-3 lg:col-span-1">
                       <label htmlFor="receivedOn" className="block mb-2 text-sm font-medium">
@@ -464,7 +491,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         id="todoDate"
                         name="todoDate"
                         type="date"
-                        tabIndex="15"
+                        tabIndex="14"
                         disabled={fieldsDisabled}
                         value={caseTodoDate}
                         onChange={e => setCaseTodoDate(e.target.value)}
@@ -480,7 +507,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         id="dueDate"
                         name="dueDate"
                         type="date"
-                        tabIndex="14"
+                        tabIndex="15"
                         disabled={fieldsDisabled}
                         value={caseDueDate}
                         onChange={e => setCaseDueDate(e.target.value)}

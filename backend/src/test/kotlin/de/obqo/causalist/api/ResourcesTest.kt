@@ -8,6 +8,7 @@ import de.obqo.causalist.Type
 import de.obqo.causalist.aCase
 import de.obqo.causalist.withArea
 import de.obqo.causalist.withDueDate
+import de.obqo.causalist.withMarkerColor
 import de.obqo.causalist.withMemo
 import de.obqo.causalist.withParties
 import de.obqo.causalist.withReceivedOn
@@ -55,6 +56,7 @@ class ResourcesTest : DescribeSpec({
                 .withArea("an area".encrypt(key))
                 .withStatusNote("a note".encrypt(key))
                 .withMemo("a memo".encrypt(key))
+                .withMarkerColor("blue")
                 .withReceivedOn(LocalDate.of(2023, 12, 10))
                 .withDueDate(LocalDate.of(2024, 2, 5))
                 .withTodoDate(LocalDate.of(2024, 1, 29))
@@ -81,6 +83,7 @@ class ResourcesTest : DescribeSpec({
                     "status": "SESSION",
                     "statusNote": "a note",
                     "memo": "a memo",
+                    "markerColor": "blue",
                     "receivedOn": "2023-12-10",
                     "dueDate": "2024-02-05",
                     "todoDate": "2024-01-29",

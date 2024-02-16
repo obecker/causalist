@@ -243,6 +243,7 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
             status = UNKNOWN.name,
             statusNote = "",
             memo = "",
+            markerColor = null,
             receivedOn = importDate,
             settledOn = null,
             dueDate = null,
@@ -278,6 +279,7 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
                 status = UNKNOWN.name, // required field - but not used
                 statusNote = "",
                 memo = "",
+                markerColor = null,
                 receivedOn = receivedDate,
                 settledOn = null,
                 dueDate = null,
@@ -318,6 +320,7 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
                 status = status.name,
                 statusNote = "",
                 memo = "",
+                markerColor = null,
                 receivedOn = importDate, // required field - but not used
                 settledOn = null,
                 dueDate = dueDate,

@@ -104,8 +104,8 @@ object Spec {
     private val reference = Reference.parseValue("123 O 1/23")
     private val referenceSample = reference.toResource()
     private val getCaseSample = CaseResource(
-        reference.toId(), referenceSample, Type.SINGLE.name, "", "", "",
-        Status.SESSION.name, "", LocalDate.now(), null, LocalDate.now().plusDays(7), null, null, Instant.now()
+        reference.toId(), referenceSample, Type.SINGLE.name, "", "", "", Status.SESSION.name, "",
+        "red", LocalDate.now(), null, LocalDate.now().plusDays(7), null, null, Instant.now()
     )
     private val postCaseSample = getCaseSample.copy(id = null, updatedAt = null)
     private val casesSample = CasesResource(listOf(getCaseSample))
@@ -303,20 +303,22 @@ fun httpApi(
         Response(OK).with(caseDocumentLens of doc.toResource(encryptionKey))
     }
 
-    fun downloadDocument(refId: String, @Suppress("UNUSED_PARAMETER") unused: String, docId: UUID): HttpHandler = { request ->
-        logger.info { "Download document $docId" }
-        val (userId, encryptionKey) = userContextKey(request)
-        caseDocumentService.download(userId, docId, refId)?.decrypt(encryptionKey)?.let {
-            Response(OK).body(it)
-        } ?: Response(NOT_FOUND)
-    }
+    fun downloadDocument(refId: String, @Suppress("UNUSED_PARAMETER") unused: String, docId: UUID): HttpHandler =
+        { request ->
+            logger.info { "Download document $docId" }
+            val (userId, encryptionKey) = userContextKey(request)
+            caseDocumentService.download(userId, docId, refId)?.decrypt(encryptionKey)?.let {
+                Response(OK).body(it)
+            } ?: Response(NOT_FOUND)
+        }
 
-    fun deleteDocument(refId: String, @Suppress("UNUSED_PARAMETER") unused: String, docId: UUID): HttpHandler = { request ->
-        logger.info { "Delete document $docId" }
-        val (userId) = userContextKey(request)
-        caseDocumentService.delete(userId, docId, refId)
-        Response(NO_CONTENT)
-    }
+    fun deleteDocument(refId: String, @Suppress("UNUSED_PARAMETER") unused: String, docId: UUID): HttpHandler =
+        { request ->
+            logger.info { "Delete document $docId" }
+            val (userId) = userContextKey(request)
+            caseDocumentService.delete(userId, docId, refId)
+            Response(NO_CONTENT)
+        }
 
     fun getDocuments(refId: String, @Suppress("UNUSED_PARAMETER") unused: String): HttpHandler = { request ->
         logger.info { "Download documents for case ${Reference.parseId(refId)}" }
