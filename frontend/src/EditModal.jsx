@@ -258,6 +258,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                           minLength="1"
                           maxLength="4"
                           tabIndex="1"
+                          inputMode="numeric"
                           disabled={fieldsDisabled}
                           value={refEntity}
                           onKeyDown={e => focusNextOnKey(e, ' ', refRegisterInput)}
@@ -280,6 +281,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                           minLength="1"
                           maxLength="4"
                           tabIndex="3"
+                          inputMode="numeric"
                           disabled={fieldsDisabled}
                           value={refNo}
                           ref={refNoInput}
@@ -292,6 +294,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                           minLength="2"
                           maxLength="2"
                           tabIndex="4"
+                          inputMode="numeric"
                           disabled={fieldsDisabled}
                           value={refYear}
                           ref={refYearInput}
