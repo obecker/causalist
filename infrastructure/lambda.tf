@@ -29,9 +29,9 @@ resource "aws_lambda_function" "backend" {
   source_code_hash = data.local_file.lambda_handler_lib.content_base64sha256
   publish          = true
 
-#  snap_start {
-#    apply_on = "PublishedVersions"
-#  }
+  snap_start {
+    apply_on = "PublishedVersions"
+  }
 
   environment {
     variables = {
@@ -65,8 +65,6 @@ resource "aws_iam_policy" "dynamodb" {
           "dynamodb:UpdateItem",
           "dynamodb:DeleteItem",
           "dynamodb:Query",
-          "dynamodb:Scan",
-          "dynamodb:BatchWriteItem"
         ]
         Resource = [
           "${aws_dynamodb_table.db_users.arn}",
