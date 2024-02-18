@@ -1,5 +1,7 @@
 package de.obqo.causalist.app
 
+import de.obqo.causalist.CaseDocumentRepository
+import de.obqo.causalist.CaseRepository
 import de.obqo.causalist.Config
 import de.obqo.causalist.CryptoUtils
 import de.obqo.causalist.CryptoUtils.decrypt
@@ -130,6 +132,8 @@ private fun buildApi(environment: Environment): HttpHandler {
         token.encrypt(key).decrypt(key)
     }
 
+    migrateCaseHasDocuments(caseDocumentRepository, caseRepository)
+
     return object : HttpHandler, Resource {
 
         init {
@@ -146,4 +150,13 @@ private fun buildApi(environment: Environment): HttpHandler {
             // nothing to do
         }
     }
+}
+
+fun migrateCaseHasDocuments(caseDocumentRepository: CaseDocumentRepository, caseRepository: CaseRepository) {
+    caseDocumentRepository.findAll().toList()
+        .groupBy { case -> case.ownerId to case.refId }
+        .keys
+        .mapNotNull { (ownerId, refId) -> caseRepository.get(ownerId, refId) }
+        .map { it.copy(hasDocuments = true) }
+        .let { caseRepository.save(it) }
 }
