@@ -27,7 +27,8 @@ fun aCase() = Case(
     receivedOn = LocalDate.now(),
     settledOn = null,
     dueDate = null,
-    todoDate = null
+    todoDate = null,
+    hasDocuments = false
 )
 
 fun Case.withOwnerId(uuid: UUID) = copy(ownerId = uuid)
@@ -45,4 +46,5 @@ fun Case.withReceivedOn(receivedOn: LocalDate) = copy(receivedOn = receivedOn)
 fun Case.withSettledOn(settledOn: LocalDate) = copy(settledOn = settledOn)
 fun Case.withDueDate(dueDate: LocalDate) = copy(dueDate = dueDate)
 fun Case.withTodoDate(todoDate: LocalDate) = copy(todoDate = todoDate)
+fun Case.withHasDocuments(hasDocuments: Boolean) = copy(hasDocuments = hasDocuments)
 fun Case.withUpdatedAt(instant: Instant) = copy(updatedAt = instant)

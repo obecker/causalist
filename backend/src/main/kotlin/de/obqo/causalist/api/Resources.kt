@@ -43,6 +43,7 @@ data class CaseResource(
     val dueDate: LocalDate?,
     val todoDate: LocalDate?,
     val todoWeekOfYear: Int? = todoDate?.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR),
+    val hasDocuments: Boolean? = null,
     val updatedAt: Instant? = null
 )
 
@@ -84,6 +85,7 @@ fun Case.toResource(encryptionKey: SecretKey) = CaseResource(
     settledOn = settledOn,
     dueDate = dueDate,
     todoDate = todoDate,
+    hasDocuments = hasDocuments,
     updatedAt = updatedAt
 )
 
@@ -101,6 +103,7 @@ fun CaseResource.toEntity(ownerId: UUID, encryptionKey: SecretKey) = Case(
     settledOn = settledOn,
     dueDate = dueDate,
     todoDate = todoDate,
+    hasDocuments = false // will not be set from the API
     // updatedAt will be automatically set
 )
 

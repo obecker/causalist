@@ -2,6 +2,8 @@ package de.obqo.causalist
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.date.shouldBeAfter
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.sequences.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -55,14 +57,37 @@ class CaseServiceTest : DescribeSpec({
             val updatedCase = caseService.update(persistedCase.withParties("A vs B"))
 
             // then
-            updatedCase shouldNotBe null
             updatedCase shouldNotBe persistedCase // different parties
             caseRepository.get(persistedCase) shouldBe updatedCase
+        }
+
+        it("should update by ID") {
+            // given
+            val persistedCase = caseService.persist(aCase())
+            sleep(1) // for testing updatedAt
+
+            // when
+            val updatedCase = caseService.update(persistedCase.ownerId, persistedCase.ref.toId()) {
+                it.copy(parties = "Bert vs Ernie")
+            }
+
+            // then
+            updatedCase shouldNotBe persistedCase
+            caseRepository.get(persistedCase).shouldNotBeNull().apply {
+                this shouldBe updatedCase
+                parties shouldBe "Bert vs Ernie"
+                updatedAt shouldBeAfter persistedCase.updatedAt
+            }
         }
 
         it("should prevent updating a case if it doesn't exist") {
             shouldThrow<CaseMissingException> {
                 caseService.update(aCase())
+            }
+
+            val case = aCase()
+            shouldThrow<CaseMissingException> {
+                caseService.update(case.ownerId, case.ref.toId()) { it }
             }
         }
 

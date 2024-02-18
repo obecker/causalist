@@ -34,6 +34,7 @@ private val receivedOnAttr = Attribute.localDate().required("receivedOn")
 private val settledOnAttr = Attribute.localDate().optional("settledOn", ignoreNull = true)
 private val dueDateAttr = Attribute.localDate().optional("dueDate", ignoreNull = true)
 private val todoDateAttr = Attribute.localDate().optional("todoDate", ignoreNull = true)
+private val hasDocumentsAttr = Attribute.boolean().defaulted("hasDocuments", false)
 private val updatedAtAttr = Attribute.instant().required("updatedAt")
 
 private fun Case.isActive() = status != Status.SETTLED
@@ -55,6 +56,7 @@ private val caseLens = BiDiLens<Item, Case>(
             settledOn = settledOnAttr(item),
             dueDate = dueDateAttr(item),
             todoDate = todoDateAttr(item),
+            hasDocuments = hasDocumentsAttr(item),
             updatedAt = updatedAtAttr(item)
         )
     },
@@ -75,6 +77,7 @@ private val caseLens = BiDiLens<Item, Case>(
             settledOnAttr of case.settledOn, // SettledIndex sort key
             dueDateAttr of case.dueDate,
             todoDateAttr of case.todoDate,
+            hasDocumentsAttr of case.hasDocuments,
             updatedAtAttr of case.updatedAt
         )
     }

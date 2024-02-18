@@ -8,6 +8,7 @@ import de.obqo.causalist.Type
 import de.obqo.causalist.aCase
 import de.obqo.causalist.withArea
 import de.obqo.causalist.withDueDate
+import de.obqo.causalist.withHasDocuments
 import de.obqo.causalist.withMarkerColor
 import de.obqo.causalist.withMemo
 import de.obqo.causalist.withParties
@@ -60,6 +61,7 @@ class ResourcesTest : DescribeSpec({
                 .withReceivedOn(LocalDate.of(2023, 12, 10))
                 .withDueDate(LocalDate.of(2024, 2, 5))
                 .withTodoDate(LocalDate.of(2024, 1, 29))
+                .withHasDocuments(true)
                 .withUpdatedAt(Instant.parse("2024-01-18T13:08:39.123Z"))
 
             // when
@@ -88,6 +90,7 @@ class ResourcesTest : DescribeSpec({
                     "dueDate": "2024-02-05",
                     "todoDate": "2024-01-29",
                     "todoWeekOfYear": 5,
+                    "hasDocuments": true,
                     "updatedAt": "2024-01-18T13:08:39.123Z"
                 }
                 """

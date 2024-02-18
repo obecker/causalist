@@ -26,6 +26,7 @@ interface CaseDocumentService {
     fun upload(ownerId: UUID, refId: String, filename: String, stream: InputStream): CaseDocument
 
     fun getForCase(case: Case): Sequence<CaseDocument>
+    fun getForCase(ownerId: UUID, refId: String): Sequence<CaseDocument>
 
     fun delete(ownerId: UUID, id: UUID, refId: String)
     fun delete(vararg documents: CaseDocument)
@@ -53,7 +54,8 @@ fun caseDocumentService(
             return document
         }
 
-        override fun getForCase(case: Case): Sequence<CaseDocument> = repository.getForCase(case)
+        override fun getForCase(case: Case) = repository.getForCase(case)
+        override fun getForCase(ownerId: UUID, refId: String) = repository.getForCase(ownerId, refId)
 
         override fun delete(ownerId: UUID, id: UUID, refId: String) {
             repository.get(ownerId, id)

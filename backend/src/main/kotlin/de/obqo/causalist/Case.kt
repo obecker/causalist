@@ -120,6 +120,7 @@ data class Case(
     val settledOn: LocalDate?,
     val dueDate: LocalDate?,
     val todoDate: LocalDate?,
+    val hasDocuments: Boolean, // denormalized value, will be true if there are any attached CaseDocuments
     val updatedAt: Instant = Instant.now()
 )
 
@@ -142,6 +143,7 @@ interface CaseService {
     fun persist(case: Case): Case
 
     fun update(case: Case): Case
+    fun update(ownerId: UUID, refId: String, action: (Case) -> Case): Case
 
     fun move(case: Case, fromReference: Reference): Case
 
@@ -154,37 +156,43 @@ interface CaseService {
     fun findByOwner(ownerId: UUID, type: Type?, status: List<Status>, settled: Boolean): Sequence<Case>
 }
 
-fun caseService(repository: CaseRepository, caseDocumentService: CaseDocumentService): CaseService = object : CaseService {
-    override fun persist(case: Case): Case {
-        if (repository.get(case) != null) {
-            throw CaseExistsException()
+fun caseService(repository: CaseRepository, caseDocumentService: CaseDocumentService): CaseService =
+    object : CaseService {
+        override fun persist(case: Case): Case {
+            if (repository.get(case) != null) {
+                throw CaseExistsException()
+            }
+            return repository.save(case)
         }
-        return repository.save(case)
-    }
 
-    override fun update(case: Case): Case {
-        if (repository.get(case) == null) {
-            throw CaseMissingException()
+        override fun update(case: Case): Case {
+            val persistedCase = repository.get(case) ?: throw CaseMissingException()
+            return repository.save(case.copy(hasDocuments = persistedCase.hasDocuments))
         }
-        return repository.save(case)
-    }
 
-    override fun move(case: Case, fromReference: Reference): Case {
-        persist(case) // must come first - might fail with CaseExistsException
-        repository.delete(case.ownerId, fromReference.toId())
-        caseDocumentService.move(case.ownerId, fromReference.toId(), case.ref.toId())
-        return case
-    }
+        override fun update(ownerId: UUID, refId: String, action: (Case) -> Case): Case =
+            repository.get(ownerId, refId)
+                ?.let { c -> repository.save(action(c).copy(updatedAt = Instant.now())) }
+                ?: throw CaseMissingException()
 
-    override fun get(ownerId: UUID, refId: String) = repository.get(ownerId, refId)
-
-    override fun delete(case: Case) {
-        caseDocumentService.getForCase(case).forEach { document ->
-            caseDocumentService.delete(document)
+        override fun move(case: Case, fromReference: Reference): Case {
+            val oldCase = repository.get(case.ownerId, fromReference.toId()) ?: throw CaseMissingException()
+            // persist before moving documents, since persist might fail with a CaseExistsException
+            persist(case.copy(hasDocuments = oldCase.hasDocuments))
+            repository.delete(oldCase)
+            caseDocumentService.move(case.ownerId, fromReference.toId(), case.ref.toId())
+            return case
         }
-        repository.delete(case)
-    }
 
-    override fun findByOwner(ownerId: UUID, type: Type?, status: List<Status>, settled: Boolean) =
-        repository.findByOwner(ownerId, type, status, settled)
-}
+        override fun get(ownerId: UUID, refId: String) = repository.get(ownerId, refId)
+
+        override fun delete(case: Case) {
+            caseDocumentService.getForCase(case).forEach { document ->
+                caseDocumentService.delete(document)
+            }
+            repository.delete(case)
+        }
+
+        override fun findByOwner(ownerId: UUID, type: Type?, status: List<Status>, settled: Boolean) =
+            repository.findByOwner(ownerId, type, status, settled)
+    }

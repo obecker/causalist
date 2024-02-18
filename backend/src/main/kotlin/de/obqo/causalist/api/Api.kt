@@ -105,7 +105,7 @@ object Spec {
     private val referenceSample = reference.toResource()
     private val getCaseSample = CaseResource(
         reference.toId(), referenceSample, Type.SINGLE.name, "", "", "", Status.SESSION.name, "",
-        "red", LocalDate.now(), null, LocalDate.now().plusDays(7), null, null, Instant.now()
+        "red", LocalDate.now(), null, LocalDate.now().plusDays(7), null, null, false, Instant.now()
     )
     private val postCaseSample = getCaseSample.copy(id = null, updatedAt = null)
     private val casesSample = CasesResource(listOf(getCaseSample))
@@ -300,6 +300,7 @@ fun httpApi(
                 file.content.encrypt(encryptionKey)
             )
         }
+        caseService.update(userId, refId) { it.copy(hasDocuments = true) }
         Response(OK).with(caseDocumentLens of doc.toResource(encryptionKey))
     }
 
@@ -317,6 +318,9 @@ fun httpApi(
             logger.info { "Delete document $docId" }
             val (userId) = userContextKey(request)
             caseDocumentService.delete(userId, docId, refId)
+            if (caseDocumentService.getForCase(userId, refId).none()) {
+                caseService.update(userId, refId) { it.copy(hasDocuments = false) }
+            }
             Response(NO_CONTENT)
         }
 
