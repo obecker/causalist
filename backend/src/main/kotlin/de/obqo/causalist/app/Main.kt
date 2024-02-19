@@ -73,6 +73,8 @@ class ApiLambdaHandler : ApiGatewayV2LambdaFunction(AppLoader { env ->
 private fun buildApi(environment: Environment): HttpHandler {
     Config.init(environment)
 
+    val optionalDynamoDbUriKey = EnvironmentKey.uri().optional("DYNAMODB_URI")
+    val optionalS3UriKey = EnvironmentKey.uri().optional("S3_URI")
     val usersTableKey = EnvironmentKey.value(TableName).required("CAUSALIST_USERS_TABLE")
     val casesTableKey = EnvironmentKey.value(TableName).required("CAUSALIST_CASES_TABLE")
     val caseDocumentsTableKey = EnvironmentKey.value(TableName).required("CAUSALIST_CASE_DOCUMENTS_TABLE")
@@ -86,7 +88,7 @@ private fun buildApi(environment: Environment): HttpHandler {
         env = environment,
         http = httpClient,
         credentialsProvider = credentialsProvider,
-        overrideEndpoint = environment[EnvironmentKey.uri().optional("DYNAMODB_URI")]
+        overrideEndpoint = optionalDynamoDbUriKey(environment)
     )
 
     val userRepository = dynamoUserRepository(dynamoDb, usersTableKey(environment))
@@ -95,14 +97,14 @@ private fun buildApi(environment: Environment): HttpHandler {
     val authentication = authentication(userService)
 
     val bucketName = caseDocumentsBucketNameKey(environment)
-    val overriddenBucketEndpoint = environment[EnvironmentKey.uri().optional("S3_URI")]
+    val overriddenS3Endpoint = optionalS3UriKey(environment)
     val s3Bucket = S3Bucket.Http(
         bucketName = bucketName,
         bucketRegion = AWS_REGION(environment),
         credentialsProvider = credentialsProvider,
         http = httpClient,
-        overrideEndpoint = overriddenBucketEndpoint,
-        forcePathStyle = overriddenBucketEndpoint != null,
+        overrideEndpoint = overriddenS3Endpoint,
+        forcePathStyle = overriddenS3Endpoint != null,
     )
     val s3BucketWrapper = S3BucketWrapper(bucketName, s3Bucket)
 
