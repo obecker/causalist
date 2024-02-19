@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+# Perform an AWS deployment using terraform
+
 environment=$1
 if [[ "$environment" != "prod" && "$environment" != "stage" ]]
 then
@@ -8,15 +10,18 @@ then
   exit 1
 fi
 
-terraformApply() {
+chdir=$(dirname "$0")/../infrastructure
+alias tf='terraform -chdir="$chdir"'
+
+tfApply() {
   setopt local_traps local_options
   trap : INT
-  terraform apply --var-file="$1".tfvars
+  tf apply --var-file="$1".tfvars
 }
 
 workspace=$(terraform workspace show)
 
 echo "Deploying $environment ..."
-terraform workspace select "$environment"
-terraformApply "$environment"
-terraform workspace select "$workspace"
+tf workspace select "$environment"
+tfApply "$environment"
+tf workspace select "$workspace"

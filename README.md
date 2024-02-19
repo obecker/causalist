@@ -11,17 +11,17 @@ Please be aware that the deployed service is presently not accessible to the pub
 The [backend](backend) directory contains a Gradle project responsible for the backend service, which exposes a 
 REST API for the frontend. This service, implemented in Kotlin, utilizes [http4k](https://github.com/http4k/http4k) 
 for the API and [http4k-connect](https://github.com/http4k/http4k-connect) 
-for [DynamoDB](https://aws.amazon.com/dynamodb/) access.
+for [DynamoDB](https://aws.amazon.com/dynamodb/) and [S3](https://aws.amazon.com/s3/) access.
 
-To run the service locally, a local DynamoDB instance on `http://localhost:8000` is required. 
-You can achieve this by using tools like [NoSQL Workbench for DynamoDB](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/workbench.html)
-or by running a [DynamoDB docker image](https://hub.docker.com/r/amazon/dynamodb-local).
-The scripts in [backend/scripts](backend/scripts) facilitate the creation of the two tables `Users` and `Cases` in
-the local DynamoDB instance.
+To run the service locally, local instances of DynamoDB and S3 are required. 
+There is a [docker compose](scripts/docker-compose.yml) file that starts a local DynamoDB and a [MinIO](https://min.io)
+server (for S3).
+The scripts [init-local-dynamodb.sh](scripts/init-local-dynamodb.sh) and [init-local-s3.sh](scripts/init-local-s3.sh) 
+facilitate the initial creation of the required local DynamoDB tables and the local S3 bucket.
 
-Execute the command `gradle runShadow` to launch the application at `http://localhost:9000`.
+Execute the command `gradle runShadow` to launch the application at `http://localhost:4000`.
 
-Visit http://localhost:9000/api/ to access a Swagger UI providing documentation for the service's API.
+Visit http://localhost:4000/api/ to access a Swagger UI providing documentation for the service's API.
 
 
 ## Frontend
@@ -32,7 +32,7 @@ with the backend service. This application is developed in JavaScript, employing
 
 To initiate a server delivering the frontend, execute the command `npm run start`.
 The frontend will be accessible at http://localhost:3000, while it will interact with the backend service at 
-`http://localhost:9000`.
+`http://localhost:4000`.
 
 
 ## Infrastructure
@@ -46,6 +46,10 @@ for deploying the service on AWS. Before the first deployment you need to:
 
 To execute an AWS deployment, follow these steps:
 
-1. Run `gradle build` in the backend directory.
+1. Run `gradle assemble` in the backend directory.
 2. Run `npm run build` in the frontend directory.
-3. Execute `./deploy.sh prod` or `./deploy.sh stage` in the infrastructure directory.
+3. Execute `scripts/deploy.sh prod` or `scripts/deploy.sh stage`.
+
+Note: Every AWS Lambda deployment creates a new function version, however
+[terraform currently doesn't remove previous function versions](https://github.com/hashicorp/terraform-provider-aws/issues/17668).
+To get rid of unused functions versions, execute the script [cleanup-lambda.sh](scripts/cleanup-lambda.sh).

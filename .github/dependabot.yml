@@ -32,3 +32,11 @@ updates:
       - obecker
     commit-message:
       prefix: ":arrow_up: "
+  - package-ecosystem: docker
+    directory: scripts
+    schedule:
+      interval: weekly
+    assignees:
+      - obecker
+    commit-message:
+      prefix: ":arrow_up: "

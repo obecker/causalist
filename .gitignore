@@ -37,6 +37,9 @@ bin/
 ### temporary development resources ###
 tmp/
 
+### local dynamodb and s3 data
+scripts/docker_data/
+
 ### environments
 .env.*
 
@@ -49,3 +52,4 @@ terraform.tfstate.*
 node_modules/
 npm-debug.log*
 coverage/
+.eslintcache

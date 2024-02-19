@@ -59,7 +59,7 @@ fun main() {
     val response = api(Request(method = Method.POST, "/api/login").body("""{"username":"foo","password":""}"""))
     check(response.status == Status.FORBIDDEN) { response }
 
-    api.asServer(SunHttp(9000)).start().also {
+    api.asServer(SunHttp(4000)).start().also {
         println("Server started${env?.let { " with environment $env" }.orEmpty()}")
     }.block()
 }

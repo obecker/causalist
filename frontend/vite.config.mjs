@@ -19,7 +19,7 @@ export default defineConfig(() => {
       strictPort: true,
       open: true,
       proxy: {
-        '/api': 'http://localhost:9000',
+        '/api': 'http://localhost:4000',
       },
     },
     define: {
