@@ -13,7 +13,7 @@ export default [
     'arrow-parens': 'always',
   }),
   {
-    files: ['src/**/*.{js,jsx}', '*.{js,mjs}'],
+    files: ['src/**/*.{js,jsx}', 'test/**/*.{js,jsx}', '*.{js,mjs}'],
     settings: {
       react: {
         version: 'detect',
@@ -26,6 +26,7 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.node,
+        ...globals.jest,
         BUILD_NUMBER: 'readonly',
       },
     },

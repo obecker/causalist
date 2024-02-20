@@ -25,5 +25,10 @@ export default defineConfig(() => {
     define: {
       BUILD_NUMBER: JSON.stringify(buildNo),
     },
+    test: {
+      environment: 'jsdom',
+      globals: true,
+      setupFiles: 'test/setup.js',
+    },
   };
 });
