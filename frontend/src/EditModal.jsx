@@ -89,7 +89,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
           setCaseTodoDate(caseResource.todoDate || '');
           setFieldsDisabled(false);
         })
-        .catch(error => setErrorOnLoad(error.userMessage));
+        .catch((error) => setErrorOnLoad(error.userMessage));
     } else {
       setCaseStatus('UNKNOWN');
       setCaseReceivedOn(today());
@@ -261,9 +261,9 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                           inputMode="numeric"
                           disabled={fieldsDisabled}
                           value={refEntity}
-                          onKeyDown={e => focusNextOnKey(e, ' ', refRegisterInput)}
+                          onKeyDown={(e) => focusNextOnKey(e, ' ', refRegisterInput)}
                           onPaste={pasteReference}
-                          onChange={e => setRefEntity(e.target.value.trim())}
+                          onChange={(e) => setRefEntity(e.target.value.trim())}
                           className={`mr-1 w-16 border-0 rounded-l-lg focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refEntityFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                         />
                         <input
@@ -273,8 +273,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                           disabled={fieldsDisabled}
                           value={refRegister}
                           ref={refRegisterInput}
-                          onKeyDown={e => focusNextOnKey(e, ' ', refNoInput)}
-                          onChange={e => setRefRegister(e.target.value.trim().toUpperCase())}
+                          onKeyDown={(e) => focusNextOnKey(e, ' ', refNoInput)}
+                          onChange={(e) => setRefRegister(e.target.value.trim().toUpperCase())}
                           className={`mr-1 w-12 border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refRegisterFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                         />
                         <input
@@ -285,8 +285,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                           disabled={fieldsDisabled}
                           value={refNo}
                           ref={refNoInput}
-                          onKeyDown={e => focusNextOnKey(e, '/', refYearInput)}
-                          onChange={e => setRefNo(e.target.value.trim())}
+                          onKeyDown={(e) => focusNextOnKey(e, '/', refYearInput)}
+                          onChange={(e) => setRefNo(e.target.value.trim())}
                           className={`w-16 border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refNoFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                         />
                         <span>/</span>
@@ -298,7 +298,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                           disabled={fieldsDisabled}
                           value={refYear}
                           ref={refYearInput}
-                          onChange={e => setRefYear(e.target.value.trim())}
+                          onChange={(e) => setRefYear(e.target.value.trim())}
                           className={`w-12 border-0 rounded-r-lg focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refYearFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                         />
                       </div>
@@ -345,7 +345,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         value={caseParties}
                         tabIndex="6"
                         disabled={fieldsDisabled}
-                        onChange={e => setCaseParties(e.target.value)}
+                        onChange={(e) => setCaseParties(e.target.value)}
                         className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
                       />
                     </div>
@@ -359,7 +359,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         tabIndex={xlWidth ? 8 : 7}
                         disabled={fieldsDisabled}
                         value={caseArea}
-                        onChange={e => setCaseArea(e.target.value)}
+                        onChange={(e) => setCaseArea(e.target.value)}
                         className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
                       />
                     </div>
@@ -390,7 +390,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                                   : <ChevronDownIcon className="size-4 flex-none" />}
                               </Listbox.Button>
                               <Listbox.Options className={optionsClasses}>
-                                {statusKeys.map(status => (
+                                {statusKeys.map((status) => (
                                   <Listbox.Option key={status} value={status} className={optionClasses}>
                                     <StatusIcon status={status} className="size-6 me-2 flex-none inline" />
                                     <span className="flex-auto text-sm text-left">
@@ -415,7 +415,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         tabIndex="9"
                         disabled={fieldsDisabled}
                         value={caseStatusNote}
-                        onChange={e => setCaseStatusNote(e.target.value)}
+                        onChange={(e) => setCaseStatusNote(e.target.value)}
                         className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
                       />
                     </div>
@@ -430,7 +430,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         tabIndex="10"
                         disabled={fieldsDisabled}
                         value={caseMemo}
-                        onChange={e => setCaseMemo(e.target.value)}
+                        onChange={(e) => setCaseMemo(e.target.value)}
                         className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
                       />
                     </div>
@@ -438,7 +438,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                       <label className="text-sm font-medium">Markierung</label>
                       <div className="flex gap-3">
                         {
-                          markerColors.map(color => (
+                          markerColors.map((color) => (
                             <input
                               key={color}
                               type="radio"
@@ -465,8 +465,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         tabIndex="12"
                         disabled={fieldsDisabled}
                         value={caseReceivedOn}
-                        onChange={e => setCaseReceivedOn(e.target.value)}
-                        onFocus={e => e.target.defaultValue = ''}
+                        onChange={(e) => setCaseReceivedOn(e.target.value)}
+                        onFocus={(e) => e.target.defaultValue = ''}
                         className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseReceivedOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                       />
                     </div>
@@ -481,8 +481,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         tabIndex="13"
                         disabled={fieldsDisabled}
                         value={caseSettledOn}
-                        onChange={e => setCaseSettledOn(e.target.value)}
-                        onFocus={e => e.target.defaultValue = ''}
+                        onChange={(e) => setCaseSettledOn(e.target.value)}
+                        onFocus={(e) => e.target.defaultValue = ''}
                         className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseSettledOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                       />
                     </div>
@@ -497,8 +497,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         tabIndex="14"
                         disabled={fieldsDisabled}
                         value={caseTodoDate}
-                        onChange={e => setCaseTodoDate(e.target.value)}
-                        onFocus={e => e.target.defaultValue = ''}
+                        onChange={(e) => setCaseTodoDate(e.target.value)}
+                        onFocus={(e) => e.target.defaultValue = ''}
                         className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseTodoDateFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                       />
                     </div>
@@ -513,8 +513,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         tabIndex="15"
                         disabled={fieldsDisabled}
                         value={caseDueDate}
-                        onChange={e => setCaseDueDate(e.target.value)}
-                        onFocus={e => e.target.defaultValue = ''}
+                        onChange={(e) => setCaseDueDate(e.target.value)}
+                        onFocus={(e) => e.target.defaultValue = ''}
                         className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
                       />
                     </div>

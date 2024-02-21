@@ -30,7 +30,7 @@ export default function FileUploadModal({ isOpen, setIsOpen, selectedCase, force
           close();
           forceUpdate();
         })
-        .catch(error => setErrorMessage(error.userMessage));
+        .catch((error) => setErrorMessage(error.userMessage));
     }
   }
 
@@ -85,7 +85,7 @@ export default function FileUploadModal({ isOpen, setIsOpen, selectedCase, force
                       type="file"
                       className="hidden"
                       id="fileinput"
-                      onChange={e => setSelectedFile(e.target.files[0])}
+                      onChange={(e) => setSelectedFile(e.target.files[0])}
                     />
                     <label htmlFor="fileinput" className={fileInputClasses}>
                       Datei wählen

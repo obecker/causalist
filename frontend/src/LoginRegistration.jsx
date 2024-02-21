@@ -87,14 +87,14 @@ function LoginForm({ successMessage, setSuccessMessage, toggleForm }) {
           value={username}
           inputMode="email"
           focus={true}
-          onChange={e => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)}
         />
         <FormInput
           name="password"
           label="Passwort"
           type="password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <FormSubmit label="Login" disabled={disabled} />
         <FormToggle label="zur Registrierung" toggle={toggleForm} />
@@ -185,7 +185,7 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
           inputMode="email"
           focus={true}
           onInput={removeWhitespace}
-          onChange={e => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)}
         >
           <div className="text-xs mt-1 flex justify-start">
             <ValidationInfo value={username} isValid={usernameValidation} label="min 4 Zeichen" />
@@ -197,7 +197,7 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
           type="password"
           value={password}
           reveal={true}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
         >
           <div className="text-xs mt-1 flex justify-start gap-5">
             <ValidationInfo value={password} isValid={passwordValidationLength} label="min 10 Zeichen" />
@@ -234,7 +234,7 @@ function FormInput({
   }, [focus]);
 
   function toggleRevealed() {
-    setRevealed(b => !b);
+    setRevealed((b) => !b);
     inputRef.current.focus();
   }
 

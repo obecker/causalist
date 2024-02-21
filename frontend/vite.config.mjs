@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 
 // noinspection JSUnusedGlobalSymbols
 export default defineConfig(() => {
-  const leadingZero = v => v.toString().padStart(2, '0');
+  const leadingZero = (v) => v.toString().padStart(2, '0');
   const today = new Date();
   const buildNo = `v${today.getFullYear()}${leadingZero(today.getMonth() + 1)}${leadingZero(today.getDate())}`;
 

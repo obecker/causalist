@@ -43,7 +43,7 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
           setSelectedFile(null);
           forceUpdate();
         })
-        .catch(error => setErrorMessage(error.userMessage));
+        .catch((error) => setErrorMessage(error.userMessage));
     }
   }
 
@@ -112,7 +112,7 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
                       accept=".rtf"
                       className="hidden"
                       id="fileinput"
-                      onChange={e => setSelectedFile(e.target.files[0])}
+                      onChange={(e) => setSelectedFile(e.target.files[0])}
                     />
                     <label htmlFor="fileinput" className={fileInputClasses}>
                       Datei wählen
@@ -184,7 +184,7 @@ function ImportResultDetails({ importType, casesType, refs }) {
     <div className="w-full">
       <div
         className={clsx('flex gap-1 align-bottom', refs.length && 'cursor-pointer hover:underline', detailsOpen && 'font-semibold')}
-        onClick={() => setDetailsOpen(o => refs.length && !o)}
+        onClick={() => setDetailsOpen((o) => refs.length && !o)}
       >
         <div>{casesText}</div>
         {refs.length > 0 && (detailsOpen

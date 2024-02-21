@@ -9,9 +9,9 @@ export default [
   js.configs.recommended,
   reactRecommended,
   stylistic.configs.customize({
-    'semi': true,
-    'braceStyle': '1tbs',
-    'arrow-parens': 'always',
+    semi: true,
+    braceStyle: '1tbs',
+    arrowParens: true,
   }),
   {
     files: ['src/**/*.{js,jsx}', 'test/**/*.{js,jsx}', '*.{js,mjs}'],

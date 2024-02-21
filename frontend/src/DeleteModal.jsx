@@ -26,7 +26,7 @@ export default function DeleteModal({ isOpen, setIsOpen, selectedCase, forceUpda
         close();
         forceUpdate();
       })
-      .catch(error => setErrorMessage(error.userMessage));
+      .catch((error) => setErrorMessage(error.userMessage));
   }
 
   const panelClasses = clsx('w-full max-w-sm transform transition-all overflow-hidden rounded-2xl bg-white',

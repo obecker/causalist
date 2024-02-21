@@ -33,7 +33,7 @@ const typeLabels = {
   SINGLE: 'Einzelrichter',
 };
 
-const filterStatusKeys = statusKeys.filter(value => value !== 'SETTLED');
+const filterStatusKeys = statusKeys.filter((value) => value !== 'SETTLED');
 
 function ignoreEvent(e) {
   e.preventDefault();
@@ -83,7 +83,7 @@ export default function Content() {
         // remove the animation css class after about 1.5s (duration of delay + animation, see tailwind.config.js)
         setTimeout(() => setRecentlyUpdatedId(undefined), 1600);
       })
-      .catch(error => setErrorMessage(error.userMessage));
+      .catch((error) => setErrorMessage(error.userMessage));
   }, [reloadCases, statusQuery, typeQuery, settledOnly]);
 
   useEffect(() => {
@@ -91,10 +91,10 @@ export default function Content() {
       return;
     }
     if (todosOnly && !settledOnly) {
-      let newCases = cases.filter(c => c.todoDate)
-        .filter(c => containsSearch(c, search))
+      let newCases = cases.filter((c) => c.todoDate)
+        .filter((c) => containsSearch(c, search))
         .sort((c1, c2) => c1.todoDate.localeCompare(c2.todoDate))
-        .map(c => Object.assign({}, c));
+        .map((c) => Object.assign({}, c));
       let recentWeek = null;
       let recentTodo = null;
       let emptyWeeks = [];
@@ -131,7 +131,7 @@ export default function Content() {
       }
       setFilteredCases(newCases);
     } else {
-      setFilteredCases(cases.filter(c => containsSearch(c, search)));
+      setFilteredCases(cases.filter((c) => containsSearch(c, search)));
     }
   }, [cases, todosOnly, settledOnly, search]);
 
@@ -165,7 +165,7 @@ export default function Content() {
   }
 
   function forceUpdate(updated) {
-    setReloadCases(b => !b);
+    setReloadCases((b) => !b);
     setRecentlyUpdatedId(updated?.id);
   }
 
@@ -195,7 +195,7 @@ export default function Content() {
       <EditModal isOpen={isEditOpen} setIsOpen={setEditOpen} selectedCase={selectedCase} forceUpdate={forceUpdate} />
 
       <RtfImportModal isOpen={isImportOpen} setIsOpen={setImportOpen} forceUpdate={forceUpdate} />
-      <FileUploadModal isOpen={isUploadOpen} setIsOpen={setUploadOpen} selectedCase={selectedCase} forceUpdate={() => setReloadDocuments(b => !b)} />
+      <FileUploadModal isOpen={isUploadOpen} setIsOpen={setUploadOpen} selectedCase={selectedCase} forceUpdate={() => setReloadDocuments((b) => !b)} />
 
       <DeleteModal isOpen={isDeleteOpen} setIsOpen={setDeleteOpen} selectedCase={selectedCase} forceUpdate={forceUpdate} />
 
@@ -240,8 +240,8 @@ export default function Content() {
               value={search}
               ref={searchRef}
               className="block w-full min-w-20 pr-8 bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-700 focus:border-teal-700"
-              onChange={e => setSearch(e.target.value)}
-              onKeyDown={e => e.key === 'Escape' && setSearch('')}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Escape' && setSearch('')}
             />
             <div
               className={`absolute bottom-0 top-0 right-0 pr-2.5 py-3 cursor-pointer ${search ? 'text-stone-900' : 'text-stone-400'}`}
@@ -321,7 +321,7 @@ export default function Content() {
             type="checkbox"
             className="size-4 mr-2 text-teal-700 bg-stone-50 border-stone-300 focus:ring-teal-700 focus:ring-2 "
             checked={todosOnly}
-            onChange={() => setTodosOnly(t => !t)}
+            onChange={() => setTodosOnly((t) => !t)}
           />
           Fristen
         </label>
@@ -373,7 +373,7 @@ function TypeFilter({ typeQuery, setTypeQuery }) {
     setTypeQuery((tq) => {
       const newTypeQuery = [];
       if (tq.length === 0 || (tq.length === 1 && tq[0] === type)) {
-        typeKeys.filter(t => t !== type).forEach(t => newTypeQuery.push(t));
+        typeKeys.filter((t) => t !== type).forEach((t) => newTypeQuery.push(t));
       } else {
         newTypeQuery.push(type);
       }
@@ -384,7 +384,7 @@ function TypeFilter({ typeQuery, setTypeQuery }) {
   return (
     <div className="inline-flex rounded-lg shadow-sm" role="group">
       {
-        typeKeys.map(type => (
+        typeKeys.map((type) => (
           <button
             type="button"
             key={type}
@@ -427,7 +427,7 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
     setStatusQuery((sq) => {
       const newStatusQuery = [];
       if (sq.length === 0 || (sq.length === 1 && sq[0] === status)) {
-        statusKeys.filter(s => s !== status).forEach(s => newStatusQuery.push(s));
+        statusKeys.filter((s) => s !== status).forEach((s) => newStatusQuery.push(s));
       } else {
         newStatusQuery.push(status);
       }
@@ -438,7 +438,7 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
   return (
     <div className="inline-flex rounded-lg shadow-sm order-first sm:order-none w-full sm:w-auto" role="group">
       {
-        filterStatusKeys.map(status => (
+        filterStatusKeys.map((status) => (
           <button
             type="button"
             key={status}
@@ -469,14 +469,14 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    if (openCaseId && (recentlyUpdatedId || !cases.map(c => c.id).includes(openCaseId))) {
+    if (openCaseId && (recentlyUpdatedId || !cases.map((c) => c.id).includes(openCaseId))) {
       setOpenCaseId(null);
     }
   }, [cases, recentlyUpdatedId, openCaseId]);
 
   useEffect(() => {
     if (singleClickedCaseId && clickedCaseId && singleClickedCaseId === clickedCaseId) {
-      setOpenCaseId(o => o === clickedCaseId ? null : clickedCaseId);
+      setOpenCaseId((o) => o === clickedCaseId ? null : clickedCaseId);
       setOpenDropdown(null);
       setClickedCaseId(null);
       setDocuments([]);
@@ -490,9 +490,9 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
       api.getCaseDocuments(openCaseId)
         .then((response) => {
           setDocuments(response.data.documents);
-          cases.filter(c => c.id === openCaseId).forEach(c => c.hasDocuments = (response.data.documents.length > 0));
+          cases.filter((c) => c.id === openCaseId).forEach((c) => c.hasDocuments = (response.data.documents.length > 0));
         })
-        .catch(error => setErrorMessage(error.userMessage));
+        .catch((error) => setErrorMessage(error.userMessage));
     } else {
       setDocuments([]);
     }
@@ -500,12 +500,12 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
 
   function clickCase(id) {
     // double-click toggles clickedCase
-    setClickedCaseId(c => c === id ? null : id);
+    setClickedCaseId((c) => c === id ? null : id);
   }
 
   function toggleDropdown(event, id) {
     event.stopPropagation();
-    setOpenDropdown(o => o === id ? null : id);
+    setOpenDropdown((o) => o === id ? null : id);
   }
 
   function openUpload(event, aCase) {
@@ -548,8 +548,8 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
   function deleteDocument(event, caseId, docId) {
     event.stopPropagation();
     api.deleteCaseDocument(caseId, docId).then(() => {
-      setReloadDocuments(b => !b);
-    }).catch(error => setErrorMessage(error.userMessage));
+      setReloadDocuments((b) => !b);
+    }).catch((error) => setErrorMessage(error.userMessage));
   }
 
   function formattedDate(date) {
@@ -613,7 +613,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
             data-open={openCaseId === aCase.id}
             className={liClasses}
             onClick={() => clickCase(aCase.ref && aCase.id)}
-            onDoubleClick={e => openEditModal(e, aCase.ref && aCase)}
+            onDoubleClick={(e) => openEditModal(e, aCase.ref && aCase)}
           >
             {aCase.newWeek && (
               <div className={weekMarkerClasses}>
@@ -681,13 +681,13 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                 >
                   <div className="col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5 relative">
                     <div className="flex justify-between items-center">
-                      <button className={editButtonClasses} onClick={e => openEditModal(e, aCase)}>
+                      <button className={editButtonClasses} onClick={(e) => openEditModal(e, aCase)}>
                         <PencilIcon className="size-4 me-2 inline" />
                         Bearbeiten
                       </button>
                       <button
                         className="p-2 rounded-r-lg text-white bg-teal-700 hover:bg-teal-600"
-                        onClick={e => toggleDropdown(e, aCase.id)}
+                        onClick={(e) => toggleDropdown(e, aCase.id)}
                         onDoubleClick={ignoreEvent}
                       >
                         {
@@ -704,7 +704,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       <li>
                         <button
                           className={uploadButtonClasses}
-                          onClick={e => openUpload(e, aCase)}
+                          onClick={(e) => openUpload(e, aCase)}
                           onDoubleClick={ignoreEvent}
                         >
                           <PaperClipIcon className="size-4 me-2 inline" />
@@ -714,7 +714,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       <li>
                         <button
                           className={deleteButtonClasses}
-                          onClick={e => openDelete(e, aCase)}
+                          onClick={(e) => openDelete(e, aCase)}
                           onDoubleClick={ignoreEvent}
                         >
                           <TrashIcon className="size-4 me-2 inline" />
@@ -751,13 +751,13 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                     <div className="col-start-3 col-end-5 px-2 text-sm">
                       <ol>
                         {
-                          documents.map(doc => (
+                          documents.map((doc) => (
                             <li key={doc.id} className="flex items-center">
                               <PaperClipIcon className="size-3.5 inline me-1" />
                               <a
                                 href="#"
                                 className="text-teal-700 hover:text-teal-800 hover:underline"
-                                onClick={e => downloadDocument(e, aCase.id, doc.id, doc.filename)}
+                                onClick={(e) => downloadDocument(e, aCase.id, doc.id, doc.filename)}
                                 onDoubleClick={ignoreEvent}
                               >
                                 {doc.filename}
@@ -766,19 +766,19 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                                 className={clsx('size-3 inline ms-2 hover:text-teal-700 hover:cursor-pointer',
                                   selectedDocumentId === doc.id && 'hidden')}
                                 title="Löschen"
-                                onClick={e => selectDocument(e, doc.id)}
+                                onClick={(e) => selectDocument(e, doc.id)}
                                 onDoubleClick={ignoreEvent}
                               />
                               <div className={clsx('self-start inline-flex items-center ms-2', selectedDocumentId !== doc.id && 'hidden')}>
                                 <ChevronLeftIcon
                                   className="size-3 cursor-pointer inline"
-                                  onClick={e => selectDocument(e, null)}
+                                  onClick={(e) => selectDocument(e, null)}
                                   onDoubleClick={ignoreEvent}
                                 />
                                 <span className="ms-1 font-semibold">Löschen?</span>
                                 <TrashIcon
                                   className="inline size-3 ms-1 cursor-pointer"
-                                  onClick={e => deleteDocument(e, aCase.id, doc.id)}
+                                  onClick={(e) => deleteDocument(e, aCase.id, doc.id)}
                                   onDoubleClick={ignoreEvent}
                                 />
                               </div>

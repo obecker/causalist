@@ -6,7 +6,7 @@ import LoginRegistration from './LoginRegistration';
 export default function App() {
   return (
     <ApiProvider>
-      {apiKey => (
+      {(apiKey) => (
         <div className="min-h-screen relative">
           <StageDevAppearance />
           <div className="container mx-auto p-3 sm:p-8 pb-12 min-w-[352px] text-stone-900">
