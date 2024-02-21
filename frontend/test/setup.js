@@ -4,6 +4,7 @@ import * as matchers from '@testing-library/jest-dom/matchers';
 
 expect.extend(matchers);
 
+// add mock for window.matchMedia() function
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation(query => ({
@@ -18,6 +19,7 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// mock axios
 vi.mock('axios', () => {
   return {
     default: {

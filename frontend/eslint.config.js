@@ -20,14 +20,11 @@ export default [
         version: 'detect',
       },
     },
-    plugins: {
-      vitestGlobals,
-    },
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.node,
-        ...globals.jest,
+        ...vitestGlobals.environments.env.globals,
         BUILD_NUMBER: 'readonly',
       },
     },
