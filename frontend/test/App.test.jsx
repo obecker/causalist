@@ -27,9 +27,9 @@ describe('App', () => {
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Login');
   });
 
-  it('renders the contents page with a logout button when logged in', async () => {
+  it('renders the contents page and performs a cases request when logged in', async () => {
     // given
-    window.sessionStorage.setItem('apiKey', '"some-api-key-value"');
+    window.sessionStorage.setItem('apiKey', '"my-api-key"');
     axios.get.mockResolvedValue(
       () => Promise.resolve({
         status: 200,
@@ -45,6 +45,9 @@ describe('App', () => {
     // then
     expect(screen.queryByRole('heading', { level: 2 })).toBeNull();
     expect(screen.getByText('Abmelden')).toHaveRole('button');
-    expect(axios.get).toHaveBeenCalledWith('/cases', expect.anything());
+    expect(axios.get).toHaveBeenCalledWith(
+      '/cases',
+      expect.objectContaining({ headers: { Authorization: 'Bearer my-api-key' } }),
+    );
   });
 });
