@@ -12,7 +12,12 @@ export default defineConfig(() => {
     build: {
       outDir: 'build',
     },
-    plugins: [react(), eslintPlugin()],
+    plugins: [
+      react(),
+      // disable eslint plugin for tests
+      // vitest issue: https://github.com/vitest-dev/vitest/issues/2008
+      process.env.NODE_ENV !== 'test' && eslintPlugin(),
+    ],
     server: {
       host: true, // make the server accessible in the local network
       port: 3000,
@@ -29,8 +34,6 @@ export default defineConfig(() => {
       environment: 'jsdom',
       globals: true,
       setupFiles: 'test/setup.js',
-      // Work-around for https://github.com/vitest-dev/vitest/issues/3077
-      pool: 'forks',
     },
   };
 });
