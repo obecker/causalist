@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import axios from 'axios';
 import App from '../src/App';
 
 describe('App', () => {
@@ -26,15 +27,24 @@ describe('App', () => {
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Login');
   });
 
-  it('renders the contents page with a logout button when logged in', () => {
+  it('renders the contents page with a logout button when logged in', async () => {
     // given
     window.sessionStorage.setItem('apiKey', '"some-api-key-value"');
+    axios.get.mockResolvedValue(
+      () => Promise.resolve({
+        status: 200,
+        data: { cases: [] },
+      }),
+    );
 
     // when
-    render(<App />);
+    await act(async () => {
+      render(<App />);
+    });
 
     // then
     expect(screen.queryByRole('heading', { level: 2 })).toBeNull();
     expect(screen.getByText('Abmelden')).toHaveRole('button');
+    expect(axios.get).toHaveBeenCalledWith('/cases', expect.anything());
   });
 });

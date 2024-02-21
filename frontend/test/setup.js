@@ -18,6 +18,29 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+vi.mock('axios', () => {
+  return {
+    default: {
+      fetch: vi.fn(),
+      post: vi.fn(),
+      get: vi.fn(),
+      delete: vi.fn(),
+      put: vi.fn(),
+      create: vi.fn().mockReturnThis(),
+      interceptors: {
+        request: {
+          use: vi.fn(),
+          eject: vi.fn(),
+        },
+        response: {
+          use: vi.fn(),
+          eject: vi.fn(),
+        },
+      },
+    },
+  };
+});
+
 afterEach(() => {
   cleanup();
   window.sessionStorage.clear();

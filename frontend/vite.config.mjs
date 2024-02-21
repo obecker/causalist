@@ -29,6 +29,8 @@ export default defineConfig(() => {
       environment: 'jsdom',
       globals: true,
       setupFiles: 'test/setup.js',
+      // Work-around for https://github.com/vitest-dev/vitest/issues/3077
+      pool: 'forks',
     },
   };
 });

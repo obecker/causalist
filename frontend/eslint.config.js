@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
 import reactRecommended from 'eslint-plugin-react/configs/recommended.js';
+import vitestGlobals from 'eslint-plugin-vitest-globals';
 import globals from 'globals';
 
 // noinspection JSUnusedGlobalSymbols
@@ -20,7 +21,7 @@ export default [
       },
     },
     plugins: {
-      // stylistic,
+      vitestGlobals,
     },
     languageOptions: {
       globals: {
