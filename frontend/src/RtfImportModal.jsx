@@ -7,10 +7,10 @@ import { ApiContext } from './ApiProvider';
 import FailureAlert from './FailureAlert';
 import ModalDialog from './ModalDialog';
 
-const IMPORTED = Symbol('imported');
-const UPDATED = Symbol('updated');
-const IGNORED = Symbol('ignored');
-const UNKNOWN = Symbol('unknown');
+const IMPORTED = 'IMPORTED';
+const UPDATED = 'UPDATED';
+const IGNORED = 'IGNORED';
+const UNKNOWN = 'UNKNOWN';
 
 export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
   const api = useContext(ApiContext);
@@ -124,68 +124,35 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
   );
 }
 
+const importResultDetails = {
+  NEW_CASES: {
+    IMPORTED: (num) => num === 1 ? '1 Verfahren wurde importiert' : `${num} Verfahren wurden importiert`,
+    UPDATED: (num) => num === 1 ? '1 Verfahren wurde aktualisiert' : `${num} Verfahren wurden aktualisiert`,
+    IGNORED: (num) => num === 1 ? '1 bekanntes Verfahren wurde ignoriert' : `${num} bekannte Verfahren wurden ignoriert`,
+  },
+  UPDATED_RECEIVED_DATES: {
+    UPDATED: (num) => num === 1 ? '1 Eingangsdatum wurde aktualisiert' : `${num} Eingangsdaten wurden aktualisiert`,
+    IGNORED: (num) => num === 1 ? '1 Eingangsdatum war bereits aktuell' : `${num} Eingangsdaten waren bereits aktuell`,
+    UNKNOWN: (num) => num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`,
+  },
+  UPDATED_DUE_DATES: {
+    UPDATED: (num) => num === 1 ? '1 Termin wurde aktualisiert' : `${num} Termine wurden aktualisiert`,
+    IGNORED: (num) => num === 1 ? '1 Termin war bereits aktuell' : `${num} Termine waren bereits aktuell`,
+    UNKNOWN: (num) => num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`,
+  },
+};
+
 function ImportResultDetails({ importType, casesType, refs }) {
   const [detailsOpen, setDetailsOpen] = useState(false);
 
-  let num = refs.length;
-  let casesText;
-  if (importType === 'NEW_CASES') {
-    switch (casesType) {
-      case IMPORTED:
-        casesText = num === 1 ? '1 Verfahren wurde importiert' : `${num} Verfahren wurden importiert`;
-        break;
-      case UPDATED:
-        casesText = num === 1 ? '1 Verfahren wurde aktualisiert' : `${num} Verfahren wurden aktualisiert`;
-        break;
-      case IGNORED:
-        casesText = num === 1 ? '1 bekanntes Verfahren wurde ignoriert' : `${num} bekannte Verfahren wurden ignoriert`;
-        break;
-      default:
-        // UNKNOWN will always be empty
-        return null;
-    }
-  } else if (importType === 'UPDATED_RECEIVED_DATES') {
-    switch (casesType) {
-      case UPDATED:
-        casesText = num === 1 ? '1 Eingangsdatum wurde aktualisiert' : `${num} Eingangsdaten wurden aktualisiert`;
-        break;
-      case IGNORED:
-        casesText = num === 1 ? '1 Eingangsdatum war bereits aktuell' : `${num} Eingangsdaten waren bereits aktuell`;
-        break;
-      case UNKNOWN:
-        casesText = num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`;
-        break;
-      default:
-        // IMPORTED will always be empty
-        return null;
-    }
-  } else if (importType === 'UPDATED_DUE_DATES') {
-    switch (casesType) {
-      case UPDATED:
-        casesText = num === 1 ? '1 Termin wurde aktualisiert' : `${num} Termine wurden aktualisiert`;
-        break;
-      case IGNORED:
-        casesText = num === 1 ? '1 Termin war bereits aktuell' : `${num} Termine waren bereits aktuell`;
-        break;
-      case UNKNOWN:
-        casesText = num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`;
-        break;
-      default:
-        // IMPORTED will always be empty
-        return null;
-    }
-  } else {
-    // must not happen
-    return null;
-  }
-
-  return (
+  const importResultText = importResultDetails[importType]?.[casesType]?.(refs.length);
+  return (importResultText && (
     <div className="w-full">
       <div
         className={clsx('flex gap-1 align-bottom', refs.length && 'cursor-pointer hover:underline', detailsOpen && 'font-semibold')}
         onClick={() => setDetailsOpen((o) => refs.length && !o)}
       >
-        <div>{casesText}</div>
+        <div>{importResultText}</div>
         {refs.length > 0 && (detailsOpen
           ? <ChevronUpIcon className="size-6 cursor-pointer" />
           : <ChevronDownIcon className="size-6 cursor-pointer" />
@@ -197,5 +164,5 @@ function ImportResultDetails({ importType, casesType, refs }) {
         </ul>
       )}
     </div>
-  );
+  ));
 }
