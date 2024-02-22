@@ -78,16 +78,16 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
           setRefNo(caseResource.ref.number.toString());
           setRefYear(caseResource.ref.year.toString().padStart(2, '0'));
           setCaseType(caseResource.type);
-          setCaseParties(caseResource.parties || '');
-          setCaseArea(caseResource.area || '');
+          setCaseParties(caseResource.parties ?? '');
+          setCaseArea(caseResource.area ?? '');
           setCaseStatus(caseResource.status);
-          setCaseStatusNote(caseResource.statusNote || '');
-          setCaseMemo(caseResource.memo || '');
-          setCaseMarkerColor(caseResource.markerColor || '');
+          setCaseStatusNote(caseResource.statusNote ?? '');
+          setCaseMemo(caseResource.memo ?? '');
+          setCaseMarkerColor(caseResource.markerColor ?? '');
           setCaseReceivedOn(caseResource.receivedOn);
-          setCaseSettledOn(caseResource.settledOn || '');
-          setCaseDueDate(caseResource.dueDate || '');
-          setCaseTodoDate(caseResource.todoDate || '');
+          setCaseSettledOn(caseResource.settledOn ?? '');
+          setCaseDueDate(caseResource.dueDate ?? '');
+          setCaseTodoDate(caseResource.todoDate ?? '');
           setFieldsDisabled(false);
         })
         .catch((error) => setErrorOnLoad(error.userMessage));
@@ -133,7 +133,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
 
   function pasteReference(event) {
     event.preventDefault();
-    const reference = (event.clipboardData || window.clipboardData).getData('text');
+    const reference = (event.clipboardData ?? window.clipboardData).getData('text');
     const parts = reference.split(/[ /]/, 4);
     event.target.value = parts[0];
     refRegisterInput.current.value = parts[1];
