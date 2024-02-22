@@ -44,7 +44,7 @@ class CaseRtfImporterTest : DescribeSpec({
 
         it("should import cases from an RTF document") {
             // given
-            val refExisting = Reference.parseValue( "123 O 113/18")
+            val refExisting = Reference.parseValue("123 O 113/18")
             val refUpdated = Reference.parseValue("123 O 209/18")
             val refSettled = Reference.parseValue("123 O 124/19")
 
@@ -71,7 +71,15 @@ class CaseRtfImporterTest : DescribeSpec({
 
             // then
             importResult.importType shouldBe ImportType.NEW_CASES
-            importResult.importedCaseRefs.shouldContainExactly("123 O 358/14", "123 O 209/18", "123 O 124/19", "123 O 195/19", "123 O 54/21", "123 O 202/21", "123 S 4/23", "123 S 5/23")
+            importResult.importedCaseRefs.shouldContainExactly(
+                "123 O 358/14",
+                "123 O 195/19",
+                "123 O 54/21",
+                "123 O 202/21",
+                "123 S 4/23",
+                "123 S 5/23"
+            )
+            importResult.updatedCaseRefs.shouldContainExactly(refUpdated.toValue(), refSettled.toValue())
             importResult.ignoredCaseRefs.shouldContainExactly(refExisting.toValue())
             importResult.unknownCaseRefs.shouldBeEmpty()
             importResult.errors.shouldContainExactly(
@@ -125,8 +133,9 @@ class CaseRtfImporterTest : DescribeSpec({
             val ref2 = Reference.parseValue("123 O 195/19")
 
             caseService.persist(aCase().withOwnerId(userId).withRef(ref1))
-            caseService.persist(aCase().withOwnerId(userId).withRef(ref2)
-                .withReceivedOn(LocalDate.of(2019, 8, 29)))
+            caseService.persist(
+                aCase().withOwnerId(userId).withRef(ref2).withReceivedOn(LocalDate.of(2019, 8, 29))
+            )
 
             val inputStream = ImportResult::class.java.getResourceAsStream("CasesToUpdateReceivedOn.rtf")
                 ?: throw AssertionError("file not found")
@@ -136,7 +145,8 @@ class CaseRtfImporterTest : DescribeSpec({
 
             // then
             importResult.importType shouldBe ImportType.UPDATED_RECEIVED_DATES
-            importResult.importedCaseRefs.shouldContainExactly(ref1.toValue())
+            importResult.importedCaseRefs.shouldBeEmpty()
+            importResult.updatedCaseRefs.shouldContainExactly(ref1.toValue())
             importResult.ignoredCaseRefs.shouldContainExactly(ref2.toValue())
             importResult.unknownCaseRefs.shouldContainExactly("123 O 201/22", "123 O 207/22")
             importResult.errors.shouldContainExactly(
@@ -179,7 +189,13 @@ class CaseRtfImporterTest : DescribeSpec({
 
             // then
             importResult.importType shouldBe ImportType.UPDATED_DUE_DATES
-            importResult.importedCaseRefs.shouldContainExactly("123 O 202/21", "123 O 54/21", "123 O 195/19", "123 O 124/19")
+            importResult.importedCaseRefs.shouldBeEmpty()
+            importResult.updatedCaseRefs.shouldContainExactly(
+                refChamber1.toValue(),
+                refSingle1.toValue(),
+                refChamber2.toValue(),
+                refSingle2.toValue()
+            )
             importResult.ignoredCaseRefs.shouldContainExactly(refNotUpdated.toValue())
             importResult.unknownCaseRefs.shouldContainExactly("123 O 1/23")
             importResult.errors.shouldContainExactly(
@@ -224,6 +240,7 @@ class CaseRtfImporterTest : DescribeSpec({
             // then
             importResult.importType.shouldBeNull()
             importResult.importedCaseRefs.shouldBeEmpty()
+            importResult.updatedCaseRefs.shouldBeEmpty()
             importResult.ignoredCaseRefs.shouldBeEmpty()
             importResult.unknownCaseRefs.shouldBeEmpty()
             importResult.errors shouldHaveSingleElement "Es konnten leider keine Daten in der RTF-Datei erkannt werden."

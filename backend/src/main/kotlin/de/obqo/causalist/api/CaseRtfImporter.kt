@@ -30,6 +30,7 @@ enum class ImportType {
 data class ImportResult(
     val importType: ImportType?,
     val importedCaseRefs: List<String>,
+    val updatedCaseRefs: List<String>,
     val ignoredCaseRefs: List<String>,
     val unknownCaseRefs: List<String>,
     val errors: List<String>
@@ -53,6 +54,7 @@ fun importCases(
     parser.parse(source, listener)
 
     val importedCaseRefs = mutableListOf<String>()
+    val updatedCaseRefs = mutableListOf<String>()
     val ignoredCaseRefs = mutableListOf<String>()
     val unknownCaseRefs = mutableListOf<String>()
     when (listener.detectedImportType) {
@@ -75,7 +77,7 @@ fun importCases(
                     ignoredCaseRefs.addCase(persistedCase)
                 } else {
                     caseService.update(updatedCase)
-                    importedCaseRefs.addCase(updatedCase)
+                    updatedCaseRefs.addCase(updatedCase)
                 }
             }
         }
@@ -86,7 +88,7 @@ fun importCases(
             if (persistedCase != null) {
                 if (persistedCase.receivedOn != importedCase.receivedOn) {
                     caseService.update(persistedCase.copy(receivedOn = importedCase.receivedOn))
-                    importedCaseRefs.addCase(persistedCase)
+                    updatedCaseRefs.addCase(persistedCase)
                 } else {
                     ignoredCaseRefs.addCase(persistedCase)
                 }
@@ -125,7 +127,7 @@ fun importCases(
                             todoDate = todoDate
                         )
                     )
-                    importedCaseRefs.addCase(persistedCase)
+                    updatedCaseRefs.addCase(persistedCase)
                 } else {
                     ignoredCaseRefs.addCase(persistedCase)
                 }
@@ -142,6 +144,7 @@ fun importCases(
     return ImportResult(
         importType = listener.detectedImportType,
         importedCaseRefs = importedCaseRefs,
+        updatedCaseRefs = updatedCaseRefs,
         ignoredCaseRefs = ignoredCaseRefs,
         unknownCaseRefs = unknownCaseRefs,
         errors = listener.errors

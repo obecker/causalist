@@ -7,6 +7,7 @@ import { ApiContext } from './ApiProvider';
 import FailureAlert from './FailureAlert';
 
 const IMPORTED = Symbol('imported');
+const UPDATED = Symbol('updated');
 const IGNORED = Symbol('ignored');
 const UNKNOWN = Symbol('unknown');
 
@@ -119,7 +120,7 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
                     </label>
                     <div className="grow w-max py-1.5">{selectedFile?.name}</div>
                     <button disabled={selectedFile === null} onClick={importCases} className={fileUploadClasses}>
-                      Hochladen
+                      Importieren
                     </button>
                   </div>
                   {result && (
@@ -127,6 +128,7 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
                       <div className="font-semibold mb-2">{header(result.importType)}</div>
                       <div>
                         <ImportResultDetails importType={result.importType} casesType={IMPORTED} refs={result.importedCaseRefs} />
+                        <ImportResultDetails importType={result.importType} casesType={UPDATED} refs={result.updatedCaseRefs} />
                         <ImportResultDetails importType={result.importType} casesType={IGNORED} refs={result.ignoredCaseRefs} />
                         <ImportResultDetails importType={result.importType} casesType={UNKNOWN} refs={result.unknownCaseRefs} />
                         <ol className="text-rose-700 mt-2">
@@ -154,30 +156,53 @@ function ImportResultDetails({ importType, casesType, refs }) {
   let num = refs.length;
   let casesText;
   if (importType === 'NEW_CASES') {
-    if (casesType === IMPORTED) {
-      casesText = num === 1 ? '1 Verfahren wurde importiert' : `${num} Verfahren wurden importiert`;
-    } else if (casesType === IGNORED) {
-      casesText = num === 1 ? '1 bekanntes Verfahren wurde ignoriert' : `${num} bekannte Verfahren wurden ignoriert`;
-    } else if (casesType === UNKNOWN) {
-      // will never have cases, so don't display this result
-      return null;
+    switch (casesType) {
+      case IMPORTED:
+        casesText = num === 1 ? '1 Verfahren wurde importiert' : `${num} Verfahren wurden importiert`;
+        break;
+      case UPDATED:
+        casesText = num === 1 ? '1 Verfahren wurde aktualisiert' : `${num} Verfahren wurden aktualisiert`;
+        break;
+      case IGNORED:
+        casesText = num === 1 ? '1 bekanntes Verfahren wurde ignoriert' : `${num} bekannte Verfahren wurden ignoriert`;
+        break;
+      default:
+        // UNKNOWN will always be empty
+        return null;
     }
   } else if (importType === 'UPDATED_RECEIVED_DATES') {
-    if (casesType === IMPORTED) {
-      casesText = num === 1 ? '1 Eingangsdatum wurde aktualisiert' : `${num} Eingangsdaten wurden aktualisiert`;
-    } else if (casesType === IGNORED) {
-      casesText = num === 1 ? '1 Eingangsdatum war bereits aktuell' : `${num} Eingangsdaten waren bereits aktuell`;
-    } else if (casesType === UNKNOWN) {
-      casesText = num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`;
+    switch (casesType) {
+      case UPDATED:
+        casesText = num === 1 ? '1 Eingangsdatum wurde aktualisiert' : `${num} Eingangsdaten wurden aktualisiert`;
+        break;
+      case IGNORED:
+        casesText = num === 1 ? '1 Eingangsdatum war bereits aktuell' : `${num} Eingangsdaten waren bereits aktuell`;
+        break;
+      case UNKNOWN:
+        casesText = num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`;
+        break;
+      default:
+        // IMPORTED will always be empty
+        return null;
     }
   } else if (importType === 'UPDATED_DUE_DATES') {
-    if (casesType === IMPORTED) {
-      casesText = num === 1 ? '1 Termin wurde aktualisiert' : `${num} Termine wurden aktualisiert`;
-    } else if (casesType === IGNORED) {
-      casesText = num === 1 ? '1 Termin war bereits aktuell' : `${num} Termine waren bereits aktuell`;
-    } else if (casesType === UNKNOWN) {
-      casesText = num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`;
+    switch (casesType) {
+      case UPDATED:
+        casesText = num === 1 ? '1 Termin wurde aktualisiert' : `${num} Termine wurden aktualisiert`;
+        break;
+      case IGNORED:
+        casesText = num === 1 ? '1 Termin war bereits aktuell' : `${num} Termine waren bereits aktuell`;
+        break;
+      case UNKNOWN:
+        casesText = num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`;
+        break;
+      default:
+        // IMPORTED will always be empty
+        return null;
     }
+  } else {
+    // must not happen
+    return null;
   }
 
   return (
