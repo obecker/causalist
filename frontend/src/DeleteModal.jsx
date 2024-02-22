@@ -1,9 +1,10 @@
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog } from '@headlessui/react';
 import clsx from 'clsx/lite';
-import { Fragment, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ApiContext } from './ApiProvider';
 import FailureAlert from './FailureAlert';
-import { statusLabels } from './status.js';
+import ModalDialog from './ModalDialog';
+import { statusLabels } from './status';
 
 export default function DeleteModal({ isOpen, setIsOpen, selectedCase, forceUpdate }) {
   const api = useContext(ApiContext);
@@ -41,58 +42,30 @@ export default function DeleteModal({ isOpen, setIsOpen, selectedCase, forceUpda
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
 
   return (selectedCase && (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={close}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-black/25" />
-        </Transition.Child>
-
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
-              <div className={panelClasses}>
-                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-stone-900 text-center text-pretty">
-                  {`Verfahren ${selectedCase.ref.value} aus dem Bestand löschen?`}
-                </Dialog.Title>
-                <div className="w-full mt-4">
-                  {selectedCase.parties}
-                </div>
-                <div className="w-full mt-2">
-                  {`Status: ${statusLabels[selectedCase.status]}`}
-                </div>
-                <FailureAlert message={errorMessage} className="my-4" />
-                <div className="w-full mt-4">
-                  <div className="flex justify-center gap-6">
-                    <button type="button" className={closeButtonClasses} onClick={close}>
-                      Abbrechen
-                    </button>
-                    <button type="button" className={deleteButtonClasses} onClick={deleteCase}>
-                      Löschen
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </Transition.Child>
+    <ModalDialog isOpen={isOpen} onClose={close}>
+      {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
+      <div className={panelClasses}>
+        <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-stone-900 text-center text-pretty">
+          {`Verfahren ${selectedCase.ref.value} aus dem Bestand löschen?`}
+        </Dialog.Title>
+        <div className="w-full mt-4">
+          {selectedCase.parties}
+        </div>
+        <div className="w-full mt-2">
+          {`Status: ${statusLabels[selectedCase.status]}`}
+        </div>
+        <FailureAlert message={errorMessage} className="my-4" />
+        <div className="w-full mt-4">
+          <div className="flex justify-center gap-6">
+            <button type="button" className={closeButtonClasses} onClick={close}>
+              Abbrechen
+            </button>
+            <button type="button" className={deleteButtonClasses} onClick={deleteCase}>
+              Löschen
+            </button>
           </div>
         </div>
-      </Dialog>
-    </Transition>
+      </div>
+    </ModalDialog>
   ));
 }

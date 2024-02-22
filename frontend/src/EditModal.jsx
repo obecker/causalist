@@ -1,12 +1,13 @@
-import { Dialog, Listbox, Transition } from '@headlessui/react';
+import { Dialog, Listbox } from '@headlessui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import { useMediaQuery } from '@uidotdev/usehooks';
 import clsx from 'clsx/lite';
-import { Fragment, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { ApiContext } from './ApiProvider';
 import FailureAlert from './FailureAlert';
-import { statusKeys, statusLabels } from './status.js';
-import StatusIcon from './StatusIcon.jsx';
+import ModalDialog from './ModalDialog';
+import { statusKeys, statusLabels } from './status';
+import StatusIcon from './StatusIcon';
 import { today } from './utils';
 
 export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate }) {
@@ -218,332 +219,304 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     fieldsDisabled && 'cursor-wait');
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={close}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-black/25" />
-        </Transition.Child>
-
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
-              <div className={panelClasses}>
-                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-stone-900">
-                  {selectedCase ? 'Verfahren bearbeiten' : 'Neues Verfahren'}
-                </Dialog.Title>
-                <FailureAlert message={errorOnLoad} className="w-full mt-4" />
-                <div className="w-full mt-4">
-                  <form onSubmit={saveCase} className="grid grid-cols-1 gap-6 sm:grid-cols-6 lg:grid-cols-4">
-                    <div className="sm:col-span-4 lg:col-span-2 xl:col-span-1">
-                      <label className="block">Aktenzeichen</label>
-                      <div className="block w-fit rounded-lg border border-stone-300">
-                        <input
-                          minLength="1"
-                          maxLength="4"
-                          tabIndex="1"
-                          inputMode="numeric"
-                          disabled={fieldsDisabled}
-                          value={refEntity}
-                          onKeyDown={(e) => focusNextOnKey(e, ' ', refRegisterInput)}
-                          onPaste={pasteReference}
-                          onChange={(e) => setRefEntity(e.target.value.trim())}
-                          className={`mr-1 w-16 border-0 rounded-l-lg focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refEntityFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
-                        />
-                        <input
-                          minLength="1"
-                          maxLength="2"
-                          tabIndex="2"
-                          disabled={fieldsDisabled}
-                          value={refRegister}
-                          ref={refRegisterInput}
-                          onKeyDown={(e) => focusNextOnKey(e, ' ', refNoInput)}
-                          onChange={(e) => setRefRegister(e.target.value.trim().toUpperCase())}
-                          className={`mr-1 w-12 border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refRegisterFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
-                        />
-                        <input
-                          minLength="1"
-                          maxLength="4"
-                          tabIndex="3"
-                          inputMode="numeric"
-                          disabled={fieldsDisabled}
-                          value={refNo}
-                          ref={refNoInput}
-                          onKeyDown={(e) => focusNextOnKey(e, '/', refYearInput)}
-                          onChange={(e) => setRefNo(e.target.value.trim())}
-                          className={`w-16 border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refNoFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
-                        />
-                        <span>/</span>
-                        <input
-                          minLength="2"
-                          maxLength="2"
-                          tabIndex="4"
-                          inputMode="numeric"
-                          disabled={fieldsDisabled}
-                          value={refYear}
-                          ref={refYearInput}
-                          onChange={(e) => setRefYear(e.target.value.trim())}
-                          className={`w-12 border-0 rounded-r-lg focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refYearFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
-                        />
-                      </div>
-                    </div>
-                    <div className="sm:col-span-2 xl:col-span-1 sm:pt-2">
-                      <div className="flex items-center mb-4">
-                        <label className="text-sm font-medium">
-                          <input
-                            type="radio"
-                            name="type"
-                            value="SINGLE"
-                            tabIndex="5"
-                            disabled={fieldsDisabled}
-                            checked={caseType === 'SINGLE'}
-                            onChange={() => setCaseType('SINGLE')}
-                            className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
-                          />
-                          Einzelrichter
-                        </label>
-                      </div>
-                      <div className="flex items-center">
-                        <label className="text-sm font-medium">
-                          <input
-                            type="radio"
-                            name="type"
-                            value="CHAMBER"
-                            tabIndex="5"
-                            disabled={fieldsDisabled}
-                            checked={caseType === 'CHAMBER'}
-                            onChange={() => setCaseType('CHAMBER')}
-                            className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
-                          />
-                          Kammersache
-                        </label>
-                      </div>
-                    </div>
-                    <div className="sm:col-span-6 lg:col-span-2">
-                      <label htmlFor="parties" className="block mb-2 text-sm font-medium">
-                        Parteien
-                      </label>
-                      <input
-                        id="parties"
-                        name="parties"
-                        value={caseParties}
-                        tabIndex="6"
-                        disabled={fieldsDisabled}
-                        onChange={(e) => setCaseParties(e.target.value)}
-                        className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
-                      />
-                    </div>
-                    <div className="sm:col-span-6 lg:col-span-2">
-                      <label htmlFor="area" className="block mb-2 text-sm font-medium">
-                        Rechtsgebiet
-                      </label>
-                      <input
-                        id="area"
-                        name="area"
-                        tabIndex={xlWidth ? 8 : 7}
-                        disabled={fieldsDisabled}
-                        value={caseArea}
-                        onChange={(e) => setCaseArea(e.target.value)}
-                        className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
-                      />
-                    </div>
-                    <div className="sm:col-span-6 lg:col-span-4 xl:col-span-2 xl:col-start-1 xl:row-start-2">
-                      <label htmlFor="status" className="block mb-2 text-sm font-medium">
-                        Status
-                      </label>
-                      <Listbox id="status" disabled={fieldsDisabled} value={caseStatus} onChange={setNewStatus}>
-                        {({ open }) => {
-                          const buttonClasses = clsx('flex items-center p-2 w-full text-sm bg-stone-50',
-                            'border border-stone-300 rounded-lg outline-none shadow-sm',
-                            'focus:ring-teal-700 focus:ring-2 focus:border-teal-700',
-                            open && 'ring-teal-700 ring-2 border-teal-700',
-                            fieldsDisabled && 'cursor-wait');
-                          const optionsClasses = clsx('absolute w-full lg:max-h-72 overflow-y-auto mt-0.5 py-2',
-                            'z-20 bg-stone-50 border rounded-lg shadow shadow-stone-400 outline-none');
-                          const optionClasses = clsx('flex items-center px-2 py-1',
-                            'ui-active:!bg-teal-700 ui-active:text-white ui-selected:bg-stone-200');
-                          return (
-                            <div className="relative">
-                              <Listbox.Button tabIndex={xlWidth ? 7 : 8} className={buttonClasses}>
-                                <StatusIcon status={caseStatus} className="size-6 me-2 flex-none inline" />
-                                <span className="flex-auto text-left">
-                                  {statusLabels[caseStatus]}
-                                </span>
-                                {open
-                                  ? <ChevronUpIcon className="size-4 flex-none" />
-                                  : <ChevronDownIcon className="size-4 flex-none" />}
-                              </Listbox.Button>
-                              <Listbox.Options className={optionsClasses}>
-                                {statusKeys.map((status) => (
-                                  <Listbox.Option key={status} value={status} className={optionClasses}>
-                                    <StatusIcon status={status} className="size-6 me-2 flex-none inline" />
-                                    <span className="flex-auto text-sm text-left">
-                                      {statusLabels[status]}
-                                    </span>
-                                  </Listbox.Option>
-                                ))}
-                              </Listbox.Options>
-                            </div>
-                          );
-                        }}
-                      </Listbox>
-                    </div>
-                    <div className="sm:col-span-6 lg:col-span-2">
-                      <label htmlFor="statusNote" className="block mb-2 text-sm font-medium">
-                        Status-Notiz
-                      </label>
-                      <textarea
-                        id="statusNote"
-                        name="statusNote"
-                        rows="3"
-                        tabIndex="9"
-                        disabled={fieldsDisabled}
-                        value={caseStatusNote}
-                        onChange={(e) => setCaseStatusNote(e.target.value)}
-                        className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
-                      />
-                    </div>
-                    <div className="sm:col-span-6 lg:col-span-2">
-                      <label htmlFor="caseMemo" className="block mb-2 text-sm font-medium">
-                        Anmerkung
-                      </label>
-                      <textarea
-                        id="caseMemo"
-                        name="caseMemo"
-                        rows="3"
-                        tabIndex="10"
-                        disabled={fieldsDisabled}
-                        value={caseMemo}
-                        onChange={(e) => setCaseMemo(e.target.value)}
-                        className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
-                      />
-                    </div>
-                    <div className="col-span-full flex gap-5">
-                      <label className="text-sm font-medium">Markierung</label>
-                      <div className="flex gap-3">
-                        {
-                          markerColors.map((color) => (
-                            <input
-                              key={color}
-                              type="radio"
-                              name="markerColor"
-                              value={color}
-                              tabIndex="11"
-                              disabled={fieldsDisabled}
-                              checked={color === caseMarkerColor}
-                              onChange={() => setCaseMarkerColor(color)}
-                              className={`size-4 self-center marker ${color || 'none'} border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait`}
-                            />
-                          ))
-                        }
-                      </div>
-                    </div>
-                    <div className="sm:col-span-3 lg:col-span-1">
-                      <label htmlFor="receivedOn" className="block mb-2 text-sm font-medium">
-                        Eingegangen am
-                      </label>
-                      <input
-                        id="receivedOn"
-                        name="receivedOn"
-                        type="date"
-                        tabIndex="12"
-                        disabled={fieldsDisabled}
-                        value={caseReceivedOn}
-                        onChange={(e) => setCaseReceivedOn(e.target.value)}
-                        onFocus={(e) => e.target.defaultValue = ''}
-                        className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseReceivedOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
-                      />
-                    </div>
-                    <div className="sm:col-span-3 lg:col-span-1">
-                      <label htmlFor="settledOn" className="block mb-2 text-sm font-medium">
-                        Erledigt am
-                      </label>
-                      <input
-                        id="settledOn"
-                        name="settledOn"
-                        type="date"
-                        tabIndex="13"
-                        disabled={fieldsDisabled}
-                        value={caseSettledOn}
-                        onChange={(e) => setCaseSettledOn(e.target.value)}
-                        onFocus={(e) => e.target.defaultValue = ''}
-                        className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseSettledOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
-                      />
-                    </div>
-                    <div className="sm:col-span-3 lg:col-span-1">
-                      <label htmlFor="todoDate" className="block mb-2 text-sm font-medium">
-                        Vorfrist am
-                      </label>
-                      <input
-                        id="todoDate"
-                        name="todoDate"
-                        type="date"
-                        tabIndex="14"
-                        disabled={fieldsDisabled}
-                        value={caseTodoDate}
-                        onChange={(e) => setCaseTodoDate(e.target.value)}
-                        onFocus={(e) => e.target.defaultValue = ''}
-                        className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseTodoDateFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
-                      />
-                    </div>
-                    <div className="sm:col-span-3 lg:col-span-1">
-                      <label htmlFor="dueDate" className="block mb-2 text-sm font-medium">
-                        nächster Termin am
-                      </label>
-                      <input
-                        id="dueDate"
-                        name="dueDate"
-                        type="date"
-                        tabIndex="15"
-                        disabled={fieldsDisabled}
-                        value={caseDueDate}
-                        onChange={(e) => setCaseDueDate(e.target.value)}
-                        onFocus={(e) => e.target.defaultValue = ''}
-                        className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
-                      />
-                    </div>
-                    <FailureAlert message={errorOnSave} className="col-span-full" />
-                    <div className="col-span-full flex justify-center gap-6">
-                      <button
-                        type="button"
-                        tabIndex="16"
-                        className="flex w-40 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-stone-200 text-teal-700 shadow-sm hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus:ring-teal-700 focus:border-teal-700"
-                        onClick={close}
-                      >
-                        Abbrechen
-                      </button>
-                      <button
-                        type="submit"
-                        tabIndex="17"
-                        disabled={fieldsDisabled}
-                        className="flex w-40 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-teal-700 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-                      >
-                        {selectedCase ? 'Speichern' : 'Anlegen'}
-                      </button>
-                    </div>
-                  </form>
-                </div>
+    <ModalDialog isOpen={isOpen} onClose={close}>
+      {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
+      <div className={panelClasses}>
+        <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-stone-900">
+          {selectedCase ? 'Verfahren bearbeiten' : 'Neues Verfahren'}
+        </Dialog.Title>
+        <FailureAlert message={errorOnLoad} className="w-full mt-4" />
+        <div className="w-full mt-4">
+          <form onSubmit={saveCase} className="grid grid-cols-1 gap-6 sm:grid-cols-6 lg:grid-cols-4">
+            <div className="sm:col-span-4 lg:col-span-2 xl:col-span-1">
+              <label className="block">Aktenzeichen</label>
+              <div className="block w-fit rounded-lg border border-stone-300">
+                <input
+                  minLength="1"
+                  maxLength="4"
+                  tabIndex="1"
+                  inputMode="numeric"
+                  disabled={fieldsDisabled}
+                  value={refEntity}
+                  onKeyDown={(e) => focusNextOnKey(e, ' ', refRegisterInput)}
+                  onPaste={pasteReference}
+                  onChange={(e) => setRefEntity(e.target.value.trim())}
+                  className={`mr-1 w-16 border-0 rounded-l-lg focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refEntityFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                />
+                <input
+                  minLength="1"
+                  maxLength="2"
+                  tabIndex="2"
+                  disabled={fieldsDisabled}
+                  value={refRegister}
+                  ref={refRegisterInput}
+                  onKeyDown={(e) => focusNextOnKey(e, ' ', refNoInput)}
+                  onChange={(e) => setRefRegister(e.target.value.trim().toUpperCase())}
+                  className={`mr-1 w-12 border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refRegisterFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                />
+                <input
+                  minLength="1"
+                  maxLength="4"
+                  tabIndex="3"
+                  inputMode="numeric"
+                  disabled={fieldsDisabled}
+                  value={refNo}
+                  ref={refNoInput}
+                  onKeyDown={(e) => focusNextOnKey(e, '/', refYearInput)}
+                  onChange={(e) => setRefNo(e.target.value.trim())}
+                  className={`w-16 border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refNoFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                />
+                <span>/</span>
+                <input
+                  minLength="2"
+                  maxLength="2"
+                  tabIndex="4"
+                  inputMode="numeric"
+                  disabled={fieldsDisabled}
+                  value={refYear}
+                  ref={refYearInput}
+                  onChange={(e) => setRefYear(e.target.value.trim())}
+                  className={`w-12 border-0 rounded-r-lg focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refYearFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                />
               </div>
-            </Transition.Child>
-          </div>
+            </div>
+            <div className="sm:col-span-2 xl:col-span-1 sm:pt-2">
+              <div className="flex items-center mb-4">
+                <label className="text-sm font-medium">
+                  <input
+                    type="radio"
+                    name="type"
+                    value="SINGLE"
+                    tabIndex="5"
+                    disabled={fieldsDisabled}
+                    checked={caseType === 'SINGLE'}
+                    onChange={() => setCaseType('SINGLE')}
+                    className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  />
+                  Einzelrichter
+                </label>
+              </div>
+              <div className="flex items-center">
+                <label className="text-sm font-medium">
+                  <input
+                    type="radio"
+                    name="type"
+                    value="CHAMBER"
+                    tabIndex="5"
+                    disabled={fieldsDisabled}
+                    checked={caseType === 'CHAMBER'}
+                    onChange={() => setCaseType('CHAMBER')}
+                    className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  />
+                  Kammersache
+                </label>
+              </div>
+            </div>
+            <div className="sm:col-span-6 lg:col-span-2">
+              <label htmlFor="parties" className="block mb-2 text-sm font-medium">
+                Parteien
+              </label>
+              <input
+                id="parties"
+                name="parties"
+                value={caseParties}
+                tabIndex="6"
+                disabled={fieldsDisabled}
+                onChange={(e) => setCaseParties(e.target.value)}
+                className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+              />
+            </div>
+            <div className="sm:col-span-6 lg:col-span-2">
+              <label htmlFor="area" className="block mb-2 text-sm font-medium">
+                Rechtsgebiet
+              </label>
+              <input
+                id="area"
+                name="area"
+                tabIndex={xlWidth ? 8 : 7}
+                disabled={fieldsDisabled}
+                value={caseArea}
+                onChange={(e) => setCaseArea(e.target.value)}
+                className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+              />
+            </div>
+            <div className="sm:col-span-6 lg:col-span-4 xl:col-span-2 xl:col-start-1 xl:row-start-2">
+              <label htmlFor="status" className="block mb-2 text-sm font-medium">
+                Status
+              </label>
+              <Listbox id="status" disabled={fieldsDisabled} value={caseStatus} onChange={setNewStatus}>
+                {({ open }) => {
+                  const buttonClasses = clsx('flex items-center p-2 w-full text-sm bg-stone-50',
+                    'border border-stone-300 rounded-lg outline-none shadow-sm',
+                    'focus:ring-teal-700 focus:ring-2 focus:border-teal-700',
+                    open && 'ring-teal-700 ring-2 border-teal-700',
+                    fieldsDisabled && 'cursor-wait');
+                  const optionsClasses = clsx('absolute w-full lg:max-h-72 overflow-y-auto mt-0.5 py-2',
+                    'z-20 bg-stone-50 border rounded-lg shadow shadow-stone-400 outline-none');
+                  const optionClasses = clsx('flex items-center px-2 py-1',
+                    'ui-active:!bg-teal-700 ui-active:text-white ui-selected:bg-stone-200');
+                  return (
+                    <div className="relative">
+                      <Listbox.Button tabIndex={xlWidth ? 7 : 8} className={buttonClasses}>
+                        <StatusIcon status={caseStatus} className="size-6 me-2 flex-none inline" />
+                        <span className="flex-auto text-left">
+                          {statusLabels[caseStatus]}
+                        </span>
+                        {open
+                          ? <ChevronUpIcon className="size-4 flex-none" />
+                          : <ChevronDownIcon className="size-4 flex-none" />}
+                      </Listbox.Button>
+                      <Listbox.Options className={optionsClasses}>
+                        {statusKeys.map((status) => (
+                          <Listbox.Option key={status} value={status} className={optionClasses}>
+                            <StatusIcon status={status} className="size-6 me-2 flex-none inline" />
+                            <span className="flex-auto text-sm text-left">
+                              {statusLabels[status]}
+                            </span>
+                          </Listbox.Option>
+                        ))}
+                      </Listbox.Options>
+                    </div>
+                  );
+                }}
+              </Listbox>
+            </div>
+            <div className="sm:col-span-6 lg:col-span-2">
+              <label htmlFor="statusNote" className="block mb-2 text-sm font-medium">
+                Status-Notiz
+              </label>
+              <textarea
+                id="statusNote"
+                name="statusNote"
+                rows="3"
+                tabIndex="9"
+                disabled={fieldsDisabled}
+                value={caseStatusNote}
+                onChange={(e) => setCaseStatusNote(e.target.value)}
+                className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+              />
+            </div>
+            <div className="sm:col-span-6 lg:col-span-2">
+              <label htmlFor="caseMemo" className="block mb-2 text-sm font-medium">
+                Anmerkung
+              </label>
+              <textarea
+                id="caseMemo"
+                name="caseMemo"
+                rows="3"
+                tabIndex="10"
+                disabled={fieldsDisabled}
+                value={caseMemo}
+                onChange={(e) => setCaseMemo(e.target.value)}
+                className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+              />
+            </div>
+            <div className="col-span-full flex gap-5">
+              <label className="text-sm font-medium">Markierung</label>
+              <div className="flex gap-3">
+                {
+                  markerColors.map((color) => (
+                    <input
+                      key={color}
+                      type="radio"
+                      name="markerColor"
+                      value={color}
+                      tabIndex="11"
+                      disabled={fieldsDisabled}
+                      checked={color === caseMarkerColor}
+                      onChange={() => setCaseMarkerColor(color)}
+                      className={`size-4 self-center marker ${color || 'none'} border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait`}
+                    />
+                  ))
+                }
+              </div>
+            </div>
+            <div className="sm:col-span-3 lg:col-span-1">
+              <label htmlFor="receivedOn" className="block mb-2 text-sm font-medium">
+                Eingegangen am
+              </label>
+              <input
+                id="receivedOn"
+                name="receivedOn"
+                type="date"
+                tabIndex="12"
+                disabled={fieldsDisabled}
+                value={caseReceivedOn}
+                onChange={(e) => setCaseReceivedOn(e.target.value)}
+                onFocus={(e) => e.target.defaultValue = ''}
+                className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseReceivedOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+              />
+            </div>
+            <div className="sm:col-span-3 lg:col-span-1">
+              <label htmlFor="settledOn" className="block mb-2 text-sm font-medium">
+                Erledigt am
+              </label>
+              <input
+                id="settledOn"
+                name="settledOn"
+                type="date"
+                tabIndex="13"
+                disabled={fieldsDisabled}
+                value={caseSettledOn}
+                onChange={(e) => setCaseSettledOn(e.target.value)}
+                onFocus={(e) => e.target.defaultValue = ''}
+                className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseSettledOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+              />
+            </div>
+            <div className="sm:col-span-3 lg:col-span-1">
+              <label htmlFor="todoDate" className="block mb-2 text-sm font-medium">
+                Vorfrist am
+              </label>
+              <input
+                id="todoDate"
+                name="todoDate"
+                type="date"
+                tabIndex="14"
+                disabled={fieldsDisabled}
+                value={caseTodoDate}
+                onChange={(e) => setCaseTodoDate(e.target.value)}
+                onFocus={(e) => e.target.defaultValue = ''}
+                className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseTodoDateFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+              />
+            </div>
+            <div className="sm:col-span-3 lg:col-span-1">
+              <label htmlFor="dueDate" className="block mb-2 text-sm font-medium">
+                nächster Termin am
+              </label>
+              <input
+                id="dueDate"
+                name="dueDate"
+                type="date"
+                tabIndex="15"
+                disabled={fieldsDisabled}
+                value={caseDueDate}
+                onChange={(e) => setCaseDueDate(e.target.value)}
+                onFocus={(e) => e.target.defaultValue = ''}
+                className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+              />
+            </div>
+            <FailureAlert message={errorOnSave} className="col-span-full" />
+            <div className="col-span-full flex justify-center gap-6">
+              <button
+                type="button"
+                tabIndex="16"
+                className="flex w-40 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-stone-200 text-teal-700 shadow-sm hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus:ring-teal-700 focus:border-teal-700"
+                onClick={close}
+              >
+                Abbrechen
+              </button>
+              <button
+                type="submit"
+                tabIndex="17"
+                disabled={fieldsDisabled}
+                className="flex w-40 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-teal-700 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+              >
+                {selectedCase ? 'Speichern' : 'Anlegen'}
+              </button>
+            </div>
+          </form>
         </div>
-      </Dialog>
-    </Transition>
+      </div>
+    </ModalDialog>
   );
 }

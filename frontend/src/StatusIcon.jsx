@@ -1,5 +1,5 @@
 import React from 'react';
-import { statusMap } from './status.js';
+import { statusMap } from './status';
 
 export default function StatusIcon({ status, className }) {
   const iconClasses = className || 'size-6';

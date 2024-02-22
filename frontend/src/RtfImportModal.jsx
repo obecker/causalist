@@ -1,10 +1,11 @@
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx/lite';
-import { Fragment, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ApiContext } from './ApiProvider';
 import FailureAlert from './FailureAlert';
+import ModalDialog from './ModalDialog';
 
 const IMPORTED = Symbol('imported');
 const UPDATED = Symbol('updated');
@@ -72,81 +73,54 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={close}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="fixed inset-0 bg-black/25" />
-        </Transition.Child>
+    <ModalDialog isOpen={isOpen} onClose={close}>
 
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
-              <div className={panelClasses}>
-                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-stone-900 flex justify-between">
-                  RTF-Datei importieren
-                  <button onClick={close} title="Schließen" className="outline-none">
-                    <XMarkIcon className="inline size-6" />
-                  </button>
-                </Dialog.Title>
-                <FailureAlert message={errorMessage} className="my-4" />
-                <div className="w-full mt-4">
-                  <div className="flex align-middle items-start justify-between gap-2">
-                    <input
-                      type="file"
-                      accept=".rtf"
-                      className="hidden"
-                      id="fileinput"
-                      onChange={(e) => setSelectedFile(e.target.files[0])}
-                    />
-                    <label htmlFor="fileinput" className={fileInputClasses}>
-                      Datei wählen
-                    </label>
-                    <div className="grow w-max py-1.5">{selectedFile?.name}</div>
-                    <button disabled={selectedFile === null} onClick={importCases} className={fileUploadClasses}>
-                      Importieren
-                    </button>
-                  </div>
-                  {result && (
-                    <div className="mt-5 pt-5 border-t border-dashed border-t-teal-700 flex flex-col">
-                      <div className="font-semibold mb-2">{header(result.importType)}</div>
-                      <div>
-                        <ImportResultDetails importType={result.importType} casesType={IMPORTED} refs={result.importedCaseRefs} />
-                        <ImportResultDetails importType={result.importType} casesType={UPDATED} refs={result.updatedCaseRefs} />
-                        <ImportResultDetails importType={result.importType} casesType={IGNORED} refs={result.ignoredCaseRefs} />
-                        <ImportResultDetails importType={result.importType} casesType={UNKNOWN} refs={result.unknownCaseRefs} />
-                        <ol className="text-rose-700 mt-2">
-                          {result.errors.map((error, idx) => <li key={idx} className="mt-1">{error}</li>)}
-                        </ol>
-                      </div>
-                      <button onClick={close} className={closeButtonClasses}>
-                        Schließen
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Transition.Child>
+      {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
+      <div className={panelClasses}>
+        <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-stone-900 flex justify-between">
+          RTF-Datei importieren
+          <button onClick={close} title="Schließen" className="outline-none">
+            <XMarkIcon className="inline size-6" />
+          </button>
+        </Dialog.Title>
+        <FailureAlert message={errorMessage} className="my-4" />
+        <div className="w-full mt-4">
+          <div className="flex align-middle items-start justify-between gap-2">
+            <input
+              type="file"
+              accept=".rtf"
+              className="hidden"
+              id="fileinput"
+              onChange={(e) => setSelectedFile(e.target.files[0])}
+            />
+            <label htmlFor="fileinput" className={fileInputClasses}>
+              Datei wählen
+            </label>
+            <div className="grow w-max py-1.5">{selectedFile?.name}</div>
+            <button disabled={selectedFile === null} onClick={importCases} className={fileUploadClasses}>
+              Importieren
+            </button>
           </div>
+          {result && (
+            <div className="mt-5 pt-5 border-t border-dashed border-t-teal-700 flex flex-col">
+              <div className="font-semibold mb-2">{header(result.importType)}</div>
+              <div>
+                <ImportResultDetails importType={result.importType} casesType={IMPORTED} refs={result.importedCaseRefs} />
+                <ImportResultDetails importType={result.importType} casesType={UPDATED} refs={result.updatedCaseRefs} />
+                <ImportResultDetails importType={result.importType} casesType={IGNORED} refs={result.ignoredCaseRefs} />
+                <ImportResultDetails importType={result.importType} casesType={UNKNOWN} refs={result.unknownCaseRefs} />
+                <ol className="text-rose-700 mt-2">
+                  {result.errors.map((error, idx) => <li key={idx} className="mt-1">{error}</li>)}
+                </ol>
+              </div>
+              <button onClick={close} className={closeButtonClasses}>
+                Schließen
+              </button>
+            </div>
+          )}
         </div>
-      </Dialog>
-    </Transition>
+      </div>
+    </ModalDialog>
   );
 }
 
