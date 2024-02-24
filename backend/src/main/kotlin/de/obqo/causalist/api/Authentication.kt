@@ -5,15 +5,11 @@ import de.obqo.causalist.CryptoUtils.decrypt
 import de.obqo.causalist.CryptoUtils.encrypt
 import de.obqo.causalist.CryptoUtils.generatePasswordAesKey
 import de.obqo.causalist.CryptoUtils.generateRandomAesKey
-import de.obqo.causalist.CryptoUtils.toSecretKey
 import de.obqo.causalist.DuplicateUsernameException
+import de.obqo.causalist.EncryptionSecret
 import de.obqo.causalist.User
 import de.obqo.causalist.UserService
-import de.obqo.causalist.api.TokenSupport.createToken
-import de.obqo.causalist.api.TokenSupport.validateToken
-import de.obqo.causalist.fromBase64
 import de.obqo.causalist.toBase64
-import de.obqo.causalist.xor
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.core.HttpHandler
 import org.http4k.core.Response
@@ -63,9 +59,13 @@ private fun failure(message: String? = null) = Result(success = false, message =
  * extra library for this (and tokens will not be passed to other applications, so there's no need for a common token
  * format).
  */
-object TokenSupport {
-    private const val ALGORITHM = "HmacSHA384"
-    private val secretKeySpec = SecretKeySpec(Config.signingSecret.value.toByteArray(), ALGORITHM)
+class TokenSupport(private val config: Config) {
+
+    companion object {
+        private const val ALGORITHM = "HmacSHA384"
+    }
+
+    private val secretKeySpec = config.signingSecret.use { SecretKeySpec(it.toByteArray(), ALGORITHM) }
 
     private fun sign(vararg values: String): String {
         val mac = Mac.getInstance(ALGORITHM)
@@ -82,16 +82,16 @@ object TokenSupport {
         return "$id.$pwdHash.$userSecret.$expires.$signature"
     }
 
-    fun validateToken(token: String, validate: (UUID, String) -> Boolean): UserContext? = try {
+    fun validateToken(token: String, resolvePwdHash: (UUID) -> String?): UserContext? = try {
         val parts = token.split(".")
         require(parts.size == 5) { "Illegal token format" }
         require(sign(parts[0], parts[1], parts[2], parts[3]) == parts[4]) { "Invalid token signature" }
         require(Instant.ofEpochMilli(parts[3].toLong()).isAfter(Instant.now())) { "Token has expired" }
         val id = UUID.fromString(parts[0])
         val pwdHash = parts[1]
-        val userSecret = parts[2].fromBase64()
-        if (validate(id, pwdHash)) {
-            UserContext(id, (userSecret xor Config.encryptionKey.value).toSecretKey())
+        val userSecret = EncryptionSecret.parse(parts[2])
+        if (resolvePwdHash(id) == pwdHash) {
+            UserContext(id, (userSecret xor config.encryptionSecret).toSecretKey())
         } else {
             null
         }
@@ -106,9 +106,13 @@ fun String.tokenHash(): String {
     return digest.digest(toByteArray()).toBase64()
 }
 
-fun authentication(userService: UserService): Authentication {
+fun authentication(userService: UserService, config: Config): Authentication {
 
-    fun generatePasswordSecret(password: String) = generatePasswordAesKey(password, Config.passwordSalt.value)
+    val tokenSupport = TokenSupport(config)
+
+    val generatePasswordSecret = config.passwordSalt.use { salt ->
+        { password: String -> generatePasswordAesKey(password, salt) }
+    }
 
     val loginLens = causalistJson.autoBody<Login>().toLens()
     val resultLens = causalistJson.autoBody<Result>().toLens()
@@ -119,7 +123,7 @@ fun authentication(userService: UserService): Authentication {
             val passwordSecret = generatePasswordSecret(password)
             val userSecret = user.encryptedSecret.decrypt(passwordSecret)
             Response(Status.OK).with(
-                resultLens of success(createToken(user.id, user.password.tokenHash(), userSecret))
+                resultLens of success(tokenSupport.createToken(user.id, user.password.tokenHash(), userSecret))
             )
         } ?: run {
             Response(Status.FORBIDDEN).with(
@@ -163,9 +167,7 @@ fun authentication(userService: UserService): Authentication {
         override val loginHandler: HttpHandler = login
 
         override val contextLookup: (String) -> UserContext? = { token: String ->
-            validateToken(token) { id: UUID, pwdHash: String ->
-                userService.get(id)?.let { user -> user.password.tokenHash() == pwdHash } ?: false
-            }
+            tokenSupport.validateToken(token) { id -> userService.get(id)?.password?.tokenHash() }
         }
     }
 }

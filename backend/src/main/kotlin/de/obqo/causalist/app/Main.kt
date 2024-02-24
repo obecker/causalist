@@ -15,29 +15,25 @@ import de.obqo.causalist.dynamo.dynamoCaseDocumentRepository
 import de.obqo.causalist.dynamo.dynamoCaseRepository
 import de.obqo.causalist.dynamo.dynamoUserRepository
 import de.obqo.causalist.s3.S3BucketWrapper
+import de.obqo.causalist.toBase64
 import de.obqo.causalist.userService
 import org.crac.Context
 import org.crac.Core
 import org.crac.Resource
 import org.http4k.client.JavaHttpClient
 import org.http4k.cloudnative.env.Environment
-import org.http4k.cloudnative.env.EnvironmentKey
 import org.http4k.connect.amazon.AWS_REGION
 import org.http4k.connect.amazon.CredentialsChain
 import org.http4k.connect.amazon.Environment
 import org.http4k.connect.amazon.containercredentials.ContainerCredentials
 import org.http4k.connect.amazon.dynamodb.DynamoDb
 import org.http4k.connect.amazon.dynamodb.Http
-import org.http4k.connect.amazon.dynamodb.model.TableName
 import org.http4k.connect.amazon.s3.Http
 import org.http4k.connect.amazon.s3.S3Bucket
-import org.http4k.connect.amazon.s3.model.BucketName
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
-import org.http4k.lens.uri
-import org.http4k.lens.value
 import org.http4k.server.SunHttp
 import org.http4k.server.asServer
 import org.http4k.serverless.ApiGatewayV2LambdaFunction
@@ -71,14 +67,8 @@ class ApiLambdaHandler : ApiGatewayV2LambdaFunction(AppLoader { env ->
 })
 
 private fun buildApi(environment: Environment): HttpHandler {
-    Config.init(environment)
 
-    val optionalDynamoDbUriKey = EnvironmentKey.uri().optional("DYNAMODB_URI")
-    val optionalS3UriKey = EnvironmentKey.uri().optional("S3_URI")
-    val usersTableKey = EnvironmentKey.value(TableName).required("CAUSALIST_USERS_TABLE")
-    val casesTableKey = EnvironmentKey.value(TableName).required("CAUSALIST_CASES_TABLE")
-    val caseDocumentsTableKey = EnvironmentKey.value(TableName).required("CAUSALIST_CASE_DOCUMENTS_TABLE")
-    val caseDocumentsBucketNameKey = EnvironmentKey.value(BucketName).required("CAUSALIST_CASE_DOCUMENTS_BUCKET")
+    val config = Config(environment)
 
     val credentialsProvider = CredentialsChain.ContainerCredentials(environment, httpClient)
         .orElse(CredentialsChain.Environment(environment))
@@ -88,30 +78,28 @@ private fun buildApi(environment: Environment): HttpHandler {
         env = environment,
         http = httpClient,
         credentialsProvider = credentialsProvider,
-        overrideEndpoint = optionalDynamoDbUriKey(environment)
+        overrideEndpoint = config.optionalDynamoDbUri
     )
 
-    val userRepository = dynamoUserRepository(dynamoDb, usersTableKey(environment))
+    val userRepository = dynamoUserRepository(dynamoDb, config.usersTable)
     val userService = userService(userRepository)
 
-    val authentication = authentication(userService)
+    val authentication = authentication(userService, config)
 
-    val bucketName = caseDocumentsBucketNameKey(environment)
-    val overriddenS3Endpoint = optionalS3UriKey(environment)
     val s3Bucket = S3Bucket.Http(
-        bucketName = bucketName,
+        bucketName = config.caseDocumentsBucketName,
         bucketRegion = AWS_REGION(environment),
         credentialsProvider = credentialsProvider,
         http = httpClient,
-        overrideEndpoint = overriddenS3Endpoint,
-        forcePathStyle = overriddenS3Endpoint != null,
+        overrideEndpoint = config.optionalS3Uri,
+        forcePathStyle = config.optionalS3Uri != null,
     )
-    val s3BucketWrapper = S3BucketWrapper(bucketName, s3Bucket)
+    val s3BucketWrapper = S3BucketWrapper(config.caseDocumentsBucketName, s3Bucket)
 
-    val caseDocumentRepository = dynamoCaseDocumentRepository(dynamoDb, caseDocumentsTableKey(environment))
+    val caseDocumentRepository = dynamoCaseDocumentRepository(dynamoDb, config.caseDocumentsTable)
     val caseDocumentService = caseDocumentService(caseDocumentRepository, s3BucketWrapper)
 
-    val caseRepository = dynamoCaseRepository(dynamoDb, casesTableKey(environment))
+    val caseRepository = dynamoCaseRepository(dynamoDb, config.casesTable)
     val caseService = caseService(caseRepository, caseDocumentService)
 
     val api = httpApi(authentication, caseService, caseDocumentService)
@@ -119,13 +107,16 @@ private fun buildApi(environment: Environment): HttpHandler {
     fun doPriming() {
         // Prime the application by executing some typical functions
         // https://aws.amazon.com/de/blogs/compute/reducing-java-cold-starts-on-aws-lambda-functions-with-snapstart/
-        val uuid = UUID.randomUUID()
+        val dummyUuid = UUID.randomUUID()
         val ref = Reference.parseValue("123 O 45/67")
-        caseService.get(uuid, Reference.parseId(ref.toId()))
-        caseService.findByOwner(uuid, Type.CHAMBER, de.obqo.causalist.Status.entries, false)
-        caseService.findByOwner(uuid, Type.SINGLE, emptyList(), true)
+        caseService.get(dummyUuid, Reference.parseId(ref.toId()))
+        caseService.findByOwner(dummyUuid, Type.CHAMBER, de.obqo.causalist.Status.entries, false)
+        caseService.findByOwner(dummyUuid, Type.SINGLE, emptyList(), true)
 
-        val token = TokenSupport.createToken(uuid, "pwdHash", "userSecret")
+        // config needs to be recreated, since secrets have been consumed already
+        val tokenSupport = TokenSupport(Config(environment))
+        val dummySecret = ByteArray(32) { it.toByte() }.toBase64()
+        val token = tokenSupport.createToken(dummyUuid, "pwdHash", dummySecret)
         api(Request(method = Method.GET, "/api/cases").header("Authorization", "Bearer $token"))
 
         val key = CryptoUtils.generateRandomAesKey()

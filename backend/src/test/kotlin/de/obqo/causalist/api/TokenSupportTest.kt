@@ -1,15 +1,16 @@
 package de.obqo.causalist.api
 
 import de.obqo.causalist.Config
-import de.obqo.causalist.EncryptionKey
-import de.obqo.causalist.SigningSecret
+import de.obqo.causalist.EncryptionSecret
+import de.obqo.causalist.toBase64
+import io.kotest.assertions.fail
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
+import io.mockk.mockk
+import org.http4k.cloudnative.env.Secret
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
@@ -18,30 +19,28 @@ import java.util.UUID
 
 class TokenSupportTest : DescribeSpec({
 
-    beforeSpec {
-        mockkObject(Config)
-        every { Config.signingSecret } returns SigningSecret.of("secret")
-        every { Config.encryptionKey } returns EncryptionKey.of(ByteArray(32))
-    }
-
-    afterSpec {
-        unmockkObject(Config)
-    }
-
     describe("TokenSupport") {
 
-        fun TokenSupport.validateToken(token: String) = validateToken(token) { _, _ -> true }
+        val config = mockk<Config>()
+        every { config.signingSecret } returns Secret("secret")
+        every { config.encryptionSecret } returns EncryptionSecret.of(ByteArray(32))
+
+        val encodedUserSecret = ByteArray(32) { it.toByte() }.toBase64()
+
+        val tokenSupport = TokenSupport(config)
+
+        fun validateToken(token: String, pwdHash: String?) = tokenSupport.validateToken(token) { pwdHash }
 
         it("should create and validate token") {
             // given
             val givenId = UUID(0, 0)
-            val token = TokenSupport.createToken(givenId, "pwdHash", "userSecret")
+            val givenPwdHash = "pwdHash"
+            val token = tokenSupport.createToken(givenId, givenPwdHash, encodedUserSecret)
 
             // when
-            val userContext = TokenSupport.validateToken(token) { id, pwdHash ->
+            val userContext = tokenSupport.validateToken(token) { id ->
                 id shouldBe givenId
-                pwdHash shouldBe "pwdHash"
-                true
+                givenPwdHash
             }
 
             // then
@@ -49,6 +48,17 @@ class TokenSupportTest : DescribeSpec({
                 userId shouldBe givenId
                 encryptionKey.shouldNotBeNull()
             }
+        }
+
+        it("should reject token if password is different") {
+            // given
+            val token = tokenSupport.createToken(UUID.randomUUID(), "somePwdHash", encodedUserSecret)
+
+            // when
+            val userContext = validateToken(token, "otherPwdHash")
+
+            // then
+            userContext shouldBe null
         }
 
         describe("should reject invalid tokens") {
@@ -61,7 +71,13 @@ class TokenSupportTest : DescribeSpec({
                 "far.too.many.many.token.parts",
                 "token.with.very.wrong.signature"
             ) { token ->
-                TokenSupport.validateToken(token) shouldBe null
+                // when
+                val userContext = tokenSupport.validateToken(token) {
+                    fail("must not be called")
+                }
+
+                // then
+                userContext shouldBe null
             }
         }
 
@@ -74,15 +90,16 @@ class TokenSupportTest : DescribeSpec({
                 Instant.now().minus(Duration.ofHours(24).plusMillis(1)) to false,
             ) { (time, expectedValid) ->
                 // given
-                val token = TokenSupport.createToken(
+                val givenPwdHash = "pwdHash"
+                val token = tokenSupport.createToken(
                     UUID(0, 0),
-                    "pwdHash",
-                    "secret",
+                    givenPwdHash,
+                    encodedUserSecret,
                     Clock.fixed(time, ZoneId.systemDefault())
                 )
 
                 // when
-                val userContext = TokenSupport.validateToken(token)
+                val userContext = validateToken(token, givenPwdHash)
 
                 // then
                 if (expectedValid) {
