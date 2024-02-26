@@ -753,7 +753,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                         {
                           documents.map((doc) => (
                             <li key={doc.id} className="flex items-center">
-                              <PaperClipIcon className="size-3.5 inline me-1" />
+                              <PaperClipIcon className="size-3.5 inline me-1 shrink-0 self-start mt-1" />
                               <a
                                 href="#"
                                 className="text-teal-700 hover:text-teal-800 hover:underline"
@@ -763,7 +763,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                                 {doc.filename}
                               </a>
                               <XMarkIcon
-                                className={clsx('size-3 inline ms-2 hover:text-teal-700 hover:cursor-pointer',
+                                className={clsx('size-3 inline ms-2 shrink-0 self-start mt-1 hover:text-teal-700 hover:cursor-pointer',
                                   selectedDocumentId === doc.id && 'hidden')}
                                 title="Löschen"
                                 onClick={(e) => selectDocument(e, doc.id)}
