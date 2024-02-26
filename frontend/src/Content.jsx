@@ -603,7 +603,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
       {cases.map((aCase) => {
         const liClasses = clsx('col-span-full grid grid-cols-subgrid border-y border-y-stone-50',
           'data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900 hover:text-teal-700',
-          aCase.ref && 'hover:border-y-stone-300 cursor-pointer data-open:cursor-auto py-2.5', todoBg(aCase.todoDate),
+          aCase.ref && 'hover:border-y-stone-300 cursor-pointer data-open:cursor-auto pt-2.5 pb-1.5', todoBg(aCase.todoDate),
           recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
           aCase.newWeek && 'relative mt-20 first:mt-8 border-t-teal-700');
         const weekMarkerClasses = 'absolute -top-6 right-0 py-1 px-7 text-xs bg-teal-700 text-white rounded-t-lg';
