@@ -17,6 +17,10 @@ import de.obqo.causalist.dynamo.dynamoUserRepository
 import de.obqo.causalist.s3.S3BucketWrapper
 import de.obqo.causalist.toBase64
 import de.obqo.causalist.userService
+import dev.failsafe.Failsafe
+import dev.failsafe.RetryPolicy
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.crac.Context
 import org.crac.Core
 import org.crac.Resource
@@ -33,14 +37,18 @@ import org.http4k.connect.amazon.s3.S3Bucket
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Request
+import org.http4k.core.Response
 import org.http4k.core.Status
+import org.http4k.core.then
+import org.http4k.filter.FailsafeFilter
 import org.http4k.server.SunHttp
 import org.http4k.server.asServer
 import org.http4k.serverless.ApiGatewayV2LambdaFunction
 import org.http4k.serverless.AppLoader
+import java.time.Duration
 import java.util.UUID
 
-private val httpClient = JavaHttpClient()
+private val logger: KLogger = KotlinLogging.logger {}
 
 // run the server locally with environment from .env or .env.<ENV>
 fun main() {
@@ -69,6 +77,18 @@ class ApiLambdaHandler : ApiGatewayV2LambdaFunction(AppLoader { env ->
 private fun buildApi(environment: Environment): HttpHandler {
 
     val config = Config(environment)
+
+    val retryPolicy = RetryPolicy.builder<Response>()
+        .handleIf { response, ex -> ex != null || response?.status?.serverError == true }
+        .onRetry { event ->
+            logger.warn(event.lastException) { "Request failed with ${event.lastResult?.status}, will retry" }
+        }
+        .withMaxRetries(5)
+        .withBackoff(Duration.ofMillis(100), Duration.ofSeconds(2))
+        .withJitter(0.5)
+        .build()
+    val httpClient = FailsafeFilter(Failsafe.with(retryPolicy))
+        .then(JavaHttpClient())
 
     val credentialsProvider = CredentialsChain.ContainerCredentials(environment, httpClient)
         .orElse(CredentialsChain.Environment(environment))
