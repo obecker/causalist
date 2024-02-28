@@ -222,7 +222,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
         fieldsDisabled && 'cursor-wait')}
       >
         <form onSubmit={saveCase} className="px-6 max-h-[85vh] overflow-y-auto overflow-x-visible overscroll-contain no-scrollbar">
-          <Dialog.Title as="h3" className="text-lg font-semibold leading-6 tracking-tight text-stone-900 sticky top-0 bg-white pb-4 z-50">
+          <Dialog.Title as="h3" className="text-lg font-semibold leading-6 tracking-tight sm:tracking-normal text-stone-900 sticky top-0 bg-white pb-4 z-50">
             {selectedCase ? `Verfahren ${selectedCase.ref.value} bearbeiten` : 'Neues Verfahren'}
           </Dialog.Title>
           <FailureAlert message={errorOnLoad} className="w-full mb-4" />
