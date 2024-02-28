@@ -43,10 +43,9 @@ function StageDevAppearance() {
 
   return (
     <>
-      <div className="h-8 p-1 bg-amber-300 font-semibold text-center fixed left-0 top-0 right-0 z-50 w-full">
+      <div className="p-1 bg-amber-300 font-semibold text-center sticky top-0 z-50 w-full">
         {stage ? 'Stage' : 'Dev'}
       </div>
-      <div className="h-8" />
     </>
   );
 }
