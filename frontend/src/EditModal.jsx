@@ -214,20 +214,19 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     e.preventDefault();
   }
 
-  const panelClasses = clsx('w-full min-w-[322px] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl',
-    'transform transition-all overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl',
-    fieldsDisabled && 'cursor-wait');
-
   return (
     <ModalDialog isOpen={isOpen} onClose={close}>
       {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
-      <div className={panelClasses}>
-        <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-stone-900">
-          {selectedCase ? 'Verfahren bearbeiten' : 'Neues Verfahren'}
-        </Dialog.Title>
-        <FailureAlert message={errorOnLoad} className="w-full mt-4" />
-        <div className="w-full mt-4">
-          <form onSubmit={saveCase} className="grid grid-cols-1 gap-6 sm:grid-cols-6 lg:grid-cols-4">
+      <div className={clsx('py-6 w-full min-w-[322px] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl',
+        'transform transition-all overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl',
+        fieldsDisabled && 'cursor-wait')}
+      >
+        <form onSubmit={saveCase} className="px-6 max-h-[85vh] overflow-y-auto overflow-x-visible overscroll-contain no-scrollbar">
+          <Dialog.Title as="h3" className="text-lg font-semibold leading-6 tracking-tight text-stone-900 sticky top-0 bg-white pb-4 z-50">
+            {selectedCase ? `Verfahren ${selectedCase.ref.value} bearbeiten` : 'Neues Verfahren'}
+          </Dialog.Title>
+          <FailureAlert message={errorOnLoad} className="w-full mb-4" />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-6 lg:grid-cols-4 w-full pb-1">
             <div className="sm:col-span-4 lg:col-span-2 xl:col-span-1">
               <label className="block">Aktenzeichen</label>
               <div className="block w-fit rounded-lg border border-stone-300">
@@ -495,12 +494,14 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
               />
             </div>
-            <FailureAlert message={errorOnSave} className="col-span-full" />
+          </div>
+          <div className="sticky bottom-0 bg-white pt-6 pb-1">
+            <FailureAlert message={errorOnSave} className="col-span-full mb-6" />
             <div className="col-span-full flex justify-center gap-6">
               <button
                 type="button"
                 tabIndex="16"
-                className="flex w-40 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-stone-200 text-teal-700 shadow-sm hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus:ring-teal-700 focus:border-teal-700"
+                className="flex w-32 sm:w-40 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-stone-200 text-teal-700 shadow-sm hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus:ring-teal-700 focus:border-teal-700"
                 onClick={close}
               >
                 Abbrechen
@@ -509,13 +510,13 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 type="submit"
                 tabIndex="17"
                 disabled={fieldsDisabled}
-                className="flex w-40 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-teal-700 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                className="flex w-32 sm:w-40 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-teal-700 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
               >
                 {selectedCase ? 'Speichern' : 'Anlegen'}
               </button>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </ModalDialog>
   );

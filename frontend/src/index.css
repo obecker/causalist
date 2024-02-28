@@ -51,3 +51,11 @@ input.marker.none {
     color: #9333ea;
     background-color: #9333ea;
 }
+
+.no-scrollbar::-webkit-scrollbar { /* Chrome, Safari, Opera */
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
