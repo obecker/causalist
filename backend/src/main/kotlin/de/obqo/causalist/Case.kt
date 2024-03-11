@@ -171,8 +171,7 @@ fun caseService(repository: CaseRepository, caseDocumentService: CaseDocumentSer
         }
 
         override fun update(ownerId: UUID, refId: String, action: (Case) -> Case): Case =
-            repository.get(ownerId, refId)
-                ?.let { c -> repository.save(action(c).copy(updatedAt = Instant.now())) }
+            repository.update(ownerId, refId) { case -> action(case).copy(updatedAt = Instant.now()) }
                 ?: throw CaseMissingException()
 
         override fun move(case: Case, fromReference: Reference): Case {

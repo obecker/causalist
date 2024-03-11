@@ -3,6 +3,7 @@ package de.obqo.causalist.dynamo
 import de.obqo.causalist.CrudRepository
 import org.http4k.connect.amazon.dynamodb.mapper.DynamoDbTableMapper
 import org.http4k.connect.amazon.dynamodb.mapper.plusAssign
+import org.http4k.connect.amazon.dynamodb.mapper.update
 
 abstract class DynamoCrudRepository<Document : Any, HashKey : Any, SortKey : Any>(
     private val table: DynamoDbTableMapper<Document, HashKey, SortKey>
@@ -14,6 +15,9 @@ abstract class DynamoCrudRepository<Document : Any, HashKey : Any, SortKey : Any
     override fun save(documents: Collection<Document>): Collection<Document> = documents.also {
         table += documents
     }
+
+    override fun update(hashKey: HashKey, sortKey: SortKey?, updateFn: (Document) -> Document) =
+        table.update(hashKey, sortKey, updateFn)
 
     override fun get(id: HashKey, sortKey: SortKey?) = table[id, sortKey]
 
