@@ -11,7 +11,7 @@ rtfparserkit = "com.github.joniles:rtfparserkit:1.16.0"
 slf4j-bom = "org.slf4j:slf4j-bom:2.0.12"
 crac = "org.crac:crac:1.4.0"
 
-kotest-bom = "io.kotest:kotest-bom:5.8.0"
+kotest-bom = "io.kotest:kotest-bom:5.8.1"
 mockk = "io.mockk:mockk:1.13.10"
 
 [plugins]
