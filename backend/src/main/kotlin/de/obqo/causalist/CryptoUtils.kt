@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.io.SequenceInputStream
 import java.security.SecureRandom
-import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
 import javax.crypto.KeyGenerator
@@ -28,10 +27,6 @@ object CryptoUtils {
     private const val KEY_SIZE = 256
     private const val ITERATIONS = 500_000 // determines the time required for login validation
 
-    private fun encodeBase64(bytes: ByteArray): String = Base64.getEncoder().encodeToString(bytes)
-
-    private fun decodeBase64(s: String): ByteArray = Base64.getDecoder().decode(s)
-
     private fun randomBytes(length: Int) = ByteArray(length).apply {
         SecureRandom().nextBytes(this)
     }
@@ -42,14 +37,14 @@ object CryptoUtils {
     fun generatePasswordHash(password: String): String {
         val salt = randomBytes(SALT_LENGTH_BYTE)
         val hash = computeHash(password, salt)
-        return encodeBase64(salt + hash)
+        return (salt + hash).toBase64()
     }
 
     /**
      * Verifies that the given password matches the given hash.
      */
     fun verifyPasswordHash(password: String, hash: String): Boolean {
-        val bytes = decodeBase64(hash)
+        val bytes = hash.fromBase64()
         val salt = bytes.copyOfRange(0, SALT_LENGTH_BYTE)
         val computedHash = computeHash(password, salt)
         return computedHash.contentEquals(bytes.copyOfRange(SALT_LENGTH_BYTE, bytes.size))
@@ -84,7 +79,7 @@ object CryptoUtils {
 
         val plainTextBytes = toByteArray()
         val cipherText = cipher.doFinal(plainTextBytes)
-        return encodeBase64(iv + cipherText)
+        return (iv + cipherText).toBase64()
     }
 
     /**
@@ -92,7 +87,7 @@ object CryptoUtils {
      * The given [String] must be a Base64 encoded string containing the IV and the cipher text.
      */
     fun String.decrypt(secretKey: SecretKey): String {
-        val cipherTextBytes = decodeBase64(this)
+        val cipherTextBytes = fromBase64()
         val iv = cipherTextBytes.copyOfRange(0, IV_LENGTH_BYTE)
         val cipher = Cipher.getInstance(ENCRYPT_ALGO)
         cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(TAG_LENGTH_BIT, iv))
