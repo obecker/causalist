@@ -22,7 +22,7 @@ class CryptoUtilsTest : DescribeSpec({
         val key2 = generateRandomAesKey()
 
         // then
-        key1.encoded.toTypedArray() shouldHaveSize 32 // 256 bits / 8 = 32 bytes
+        key1.encoded shouldHaveSize 32 // 256 bits / 8 = 32 bytes
         key1 shouldNotBe key2
     }
 
@@ -35,7 +35,7 @@ class CryptoUtilsTest : DescribeSpec({
         val key = generatePasswordAesKey(password, salt)
 
         // then
-        key.encoded.toTypedArray() shouldHaveSize 32 // 256 bits / 8 = 32 bytes
+        key.encoded shouldHaveSize 32 // 256 bits / 8 = 32 bytes
         key.encoded.toBase64() shouldBe "1rxzlg/RuLMGQBWWVTK2HHInKKnwM/ADe13PT9RFiXY="
     }
 
