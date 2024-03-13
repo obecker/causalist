@@ -561,7 +561,12 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
     return d && (d.toLocaleDateString() + ' ' + d.toLocaleTimeString());
   }
 
-  function todoBg(date) {
+  function todoBg(aCase) {
+    if (isSettled(aCase)) {
+      return '';
+    }
+
+    const date = aCase.todoDate;
     const now = new Date();
     const due = (date && new Date(date)) || now;
     const oneWeek = 7 * 24 * 60 * 60 * 1000;
@@ -603,7 +608,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
       {cases.map((aCase) => {
         const liClasses = clsx('col-span-full grid grid-cols-subgrid border-y border-y-stone-50',
           'data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900 hover:text-teal-700',
-          aCase.ref && 'hover:border-y-stone-300 cursor-pointer data-open:cursor-auto pt-2.5 pb-1.5', todoBg(aCase.todoDate),
+          aCase.ref && 'hover:border-y-stone-300 cursor-pointer data-open:cursor-auto pt-2.5 pb-1.5', todoBg(aCase),
           recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
           aCase.newWeek && 'relative mt-20 first:mt-8 border-t-teal-700');
         const weekMarkerClasses = 'absolute -top-6 right-0 py-1 px-7 text-xs bg-teal-700 text-white rounded-t-lg';
@@ -639,7 +644,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                 >
                   <span title={aCase.parties ? 'Parteien' : null}>{aCase.parties}</span>
                   <div className="md:hidden text-sm">
-                    <span title={aCase.todoDate && 'Vorfrist'} className={aCase.todoDate ? 'pr-4' : 'hidden'}>
+                    <span title={aCase.todoDate && 'Vorfrist'} className={!isSettled(aCase) && aCase.todoDate ? 'pr-4' : 'hidden'}>
                       {formattedDate(aCase.todoDate)}
                     </span>
                     <span
@@ -659,8 +664,8 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                 >
                   {aCase.area}
                 </div>
-                <div title={aCase.todoDate && 'Vorfrist'} className="hidden lg:inline text-right pr-2">
-                  {formattedDate(aCase.todoDate)}
+                <div title={!isSettled(aCase) && aCase.todoDate ? 'Vorfrist' : null} className="hidden lg:inline text-right pr-2">
+                  {!isSettled(aCase) && formattedDate(aCase.todoDate)}
                 </div>
                 <div
                   title={isSettled(aCase) ? (aCase.settledOn && 'Erledigt am') : (aCase.dueDate && 'nächster Termin')}
