@@ -164,6 +164,11 @@ class DynamoCaseRepositoryTest : DescribeSpec({
             repo.save(
                 aCase().withOwnerId(ownerId1).withRef(reference.next()).withStatus(Status.DECISION) // not settled
             )
+            repo.save(
+                aCase().withOwnerId(ownerId1).withRef(reference.next()).withStatus(Status.DECISION)
+                    .withSettledOn(LocalDate.of(2023, 9, 15))
+                // not settled, but with settledOn date -> will not be found
+            )
             val case12 = repo.save(
                 aCase().withOwnerId(ownerId1).withRef(reference.next()).withStatus(Status.SETTLED)
                     .withSettledOn(LocalDate.of(2023, 10, 1))

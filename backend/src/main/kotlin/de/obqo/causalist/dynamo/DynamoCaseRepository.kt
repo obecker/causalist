@@ -115,7 +115,10 @@ fun dynamoCaseRepository(dynamoDb: DynamoDb, tableName: TableName, createTable: 
                         hashKey eq ownerId
                     }
                     filterExpression {
-                        type?.let { typeAttr eq it }
+                        val typeExpr = type?.let { typeAttr eq it }
+                        val statusExpr = statusAttr eq Status.SETTLED
+
+                        typeExpr and statusExpr
                     }
                 }
             } else {
