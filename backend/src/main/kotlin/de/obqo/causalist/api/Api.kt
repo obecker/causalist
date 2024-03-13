@@ -319,7 +319,7 @@ fun httpApi(
             logger.info { "Delete document $docId" }
             val (userId) = userContextKey(request)
             caseDocumentService.delete(userId, docId, refId)
-            if (caseDocumentService.getForCase(userId, refId).none()) {
+            if (!caseDocumentService.hasDocuments(userId, refId)) {
                 caseService.update(userId, refId) { it.copy(hasDocuments = false) }
             }
             Response(NO_CONTENT)

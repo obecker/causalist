@@ -8,6 +8,7 @@ import de.obqo.causalist.Type
 import org.http4k.connect.amazon.dynamodb.DynamoDb
 import org.http4k.connect.amazon.dynamodb.mapper.DynamoDbTableMapper
 import org.http4k.connect.amazon.dynamodb.mapper.DynamoDbTableMapperSchema
+import org.http4k.connect.amazon.dynamodb.mapper.query
 import org.http4k.connect.amazon.dynamodb.model.Attribute
 import org.http4k.connect.amazon.dynamodb.model.IndexName
 import org.http4k.connect.amazon.dynamodb.model.Item
@@ -107,32 +108,28 @@ fun dynamoCaseRepository(dynamoDb: DynamoDb, tableName: TableName, createTable: 
     }
 
     return object : CaseRepository, DynamoCrudRepository<Case, UUID, String>(table) {
-        override fun findByOwner(ownerId: UUID, type: Type?, status: List<Status>, settled: Boolean): Sequence<Case> {
-            return if (settled) {
-                table.index(settledIndex).query {
+        override fun findByOwner(ownerId: UUID, type: Type?, status: List<Status>, settled: Boolean) =
+            if (settled) {
+                table.index(settledIndex).query(ScanIndexForward = false, ConsistentRead = true) {
                     keyCondition {
-                        ownerAttr eq ownerId
+                        hashKey eq ownerId
                     }
                     filterExpression {
                         type?.let { typeAttr eq it }
                     }
-                    scanIndexForward = false
-                    consistentRead = true
                 }
             } else {
-                table.index(activeIndex).query {
+                table.index(activeIndex).query(ConsistentRead = true) {
                     keyCondition {
-                        ownerAttr eq ownerId
+                        hashKey eq ownerId
                     }
                     filterExpression {
                         val typeExpr = type?.let { typeAttr eq it }
-                        val statusExpr = status.ifEmpty { null }?.let { statusAttr `in` it }
+                        val statusExpr = status.ifEmpty { null }?.let { statusAttr isIn it }
 
                         typeExpr and statusExpr
                     }
-                    consistentRead = true
                 }
             }
-        }
     }
 }

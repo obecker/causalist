@@ -60,6 +60,13 @@ class DynamoCaseDocumentRepositoryTest : DescribeSpec({
             repo.getForCase(ownerId2, refId1).shouldBeEmpty()
             repo.getForCase(ownerId2, refId2).shouldBeEmpty()
             repo.getForCase(ownerId2, refId3).shouldContainExactly(caseDocument23)
+
+            repo.hasDocuments(ownerId1, refId1) shouldBe true
+            repo.hasDocuments(ownerId1, refId2) shouldBe true
+            repo.hasDocuments(ownerId1, refId3) shouldBe false
+            repo.hasDocuments(ownerId2, refId1) shouldBe false
+            repo.hasDocuments(ownerId2, refId2) shouldBe false
+            repo.hasDocuments(ownerId2, refId3) shouldBe true
         }
     }
 })

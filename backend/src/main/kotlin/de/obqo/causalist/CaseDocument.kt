@@ -20,6 +20,8 @@ interface CaseDocumentRepository : CrudRepository<CaseDocument, UUID, UUID> {
 
     fun getForCase(ownerId: UUID, refId: String): Sequence<CaseDocument>
     fun getForCase(case: Case): Sequence<CaseDocument> = getForCase(case.ownerId, case.ref.toId())
+
+    fun hasDocuments(ownerId: UUID, refId: String): Boolean
 }
 
 interface CaseDocumentService {
@@ -27,6 +29,8 @@ interface CaseDocumentService {
 
     fun getForCase(case: Case): Sequence<CaseDocument>
     fun getForCase(ownerId: UUID, refId: String): Sequence<CaseDocument>
+
+    fun hasDocuments(ownerId: UUID, refId: String): Boolean
 
     fun delete(ownerId: UUID, id: UUID, refId: String)
     fun delete(vararg documents: CaseDocument)
@@ -56,6 +60,8 @@ fun caseDocumentService(
 
         override fun getForCase(case: Case) = repository.getForCase(case)
         override fun getForCase(ownerId: UUID, refId: String) = repository.getForCase(ownerId, refId)
+
+        override fun hasDocuments(ownerId: UUID, refId: String) = repository.hasDocuments(ownerId, refId)
 
         override fun delete(ownerId: UUID, id: UUID, refId: String) {
             repository.get(ownerId, id)

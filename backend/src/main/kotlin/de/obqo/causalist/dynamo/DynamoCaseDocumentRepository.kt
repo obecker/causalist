@@ -5,6 +5,8 @@ import de.obqo.causalist.CaseDocumentRepository
 import org.http4k.connect.amazon.dynamodb.DynamoDb
 import org.http4k.connect.amazon.dynamodb.mapper.DynamoDbTableMapper
 import org.http4k.connect.amazon.dynamodb.mapper.DynamoDbTableMapperSchema
+import org.http4k.connect.amazon.dynamodb.mapper.count
+import org.http4k.connect.amazon.dynamodb.mapper.query
 import org.http4k.connect.amazon.dynamodb.model.Attribute
 import org.http4k.connect.amazon.dynamodb.model.IndexName
 import org.http4k.connect.amazon.dynamodb.model.Item
@@ -64,13 +66,18 @@ fun dynamoCaseDocumentRepository(
     }
 
     return object : CaseDocumentRepository, DynamoCrudRepository<CaseDocument, UUID, UUID>(table) {
-        override fun getForCase(ownerId: UUID, refId: String): Sequence<CaseDocument> {
-            return table.index(refIndex).query {
+        override fun getForCase(ownerId: UUID, refId: String) =
+            table.index(refIndex).query {
                 keyCondition {
-                    (ownerAttr eq ownerId) and (refAttr eq refId)
+                    (hashKey eq ownerId) and (sortKey eq refId)
                 }
             }
-        }
-    }
 
+        override fun hasDocuments(ownerId: UUID, refId: String) =
+            table.index(refIndex).count {
+                keyCondition {
+                    (hashKey eq ownerId) and (sortKey eq refId)
+                }
+            } > 0
+    }
 }
