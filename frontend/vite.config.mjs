@@ -14,9 +14,10 @@ export default defineConfig(() => {
     },
     plugins: [
       react(),
-      // disable eslint plugin for tests
-      // vitest issue: https://github.com/vitest-dev/vitest/issues/2008
-      process.env.NODE_ENV !== 'test' && eslintPlugin(),
+      // // disable eslint plugin for tests
+      // // vitest issue: https://github.com/vitest-dev/vitest/issues/2008
+      // process.env.NODE_ENV !== 'test' && eslintPlugin(),
+      eslintPlugin(),
     ],
     server: {
       host: true, // make the server accessible in the local network
