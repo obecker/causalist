@@ -1,6 +1,6 @@
 // find HTTP URLs in a text and render them as links (<a> elements)
 // (possible alternative: https://linkify.js.org/ ?)
-const urlPattern = new RegExp('(?:https?|ftp)://[^\\s/$.?#]\\S*', 'ig');
+const urlPattern = new RegExp('\\bhttps?://[^\\s/$.?#]\\S*', 'ig');
 
 export default function AutoLink({ text, linkClassName }) {
   const matches = text.matchAll(urlPattern);

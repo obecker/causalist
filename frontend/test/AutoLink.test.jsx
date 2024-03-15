@@ -35,7 +35,7 @@ describe('AutoLink', () => {
 
   it('parses text with multiple urls and specific link classes', () => {
     // when
-    const text = 'See https://github.com/obecker/causalist and https://aws.amazon.com/ etc';
+    const text = 'See https://github.com/obecker/causalist and http://aws.amazon.com/ etc';
     const { container } = render(<AutoLink text={text} linkClassName="underline" />);
 
     // then
@@ -54,12 +54,12 @@ describe('AutoLink', () => {
          and 
         <a
           class="underline"
-          href="https://aws.amazon.com/"
+          href="http://aws.amazon.com/"
           rel="noreferrer noopener"
           target="_blank"
           title=""
         >
-          https://aws.amazon.com/
+          http://aws.amazon.com/
         </a>
          etc
       </div>
@@ -74,6 +74,18 @@ describe('AutoLink', () => {
     expect(container).toMatchInlineSnapshot(`
       <div>
         github.com or developer.mozilla.org
+      </div>
+    `);
+  });
+
+  it('will not parse urls with wrong protocol', () => {
+    // when
+    const { container } = render(<AutoLink text="hhttp://github.com or shttps://developer.mozilla.org/ or ftp://ftp.example.org" />);
+
+    // then
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        hhttp://github.com or shttps://developer.mozilla.org/ or ftp://ftp.example.org
       </div>
     `);
   });
