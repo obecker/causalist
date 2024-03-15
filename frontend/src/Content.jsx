@@ -12,8 +12,8 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import { useDebounce } from '@uidotdev/usehooks';
 import clsx from 'clsx/lite';
 import { useContext, useEffect, useRef, useState } from 'react';
-import LinkParser from 'react-link-parser';
 import { ApiContext } from './ApiProvider';
+import AutoLink from './AutoLink';
 import DeleteModal from './DeleteModal';
 import EditModal from './EditModal';
 import FailureAlert from './FailureAlert';
@@ -589,24 +589,6 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
     return null;
   }
 
-  const linkWatchers = [
-    {
-      watchFor: 'link',
-      render: (url) => (
-        <a
-          href={url}
-          target="_blank"
-          title=""
-          rel="noreferrer noopener"
-          className="text-teal-700 hover:text-teal-800 hover:underline"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {url}
-        </a>
-      ),
-    },
-  ];
-
   const olClasses = clsx('grid grid-cols-cases md:grid-cols-cases-md lg:grid-cols-cases-lg',
     loadingSpinner && 'opacity-25');
   const editButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-l-lg leading-4 text-sm font-semibold',
@@ -763,17 +745,19 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                     {aCase.statusNote && (
                       <span title="Status-Notiz">
                         {' – '}
-                        <LinkParser watchers={linkWatchers}>
-                          {aCase.statusNote}
-                        </LinkParser>
+                        <AutoLink
+                          text={aCase.statusNote}
+                          linkClassName="text-teal-700 hover:text-teal-800 hover:underline"
+                        />
                       </span>
                     )}
                   </div>
                   {aCase.memo && (
                     <div title="Anmerkung" className="col-start-3 col-end-5 px-2 italic whitespace-pre-wrap">
-                      <LinkParser watchers={linkWatchers}>
-                        {aCase.memo}
-                      </LinkParser>
+                      <AutoLink
+                        text={aCase.memo}
+                        linkClassName="text-teal-700 hover:text-teal-800 hover:underline"
+                      />
                     </div>
                   )}
                   {documents.length > 0 && (
