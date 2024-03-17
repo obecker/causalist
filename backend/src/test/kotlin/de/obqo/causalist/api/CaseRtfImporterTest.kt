@@ -44,9 +44,9 @@ class CaseRtfImporterTest : DescribeSpec({
 
         it("should import cases from an RTF document") {
             // given
-            val refExisting = Reference.parseValue("123 O 113/18")
+            val refExisting = Reference.parseValue("123 O 85/17")
             val refUpdated = Reference.parseValue("123 O 209/18")
-            val refSettled = Reference.parseValue("123 O 124/19")
+            val refSettled = Reference.parseValue("123 O 132/19")
 
             val existingDate = LocalDate.of(2023, 12, 10)
             caseService.persist(
@@ -75,7 +75,7 @@ class CaseRtfImporterTest : DescribeSpec({
                 "123 O 358/14",
                 "123 O 195/19",
                 "123 O 54/21",
-                "123 O 202/21",
+                "123 O 201/22",
                 "123 S 4/23",
                 "123 S 5/23"
             )
@@ -91,12 +91,12 @@ class CaseRtfImporterTest : DescribeSpec({
             persistedCases shouldHaveSize 9
             persistedCases.map { it.ref.toValue() }.shouldContainExactly(
                 "123 O 358/14",
-                "123 O 113/18",
+                "123 O 85/17",
                 "123 O 209/18",
-                "123 O 124/19",
+                "123 O 132/19",
                 "123 O 195/19",
                 "123 O 54/21",
-                "123 O 202/21",
+                "123 O 201/22",
                 "123 S 4/23",
                 "123 S 5/23"
             )
@@ -108,9 +108,9 @@ class CaseRtfImporterTest : DescribeSpec({
                     "Settled",
                     "Klöbner ./. Müller-Lüdenscheidt",
                     "Wolf, W. ./. Geiß, G.",
-                    "Deutsche Rentenversicherung Bund ./. Private Rentenversicherung Hamburg",
+                    "Gesetzliche Entenversicherung ./. Private Entenversicherung",
                     "Asterix u.a. ./. Caesar, J.",
-                    "Universitäres Gefäßzentrum Hamburg ./. Töpfer, T."
+                    "Gefäßzentrum Harburg ./. Töpfer, T."
                 )
             persistedCases.map { it.type }.shouldContainExactly(
                 CHAMBER, CHAMBER, SINGLE, SINGLE, CHAMBER, SINGLE, CHAMBER, CHAMBER, CHAMBER
@@ -129,7 +129,7 @@ class CaseRtfImporterTest : DescribeSpec({
 
         it("should import received date from an RTF document") {
             // given
-            val ref1 = Reference.parseValue("123 O 202/21")
+            val ref1 = Reference.parseValue("123 O 201/22")
             val ref2 = Reference.parseValue("123 O 195/19")
 
             caseService.persist(aCase().withOwnerId(userId).withRef(ref1))
@@ -148,7 +148,7 @@ class CaseRtfImporterTest : DescribeSpec({
             importResult.importedCaseRefs.shouldBeEmpty()
             importResult.updatedCaseRefs.shouldContainExactly(ref1.toValue())
             importResult.ignoredCaseRefs.shouldContainExactly(ref2.toValue())
-            importResult.unknownCaseRefs.shouldContainExactly("123 O 201/22", "123 O 207/22")
+            importResult.unknownCaseRefs.shouldContainExactly("123 O 203/22", "123 O 207/22")
             importResult.errors.shouldContainExactly(
                 "Unerkanntes Aktenzeichen: 123 Z 46/20",
                 "Unerkanntes Datum 2021-01-02 für Aktenzeichen 123 O 3/21"
@@ -164,10 +164,10 @@ class CaseRtfImporterTest : DescribeSpec({
 
         it("should import session dates from an RTF document") {
             // given
-            val refChamber1 = Reference.parseValue("123 O 202/21")
+            val refChamber1 = Reference.parseValue("123 O 201/22")
             val refSingle1 = Reference.parseValue("123 O 54/21")
             val refChamber2 = Reference.parseValue("123 O 195/19")
-            val refSingle2 = Reference.parseValue("123 O 124/19")
+            val refSingle2 = Reference.parseValue("123 O 132/19")
             val refNotUpdated = Reference.parseValue("123 S 4/23")
 
             caseService.persist(aCase().withOwnerId(userId).withRef(refChamber1).withType(CHAMBER))
