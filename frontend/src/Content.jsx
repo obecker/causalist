@@ -36,9 +36,9 @@ const typeLabels = {
 
 const filterStatusKeys = statusKeys.filter((value) => value !== 'SETTLED');
 
-function ignoreEvent(e) {
-  e.preventDefault();
-  e.stopPropagation();
+function ignoreDefaults(event) {
+  event.preventDefault();
+  event.stopPropagation();
 }
 
 export default function Content() {
@@ -175,7 +175,7 @@ export default function Content() {
   }
 
   function openEditModal(event, aCase) {
-    event.stopPropagation();
+    ignoreDefaults(event);
     setSelectedCase(aCase);
     setEditOpen(true);
   }
@@ -499,9 +499,12 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
     }
   }, [openCaseId, reloadDocuments]);
 
-  function clickCase(id) {
-    // double-click toggles clickedCase
-    setClickedCaseId((c) => c === id ? null : id);
+  function clickCase(event, id) {
+    setClickedCaseId((c) => {
+      // on double-click (c === id): reset clickedCaseId
+      // on text selection: don't set clickedCaseId
+      return (c === id || window.getSelection()?.type === 'Range') ? null : id;
+    });
   }
 
   function toggleDropdown(event, id) {
@@ -522,7 +525,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
   }
 
   function downloadDocument(event, id, docId, filename) {
-    ignoreEvent(event);
+    ignoreDefaults(event);
     api.downloadCaseDocument(id, docId).then((response) => {
       const href = URL.createObjectURL(response.data);
       const link = document.createElement('a');
@@ -618,7 +621,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
             key={aCase.id}
             data-open={openCaseId === aCase.id}
             className={liClasses}
-            onClick={() => clickCase(aCase.ref && aCase.id)}
+            onClick={(e) => clickCase(e, aCase.ref && aCase.id)}
             onDoubleClick={(e) => openEditModal(e, aCase.ref && aCase)}
           >
             {aCase.newWeek && (
@@ -694,7 +697,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       <button
                         className="p-2 rounded-r-lg text-white bg-teal-700 hover:bg-teal-600"
                         onClick={(e) => toggleDropdown(e, aCase.id)}
-                        onDoubleClick={ignoreEvent}
+                        onDoubleClick={ignoreDefaults}
                       >
                         {
                           openDropdown === aCase.id
@@ -711,7 +714,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                         <button
                           className={uploadButtonClasses}
                           onClick={(e) => openUpload(e, aCase)}
-                          onDoubleClick={ignoreEvent}
+                          onDoubleClick={ignoreDefaults}
                         >
                           <PaperClipIcon className="size-4 me-2 inline" />
                           Hochladen
@@ -721,7 +724,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                         <button
                           className={deleteButtonClasses}
                           onClick={(e) => openDelete(e, aCase)}
-                          onDoubleClick={ignoreEvent}
+                          onDoubleClick={ignoreDefaults}
                         >
                           <TrashIcon className="size-4 me-2 inline" />
                           Löschen
@@ -771,7 +774,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                                 href="#"
                                 className="text-teal-700 hover:text-teal-800 hover:underline"
                                 onClick={(e) => downloadDocument(e, aCase.id, doc.id, doc.filename)}
-                                onDoubleClick={ignoreEvent}
+                                onDoubleClick={ignoreDefaults}
                               >
                                 {doc.filename}
                               </a>
@@ -780,19 +783,19 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                                   selectedDocumentId === doc.id && 'hidden')}
                                 title="Löschen"
                                 onClick={(e) => selectDocument(e, doc.id)}
-                                onDoubleClick={ignoreEvent}
+                                onDoubleClick={ignoreDefaults}
                               />
                               <div className={clsx('self-start inline-flex items-center ms-2', selectedDocumentId !== doc.id && 'hidden')}>
                                 <ChevronLeftIcon
                                   className="size-3 cursor-pointer inline"
                                   onClick={(e) => selectDocument(e, null)}
-                                  onDoubleClick={ignoreEvent}
+                                  onDoubleClick={ignoreDefaults}
                                 />
                                 <span className="ms-1 font-semibold">Löschen?</span>
                                 <TrashIcon
                                   className="inline size-3 ms-1 cursor-pointer"
                                   onClick={(e) => deleteDocument(e, aCase.id, doc.id)}
-                                  onDoubleClick={ignoreEvent}
+                                  onDoubleClick={ignoreDefaults}
                                 />
                               </div>
                             </li>
