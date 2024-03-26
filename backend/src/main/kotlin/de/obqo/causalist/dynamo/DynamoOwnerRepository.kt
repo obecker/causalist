@@ -21,7 +21,7 @@ private val passwordAttr = Attribute.string().required("password")
 private val encryptedSecretAttr = Attribute.string().required("encryptedSecret")
 private val lastLoginAttr = Attribute.instant().optional("lastLogin")
 
-private fun userLens(): BiDiLens<Item, User> = BiDiLens(
+private val userLens = BiDiLens<Item, User>(
     Meta(true, "dynamoUserRepository", ParamMeta.ObjectParam, "user"),
     { item ->
         User(idAttr(item), usernameAttr(item), passwordAttr(item), encryptedSecretAttr(item), lastLoginAttr(item))
@@ -41,11 +41,14 @@ fun dynamoUserRepository(dynamoDb: DynamoDb, tableName: TableName, createTable: 
     val table = DynamoDbTableMapper<User, UUID, Unit>(
         dynamoDb = dynamoDb,
         tableName = tableName,
-        itemLens = userLens(),
-        primarySchema = DynamoDbTableMapperSchema.Primary(idAttr, null)
+        primarySchema = DynamoDbTableMapperSchema.Primary(idAttr, userLens)
     )
-    val usernameIndex =
-        DynamoDbTableMapperSchema.GlobalSecondary<String, Unit>(IndexName.of("UsernameIndex"), usernameAttr, null)
+    val usernameIndex = DynamoDbTableMapperSchema.GlobalSecondary<User, String, Unit>(
+        IndexName.of("UsernameIndex"),
+        usernameAttr,
+        null,
+        userLens
+    )
 
     if (createTable) {
         table.createTable(usernameIndex)
