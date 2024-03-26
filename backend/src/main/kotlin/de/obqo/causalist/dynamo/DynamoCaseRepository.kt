@@ -88,19 +88,20 @@ fun dynamoCaseRepository(dynamoDb: DynamoDb, tableName: TableName, createTable: 
     val table = DynamoDbTableMapper<Case, UUID, String>(
         dynamoDb = dynamoDb,
         tableName = tableName,
-        itemLens = caseLens,
-        primarySchema = DynamoDbTableMapperSchema.Primary(ownerAttr, idAttr)
+        primarySchema = DynamoDbTableMapperSchema.Primary(ownerAttr, idAttr, caseLens)
     )
 
-    val activeIndex = DynamoDbTableMapperSchema.LocalSecondary<UUID, String>(
+    val activeIndex = DynamoDbTableMapperSchema.LocalSecondary<Case, UUID, String>(
         indexName = IndexName.of("ActiveIndex"),
         hashKeyAttribute = ownerAttr,
-        sortKeyAttribute = refAttr.asRequired()
+        sortKeyAttribute = refAttr.asRequired(),
+        lens = caseLens
     )
-    val settledIndex = DynamoDbTableMapperSchema.LocalSecondary<UUID, LocalDate>(
+    val settledIndex = DynamoDbTableMapperSchema.LocalSecondary<Case, UUID, LocalDate>(
         indexName = IndexName.of("SettledIndex"),
         hashKeyAttribute = ownerAttr,
-        sortKeyAttribute = settledOnAttr.asRequired()
+        sortKeyAttribute = settledOnAttr.asRequired(),
+        lens = caseLens
     )
 
     if (createTable) {
