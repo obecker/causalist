@@ -51,7 +51,11 @@ fun dynamoCaseDocumentRepository(
     val table = DynamoDbTableMapper<CaseDocument, UUID, UUID>(
         dynamoDb = dynamoDb,
         tableName = tableName,
-        primarySchema = DynamoDbTableMapperSchema.Primary(ownerAttr, idAttr, caseDocumentLens)
+        primarySchema = DynamoDbTableMapperSchema.Primary(
+            hashKeyAttribute = ownerAttr,
+            sortKeyAttribute = idAttr,
+            lens = caseDocumentLens
+        )
     )
 
     val refIndex = DynamoDbTableMapperSchema.LocalSecondary<CaseDocument, UUID, String>(

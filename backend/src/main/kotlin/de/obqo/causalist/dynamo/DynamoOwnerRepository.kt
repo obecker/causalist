@@ -41,13 +41,15 @@ fun dynamoUserRepository(dynamoDb: DynamoDb, tableName: TableName, createTable: 
     val table = DynamoDbTableMapper<User, UUID, Unit>(
         dynamoDb = dynamoDb,
         tableName = tableName,
-        primarySchema = DynamoDbTableMapperSchema.Primary(idAttr, userLens)
+        primarySchema = DynamoDbTableMapperSchema.Primary(
+            hashKeyAttribute = idAttr,
+            lens = userLens
+        )
     )
     val usernameIndex = DynamoDbTableMapperSchema.GlobalSecondary<User, String, Unit>(
-        IndexName.of("UsernameIndex"),
-        usernameAttr,
-        null,
-        userLens
+        indexName = IndexName.of("UsernameIndex"),
+        hashKeyAttribute = usernameAttr,
+        lens = userLens
     )
 
     if (createTable) {
