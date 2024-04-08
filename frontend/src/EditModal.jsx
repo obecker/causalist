@@ -45,6 +45,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   const [fieldsDisabled, setFieldsDisabled] = useState(false);
   const [errorOnLoad, setErrorOnLoad] = useState('');
   const [errorOnSave, setErrorOnSave] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const xlWidth = useMediaQuery('(min-width: 1280px)');
 
@@ -110,6 +111,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     setErrorOnLoad('');
     setErrorOnSave('');
     setFieldsDisabled(false);
+    setSaving(false);
     setIsOpen(false);
   }
 
@@ -195,6 +197,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
         todoDate: nullIfEmpty(caseTodoDate),
       };
 
+      setSaving(true);
       if (caseResource.id) {
         api.updateCase(caseResource)
           .then((response) => {
@@ -509,7 +512,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
               <button
                 type="submit"
                 tabIndex="17"
-                disabled={fieldsDisabled}
+                disabled={fieldsDisabled || saving}
                 className="flex w-32 sm:w-40 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-teal-700 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
               >
                 {selectedCase ? 'Speichern' : 'Anlegen'}
