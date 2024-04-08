@@ -42,7 +42,8 @@ resource "aws_s3_object" "frontend" {
   etag         = each.value.digests.md5
   cache_control = (startswith(each.value.content_type, "text/html")
     ? "no-store"
-    : startswith(each.key, "assets") ? "max-age=31536000" : "max-age=86400")
+    : startswith(each.key, "assets") ? "max-age=31536000" : "max-age=86400"
+  )
 
   acl = "public-read"
 }
