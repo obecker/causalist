@@ -30,7 +30,7 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v2.1.2 # https://github.com/marketplace/actions/gradle-wrapper-validation
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v3.1.0 # https://github.com/marketplace/actions/build-with-gradle
+        uses: gradle/actions/setup-gradle@v3.2.1 # https://github.com/marketplace/actions/build-with-gradle
         with:
           add-job-summary-as-pr-comment: on-failure
       - name: Execute Gradle build
