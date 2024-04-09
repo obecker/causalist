@@ -152,6 +152,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     } else {
       setErrorOnSave(error.userMessage);
     }
+    setSaving(false);
   }
 
   function saveCase(e) {
