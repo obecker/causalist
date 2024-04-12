@@ -13,8 +13,6 @@ import org.http4k.connect.amazon.dynamodb.model.Item
 import org.http4k.connect.amazon.dynamodb.model.TableName
 import org.http4k.connect.amazon.dynamodb.model.with
 import org.http4k.lens.BiDiLens
-import org.http4k.lens.Meta
-import org.http4k.lens.ParamMeta
 import java.util.UUID
 
 private val ownerAttr = Attribute.uuid().required("ownerId")
@@ -23,7 +21,7 @@ private val refAttr = Attribute.string().required("ref")
 private val filenameAttr = Attribute.string().required("filename")
 
 private val caseDocumentLens = BiDiLens<Item, CaseDocument>(
-    Meta(true, "dynamoCaseDocumentRepository", ParamMeta.ObjectParam, "caseDocument"),
+    dynamoLensMeta("dynamoCaseDocumentRepository", "caseDocument"),
     { item ->
         CaseDocument(
             ownerAttr(item),

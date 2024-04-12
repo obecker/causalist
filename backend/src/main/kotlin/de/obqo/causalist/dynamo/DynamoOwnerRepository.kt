@@ -11,8 +11,6 @@ import org.http4k.connect.amazon.dynamodb.model.Item
 import org.http4k.connect.amazon.dynamodb.model.TableName
 import org.http4k.connect.amazon.dynamodb.model.with
 import org.http4k.lens.BiDiLens
-import org.http4k.lens.Meta
-import org.http4k.lens.ParamMeta
 import java.util.UUID
 
 private val idAttr = Attribute.uuid().required("id")
@@ -22,7 +20,7 @@ private val encryptedSecretAttr = Attribute.string().required("encryptedSecret")
 private val lastLoginAttr = Attribute.instant().optional("lastLogin")
 
 private val userLens = BiDiLens<Item, User>(
-    Meta(true, "dynamoUserRepository", ParamMeta.ObjectParam, "user"),
+    dynamoLensMeta("dynamoUserRepository", "user"),
     { item ->
         User(idAttr(item), usernameAttr(item), passwordAttr(item), encryptedSecretAttr(item), lastLoginAttr(item))
     },
