@@ -16,8 +16,6 @@ import org.http4k.connect.amazon.dynamodb.model.TableName
 import org.http4k.connect.amazon.dynamodb.model.asRequired
 import org.http4k.connect.amazon.dynamodb.model.with
 import org.http4k.lens.BiDiLens
-import org.http4k.lens.Meta
-import org.http4k.lens.ParamMeta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -41,7 +39,7 @@ private val updatedAtAttr = Attribute.instant().required("updatedAt")
 private fun Case.isActive() = status != Status.SETTLED
 
 private val caseLens = BiDiLens<Item, Case>(
-    Meta(true, "dynamoCaseRepository", ParamMeta.ObjectParam, "case"),
+    dynamoLensMeta("dynamoCaseRepository", "case"),
     { item ->
         Case(
             ownerId = ownerAttr(item),
