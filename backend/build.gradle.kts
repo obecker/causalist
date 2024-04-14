@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.test.logger)
     alias(libs.plugins.kover)
     alias(libs.plugins.decycle)
+    alias(libs.plugins.dependency.check)
     application
 }
 
