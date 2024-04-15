@@ -15,7 +15,7 @@ kotest-bom = "io.kotest:kotest-bom:5.8.1"
 mockk = "io.mockk:mockk:1.13.10"
 
 [plugins]
-decycle = { id = "de.obqo.decycle", version = "1.1.1" }
+decycle = { id = "de.obqo.decycle", version = "1.2.0" }
 dependency-check = { id = "org.owasp.dependencycheck", version = "9.1.0" }
 kover = { id = "org.jetbrains.kotlinx.kover", version = "0.7.6" }
 ksp = { id = "com.google.devtools.ksp", version = "1.9.23-1.0.20" }
