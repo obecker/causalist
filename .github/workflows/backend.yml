@@ -28,7 +28,7 @@ jobs:
           java-version: 17
           distribution: corretto
       - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v2.1.2 # https://github.com/marketplace/actions/gradle-wrapper-validation
+        uses: gradle/wrapper-validation-action@v3.3.0 # https://github.com/marketplace/actions/gradle-wrapper-validation
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v3.2.1 # https://github.com/marketplace/actions/build-with-gradle
         with:
