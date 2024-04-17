@@ -16,7 +16,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@nabla/vite-plugin-eslint": "^2.0.2",
+    "@nabla/vite-plugin-eslint": "^2.0.4",
     "@stylistic/eslint-plugin": "^1.7.2",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^15.0.2",
