@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3.0.0 # see https://github.com/hashicorp/setup-terraform
+        uses: hashicorp/setup-terraform@v3.1.0 # see https://github.com/hashicorp/setup-terraform
       - name: Init
         working-directory: infrastructure
         run: terraform init
