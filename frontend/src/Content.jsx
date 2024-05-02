@@ -245,7 +245,8 @@ export default function Content() {
               onKeyDown={(e) => e.key === 'Escape' && setSearch('')}
             />
             <div
-              className={`absolute bottom-0 top-0 right-0 pr-2.5 py-3 cursor-pointer ${search ? 'text-stone-900' : 'text-stone-400'}`}
+              className="absolute bottom-0 top-0 right-0 pr-2.5 py-3 text-stone-600 hover:text-stone-900"
+              title="Leeren"
               onClick={() => {
                 setSearch('');
                 searchRef.current.focus();

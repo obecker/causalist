@@ -1,5 +1,5 @@
 import { Dialog, Listbox } from '@headlessui/react';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, ChevronUpIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { useMediaQuery } from '@uidotdev/usehooks';
 import clsx from 'clsx/lite';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -36,7 +36,6 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   const [caseTypeFailure, setCaseTypeFailure] = useState(false);
   const [caseReceivedOnFailure, setCaseReceivedOnFailure] = useState(false);
   const [caseSettledOnFailure, setCaseSettledOnFailure] = useState(false);
-  const [caseTodoDateFailure, setCaseTodoDateFailure] = useState(false);
 
   const refRegisterInput = useRef();
   const refNoInput = useRef();
@@ -53,21 +52,23 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   const markerColors = ['', 'gray', 'red', 'yellow', 'green', 'blue', 'purple'];
 
   useEffect(() => {
-    setRefEntity('');
-    setRefRegister('');
-    setRefNo('');
-    setRefYear('');
-    setCaseType('');
-    setCaseParties('');
-    setCaseArea('');
-    setCaseStatus('');
-    setCaseStatusNote('');
-    setCaseMemo('');
-    setCaseMarkerColor('');
-    setCaseReceivedOn('');
-    setCaseSettledOn('');
-    setCaseDueDate('');
-    setCaseTodoDate('');
+    if (isOpen) {
+      setRefEntity('');
+      setRefRegister('');
+      setRefNo('');
+      setRefYear('');
+      setCaseType('');
+      setCaseParties('');
+      setCaseArea('');
+      setCaseStatus('');
+      setCaseStatusNote('');
+      setCaseMemo('');
+      setCaseMarkerColor('');
+      setCaseReceivedOn('');
+      setCaseSettledOn('');
+      setCaseDueDate('');
+      setCaseTodoDate('');
+    }
 
     if (selectedCase && isOpen) {
       setFieldsDisabled(true);
@@ -104,7 +105,6 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     setCaseTypeFailure(false);
     setCaseReceivedOnFailure(false);
     setCaseSettledOnFailure(false);
-    setCaseTodoDateFailure(false);
   }, [selectedCase, isOpen]);
 
   function close() {
@@ -164,7 +164,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     let caseTypeFailed = caseType !== 'SINGLE' && caseType !== 'CHAMBER';
     let caseReceivedOnFailed = caseReceivedOn === '';
     let caseSettledOnFailed = caseStatus === 'SETTLED' && caseSettledOn === '';
-    let caseTodoDateFailed = caseDueDate !== '' && caseTodoDate === '';
+    let todoDate = caseTodoDate || caseDueDate;
+    setCaseTodoDate(todoDate);
 
     setRefEntityFailure(refEntityFailed);
     setRefRegisterFailure(refRegisterFailed);
@@ -173,9 +174,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     setCaseTypeFailure(caseTypeFailed);
     setCaseReceivedOnFailure(caseReceivedOnFailed);
     setCaseSettledOnFailure(caseSettledOnFailed);
-    setCaseTodoDateFailure(caseTodoDateFailed);
 
-    let validationFailed = refEntityFailed || refRegisterFailed || refNoFailed || refYearFailed || caseTypeFailed || caseReceivedOnFailed || caseSettledOnFailed || caseTodoDateFailed;
+    let validationFailed = refEntityFailed || refRegisterFailed || refNoFailed || refYearFailed || caseTypeFailed || caseReceivedOnFailed || caseSettledOnFailed;
     if (!validationFailed) {
       let caseResource = {
         id: selectedCase?.id,
@@ -195,7 +195,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
         receivedOn: nullIfEmpty(caseReceivedOn),
         settledOn: nullIfEmpty(caseSettledOn),
         dueDate: nullIfEmpty(caseDueDate),
-        todoDate: nullIfEmpty(caseTodoDate),
+        todoDate: nullIfEmpty(todoDate),
       };
 
       setSaving(true);
@@ -483,24 +483,36 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 value={caseTodoDate}
                 onChange={(e) => setCaseTodoDate(e.target.value)}
                 onFocus={(e) => e.target.defaultValue = ''}
-                className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseTodoDateFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                className="border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait bg-stone-50"
               />
             </div>
             <div className="sm:col-span-3 lg:col-span-1">
               <label htmlFor="dueDate" className="block mb-2 text-sm font-medium">
                 nächster Termin am
               </label>
-              <input
-                id="dueDate"
-                name="dueDate"
-                type="date"
-                tabIndex="15"
-                disabled={fieldsDisabled}
-                value={caseDueDate}
-                onChange={(e) => setCaseDueDate(e.target.value)}
-                onFocus={(e) => e.target.defaultValue = ''}
-                className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
-              />
+              <div className="relative">
+                <input
+                  id="dueDate"
+                  name="dueDate"
+                  type="date"
+                  tabIndex="15"
+                  disabled={fieldsDisabled}
+                  value={caseDueDate}
+                  onChange={(e) => setCaseDueDate(e.target.value)}
+                  onFocus={(e) => e.target.defaultValue = ''}
+                  className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+                />
+                <div
+                  className="absolute bottom-0 top-0 right-9 px-1 py-3 text-stone-600 hover:text-stone-900"
+                  title="Leeren"
+                  onClick={() => {
+                    setCaseDueDate('');
+                    setCaseTodoDate('');
+                  }}
+                >
+                  <XMarkIcon className="size-5" />
+                </div>
+              </div>
             </div>
           </div>
           <div className="sticky bottom-0 bg-white pt-6 pb-1">
