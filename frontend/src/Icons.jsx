@@ -31,16 +31,15 @@ export function WrittenPreliminaryProcedureIcon({ className }) {
   return (
     <Svg className={className}>
       <path
-        fill="none"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        d="M4 19h-2v-17h13v2M17 15v6h-13v-17h13v4M6.75 7.5h7.5m0 2.5h-7.5"
-      />
-      <path
         strokeWidth="0.75"
         strokeLinejoin="round"
-        d="M19 8.75l-10 8-.75 1.625 1.75-.375 10-8m.75-.6l1-.8a.8 .8 0 0 0-1-1.25l-1 .8"
+        d="M16 6l-10 8-.75 1.625 1.75-.375 10-8m.75-.6l1-.8a.8 .8 0 0 0-1-1.25l-1 .8"
+        transform="scale(1.2, 1.2) rotate(-10, 12, 12) translate(-1.5 -2)"
+      />
+      <path
+        strokeWidth="1"
+        strokeLinecap="round"
+        d="M10 18h10m0 2h-16m0 2h16"
       />
     </Svg>
   );
