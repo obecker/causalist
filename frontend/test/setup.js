@@ -1,3 +1,5 @@
+/** @namespace global **/
+
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
@@ -18,6 +20,13 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// add mock for ResizeObserver (used internally by Headless UI)
+global.ResizeObserver = class MockResizeObserver {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+};
 
 // mock axios
 vi.mock('axios', () => {
