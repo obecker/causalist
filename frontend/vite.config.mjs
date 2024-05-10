@@ -22,7 +22,6 @@ export default defineConfig(() => {
       host: true, // make the server accessible in the local network
       port: 3000,
       strictPort: true,
-      open: true,
       proxy: {
         '/api': 'http://localhost:4000',
       },
