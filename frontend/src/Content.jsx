@@ -680,6 +680,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                 </div>
                 <Transition
                   show={openCaseId === aCase.id}
+                  as="div"
                   appear={true}
                   className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4"
                   enter="transition-opacity duration-100 ease-out"
