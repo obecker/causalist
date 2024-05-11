@@ -65,11 +65,12 @@ class TokenSupport(private val config: Config) {
         private const val ALGORITHM = "HmacSHA384"
     }
 
-    private val secretKeySpec = config.signingSecret.use { SecretKeySpec(it.toByteArray(), ALGORITHM) }
+    private val signingSecretKeySpec = config.signingSecret.use { SecretKeySpec(it.toByteArray(), ALGORITHM) }
+    private val appEncryptionSecretKey = config.encryptionSecret.toSecretKey()
 
     private fun sign(vararg values: String): String {
         val mac = Mac.getInstance(ALGORITHM)
-        mac.init(secretKeySpec)
+        mac.init(signingSecretKeySpec)
         for (v in values) {
             mac.update(v.toByteArray())
         }
@@ -78,8 +79,9 @@ class TokenSupport(private val config: Config) {
 
     fun createToken(id: UUID, pwdHash: String, userSecret: String, clock: Clock = Clock.systemDefaultZone()): String {
         val expires = clock.instant().plus(Duration.ofDays(1)).toEpochMilli()
-        val signature = sign(id.toString(), pwdHash, userSecret, expires.toString())
-        return "$id.$pwdHash.$userSecret.$expires.$signature"
+        val encryptedUserSecret = userSecret.encrypt(appEncryptionSecretKey)
+        val signature = sign(id.toString(), pwdHash, encryptedUserSecret, expires.toString())
+        return "$id.$pwdHash.$encryptedUserSecret.$expires.$signature"
     }
 
     fun validateToken(token: String, resolvePwdHash: (UUID) -> String?): UserContext? = try {
@@ -89,13 +91,13 @@ class TokenSupport(private val config: Config) {
         require(Instant.ofEpochMilli(parts[3].toLong()).isAfter(Instant.now())) { "Token has expired" }
         val id = UUID.fromString(parts[0])
         val pwdHash = parts[1]
-        val userSecret = EncryptionSecret.parse(parts[2])
+        val userSecret = EncryptionSecret.parse(parts[2].decrypt(appEncryptionSecretKey))
         if (resolvePwdHash(id) == pwdHash) {
             UserContext(id, (userSecret xor config.encryptionSecret).toSecretKey())
         } else {
             null
         }
-    } catch (ex: RuntimeException) {
+    } catch (ex: Exception) {
         logger.info(ex) { "Token validation failed" }
         null
     }

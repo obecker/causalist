@@ -11,6 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import org.http4k.cloudnative.env.Secret
+import java.security.SecureRandom
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
@@ -21,11 +22,12 @@ class TokenSupportTest : DescribeSpec({
 
     describe("TokenSupport") {
 
+        val rand = SecureRandom()
+        val encodedUserSecret = ByteArray(32).apply { rand.nextBytes(this) }.toBase64()
+
         val config = mockk<Config>()
         every { config.signingSecret } returns Secret("secret")
-        every { config.encryptionSecret } returns EncryptionSecret.of(ByteArray(32))
-
-        val encodedUserSecret = ByteArray(32) { it.toByte() }.toBase64()
+        every { config.encryptionSecret } returns EncryptionSecret.of(ByteArray(32).apply { rand.nextBytes(this) })
 
         val tokenSupport = TokenSupport(config)
 

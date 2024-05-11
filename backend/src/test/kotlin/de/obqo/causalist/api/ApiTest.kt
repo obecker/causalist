@@ -3,6 +3,7 @@ package de.obqo.causalist.api
 import de.obqo.causalist.CaseDocumentService
 import de.obqo.causalist.CaseService
 import de.obqo.causalist.Config
+import de.obqo.causalist.EncryptionSecret
 import de.obqo.causalist.UserService
 import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.every
@@ -15,7 +16,7 @@ import org.http4k.core.Status
 import org.http4k.kotest.shouldHaveContentType
 import org.http4k.kotest.shouldHaveStatus
 
-class ApiTest: DescribeSpec( {
+class ApiTest : DescribeSpec({
 
     describe("Contract") {
         it("should render OpenAPI spec") {
@@ -27,6 +28,7 @@ class ApiTest: DescribeSpec( {
             val configMock = mockk<Config>()
             every { configMock.passwordSalt } returns Secret("dummySalt")
             every { configMock.signingSecret } returns Secret("dummySecret")
+            every { configMock.encryptionSecret } returns EncryptionSecret.of(ByteArray(32))
 
             val api = httpApi(authentication(userServiceMock, configMock), caseServiceMock, caseDocumentServiceMock)
 
