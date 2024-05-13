@@ -50,7 +50,7 @@ fun userService(repository: UserRepository): UserService {
                     if (it == null) generatePasswordHash("dummy")
                 }
                 ?.takeIf { verifyPasswordHash(password, it.password) }
-                ?.also { repository.save(it.copy(lastLogin = Instant.now())) }
+                ?.let { repository.save(it.copy(lastLogin = Instant.now())) }
 
         override fun get(id: UUID) = repository.get(id)
 
