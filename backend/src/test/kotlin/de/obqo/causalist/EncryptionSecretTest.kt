@@ -2,8 +2,10 @@ package de.obqo.causalist
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotContain
 
 class EncryptionSecretTest : DescribeSpec({
 
@@ -72,6 +74,25 @@ class EncryptionSecretTest : DescribeSpec({
 
             // then
             (secret1 xor secret2) shouldBe EncryptionSecret.of(ByteArray(32) { (13 xor 42).toByte() })
+        }
+
+        it("should support encryption and decryption") {
+            // given
+            val secret = EncryptionSecret.parse(validEncodedSecret)
+            val key = CryptoUtils.generateRandomAesKey()
+
+            // when
+            val encrypted = secret.encrypt(key)
+
+            // then
+            encrypted.length shouldBeGreaterThan validEncodedSecret.length
+            encrypted shouldNotContain validEncodedSecret
+
+            // when
+            val decryptedSecret = EncryptionSecret.decrypt(encrypted, key)
+
+            // then
+            decryptedSecret shouldBe secret
         }
     }
 })

@@ -2,7 +2,6 @@ package de.obqo.causalist.api
 
 import de.obqo.causalist.Config
 import de.obqo.causalist.EncryptionSecret
-import de.obqo.causalist.toBase64
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.datatest.withData
@@ -11,7 +10,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import org.http4k.cloudnative.env.Secret
-import java.security.SecureRandom
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
@@ -22,12 +20,11 @@ class TokenSupportTest : DescribeSpec({
 
     describe("TokenSupport") {
 
-        val rand = SecureRandom()
-        val encodedUserSecret = ByteArray(32).apply { rand.nextBytes(this) }.toBase64()
+        val userSecret = EncryptionSecret.randomSecret()
 
         val config = mockk<Config>()
         every { config.signingSecret } returns Secret("secret")
-        every { config.encryptionSecret } returns EncryptionSecret.of(ByteArray(32).apply { rand.nextBytes(this) })
+        every { config.encryptionSecret } returns EncryptionSecret.randomSecret()
 
         val tokenSupport = TokenSupport(config)
 
@@ -37,7 +34,7 @@ class TokenSupportTest : DescribeSpec({
             // given
             val givenId = UUID(0, 0)
             val givenPwdHash = "pwdHash"
-            val token = tokenSupport.createToken(givenId, givenPwdHash, encodedUserSecret)
+            val token = tokenSupport.createToken(givenId, givenPwdHash, userSecret)
 
             // when
             val userContext = tokenSupport.validateToken(token) { id ->
@@ -54,7 +51,7 @@ class TokenSupportTest : DescribeSpec({
 
         it("should reject token if password is different") {
             // given
-            val token = tokenSupport.createToken(UUID.randomUUID(), "somePwdHash", encodedUserSecret)
+            val token = tokenSupport.createToken(UUID.randomUUID(), "somePwdHash", userSecret)
 
             // when
             val userContext = validateToken(token, "otherPwdHash")
@@ -96,7 +93,7 @@ class TokenSupportTest : DescribeSpec({
                 val token = tokenSupport.createToken(
                     UUID(0, 0),
                     givenPwdHash,
-                    encodedUserSecret,
+                    userSecret,
                     Clock.fixed(time, ZoneId.systemDefault())
                 )
 

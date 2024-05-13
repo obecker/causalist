@@ -23,6 +23,8 @@ interface UserService {
     fun register(username: String, password: String, encryptedSecret: String): User
     fun login(username: String, password: String): User?
     fun get(id: UUID): User?
+
+    fun update(user: User)
 }
 
 fun userService(repository: UserRepository): UserService {
@@ -51,5 +53,10 @@ fun userService(repository: UserRepository): UserService {
                 ?.also { repository.save(it.copy(lastLogin = Instant.now())) }
 
         override fun get(id: UUID) = repository.get(id)
+
+        override fun update(user: User) {
+            repository.get(user.id) ?: return
+            repository.save(user)
+        }
     }
 }

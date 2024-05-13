@@ -12,7 +12,6 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
-import kotlin.text.Charsets.UTF_8
 
 object CryptoUtils {
 
@@ -27,9 +26,9 @@ object CryptoUtils {
     private const val KEY_SIZE = 256
     private const val ITERATIONS = 500_000 // determines the time required for login validation
 
-    private fun randomBytes(length: Int) = ByteArray(length).apply {
-        SecureRandom().nextBytes(this)
-    }
+    private val random = SecureRandom.getInstanceStrong()
+
+    private fun randomBytes(length: Int) = ByteArray(length).apply { random.nextBytes(this) }
 
     /**
      * Generates a password hash that can be stored in the database.
@@ -63,7 +62,7 @@ object CryptoUtils {
     }
 
     fun generateRandomAesKey(): SecretKey = KeyGenerator.getInstance(ALGORITHM).apply {
-        init(KEY_SIZE, SecureRandom.getInstanceStrong())
+        init(KEY_SIZE, random)
     }.generateKey()
 
     fun ByteArray.toSecretKey(): SecretKey = SecretKeySpec(this, ALGORITHM)
@@ -72,29 +71,36 @@ object CryptoUtils {
      * Encrypts the given [String] with the given [SecretKey] using AES/GCM/NoPadding.
      * The result is a Base64 encoded string containing the IV and the cipher text.
      */
-    fun String.encrypt(secretKey: SecretKey): String {
-        val iv = randomBytes(IV_LENGTH_BYTE)
-        val cipher = Cipher.getInstance(ENCRYPT_ALGO)
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, GCMParameterSpec(TAG_LENGTH_BIT, iv))
-
-        val plainTextBytes = toByteArray()
-        val cipherText = cipher.doFinal(plainTextBytes)
-        return (iv + cipherText).toBase64()
-    }
+    fun String.encrypt(secretKey: SecretKey): String = toByteArray().encrypt(secretKey).toBase64()
 
     /**
      * Decrypts the given [String] with the given [SecretKey] using AES/GCM/NoPadding.
      * The given [String] must be a Base64 encoded string containing the IV and the cipher text.
      */
-    fun String.decrypt(secretKey: SecretKey): String {
-        val cipherTextBytes = fromBase64()
-        val iv = cipherTextBytes.copyOfRange(0, IV_LENGTH_BYTE)
+    fun String.decrypt(secretKey: SecretKey): String = String(fromBase64().decrypt(secretKey))
+
+    /**
+     * Encrypts the given [ByteArray] with the given [SecretKey] using AES/GCM/NoPadding.
+     * The result is a new [ByteArray] containing the IV and the cipher bytes.
+     */
+    fun ByteArray.encrypt(secretKey: SecretKey): ByteArray {
+        val iv = randomBytes(IV_LENGTH_BYTE)
+        val cipher = Cipher.getInstance(ENCRYPT_ALGO)
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, GCMParameterSpec(TAG_LENGTH_BIT, iv))
+        val cipherBytes = cipher.doFinal(this)
+        return iv + cipherBytes
+    }
+
+    /**
+     * Decrypts the given [ByteArray] with the given [SecretKey] using AES/GCM/NoPadding.
+     * The given [ByteArray] must contain the IV and the cipher bytes.
+     */
+    fun ByteArray.decrypt(secretKey: SecretKey): ByteArray {
+        val iv = copyOfRange(0, IV_LENGTH_BYTE)
         val cipher = Cipher.getInstance(ENCRYPT_ALGO)
         cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(TAG_LENGTH_BIT, iv))
-
-        val cipherText = cipherTextBytes.copyOfRange(IV_LENGTH_BYTE, cipherTextBytes.size)
-        val plainText = cipher.doFinal(cipherText)
-        return String(plainText, UTF_8)
+        val cipherBytes = copyOfRange(IV_LENGTH_BYTE, size)
+        return cipher.doFinal(cipherBytes)
     }
 
     /**

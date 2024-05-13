@@ -4,6 +4,7 @@ import de.obqo.causalist.Config
 import de.obqo.causalist.CryptoUtils
 import de.obqo.causalist.CryptoUtils.decrypt
 import de.obqo.causalist.CryptoUtils.encrypt
+import de.obqo.causalist.EncryptionSecret
 import de.obqo.causalist.Reference
 import de.obqo.causalist.Type
 import de.obqo.causalist.api.TokenSupport
@@ -15,7 +16,6 @@ import de.obqo.causalist.dynamo.dynamoCaseDocumentRepository
 import de.obqo.causalist.dynamo.dynamoCaseRepository
 import de.obqo.causalist.dynamo.dynamoUserRepository
 import de.obqo.causalist.s3.S3BucketWrapper
-import de.obqo.causalist.toBase64
 import de.obqo.causalist.userService
 import dev.failsafe.Failsafe
 import dev.failsafe.RetryPolicy
@@ -135,7 +135,7 @@ private fun buildApi(environment: Environment): HttpHandler {
 
         // config needs to be recreated, since secrets have been consumed already
         val tokenSupport = TokenSupport(Config(environment))
-        val dummySecret = ByteArray(32) { it.toByte() }.toBase64()
+        val dummySecret = EncryptionSecret.randomSecret()
         val token = tokenSupport.createToken(dummyUuid, "pwdHash", dummySecret)
         api(Request(method = Method.GET, "/api/cases").header("Authorization", "Bearer $token"))
 

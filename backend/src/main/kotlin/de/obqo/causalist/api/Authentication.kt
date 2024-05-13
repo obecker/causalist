@@ -2,9 +2,7 @@ package de.obqo.causalist.api
 
 import de.obqo.causalist.Config
 import de.obqo.causalist.CryptoUtils.decrypt
-import de.obqo.causalist.CryptoUtils.encrypt
 import de.obqo.causalist.CryptoUtils.generatePasswordAesKey
-import de.obqo.causalist.CryptoUtils.generateRandomAesKey
 import de.obqo.causalist.DuplicateUsernameException
 import de.obqo.causalist.EncryptionSecret
 import de.obqo.causalist.User
@@ -77,7 +75,12 @@ class TokenSupport(private val config: Config) {
         return mac.doFinal().toBase64()
     }
 
-    fun createToken(id: UUID, pwdHash: String, userSecret: String, clock: Clock = Clock.systemDefaultZone()): String {
+    fun createToken(
+        id: UUID,
+        pwdHash: String,
+        userSecret: EncryptionSecret,
+        clock: Clock = Clock.systemDefaultZone()
+    ): String {
         val expires = clock.instant().plus(Duration.ofDays(1)).toEpochMilli()
         val encryptedUserSecret = userSecret.encrypt(appEncryptionSecretKey)
         val signature = sign(id.toString(), pwdHash, encryptedUserSecret, expires.toString())
@@ -91,7 +94,7 @@ class TokenSupport(private val config: Config) {
         require(Instant.ofEpochMilli(parts[3].toLong()).isAfter(Instant.now())) { "Token has expired" }
         val id = UUID.fromString(parts[0])
         val pwdHash = parts[1]
-        val userSecret = EncryptionSecret.parse(parts[2].decrypt(appEncryptionSecretKey))
+        val userSecret = EncryptionSecret.decrypt(parts[2], appEncryptionSecretKey)
         if (resolvePwdHash(id) == pwdHash) {
             UserContext(id, (userSecret xor config.encryptionSecret).toSecretKey())
         } else {
@@ -123,7 +126,16 @@ fun authentication(userService: UserService, config: Config): Authentication {
         val (username, password) = loginLens(request)
         userService.login(username, password)?.let { user: User ->
             val passwordSecret = generatePasswordSecret(password)
-            val userSecret = user.encryptedSecret.decrypt(passwordSecret)
+            val oldEncryptedSecretLength = 96 // TODO remove after all users have been migrated
+            val userSecret = when (user.encryptedSecret.length) {
+                oldEncryptedSecretLength -> EncryptionSecret.parse(user.encryptedSecret.decrypt(passwordSecret))
+                else -> EncryptionSecret.decrypt(user.encryptedSecret, passwordSecret)
+            }
+            if (user.encryptedSecret.length == oldEncryptedSecretLength) {
+                // migrate to new secret encryption
+                userService.update(user.copy(encryptedSecret = userSecret.encrypt(passwordSecret)))
+            }
+
             Response(Status.OK).with(
                 resultLens of success(tokenSupport.createToken(user.id, user.password.tokenHash(), userSecret))
             )
@@ -148,8 +160,8 @@ fun authentication(userService: UserService, config: Config): Authentication {
             val (username, password) = loginLens(request)
             validateRegistrationInput(username, password)
             val passwordSecret = generatePasswordSecret(password)
-            val userSecret = generateRandomAesKey()
-            val encryptedSecret = userSecret.encoded.toBase64().encrypt(passwordSecret)
+            val userSecret = EncryptionSecret.randomSecret()
+            val encryptedSecret = userSecret.encrypt(passwordSecret)
             userService.register(username, password, encryptedSecret)
             Response(Status.OK).with(resultLens of success())
         } catch (_: DuplicateUsernameException) {

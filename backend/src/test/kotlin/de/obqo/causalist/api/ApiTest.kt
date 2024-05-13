@@ -28,7 +28,7 @@ class ApiTest : DescribeSpec({
             val configMock = mockk<Config>()
             every { configMock.passwordSalt } returns Secret("dummySalt")
             every { configMock.signingSecret } returns Secret("dummySecret")
-            every { configMock.encryptionSecret } returns EncryptionSecret.of(ByteArray(32))
+            every { configMock.encryptionSecret } returns EncryptionSecret.randomSecret()
 
             val api = httpApi(authentication(userServiceMock, configMock), caseServiceMock, caseDocumentServiceMock)
 
