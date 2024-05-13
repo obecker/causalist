@@ -1,7 +1,6 @@
 package de.obqo.causalist.api
 
 import de.obqo.causalist.Config
-import de.obqo.causalist.CryptoUtils.decrypt
 import de.obqo.causalist.CryptoUtils.generatePasswordAesKey
 import de.obqo.causalist.DuplicateUsernameException
 import de.obqo.causalist.EncryptionSecret
@@ -126,15 +125,7 @@ fun authentication(userService: UserService, config: Config): Authentication {
         val (username, password) = loginLens(request)
         userService.login(username, password)?.let { user: User ->
             val passwordSecret = generatePasswordSecret(password)
-            val oldEncryptedSecretLength = 96 // TODO remove after all users have been migrated
-            val userSecret = when (user.encryptedSecret.length) {
-                oldEncryptedSecretLength -> EncryptionSecret.parse(user.encryptedSecret.decrypt(passwordSecret))
-                else -> EncryptionSecret.decrypt(user.encryptedSecret, passwordSecret)
-            }
-            if (user.encryptedSecret.length == oldEncryptedSecretLength) {
-                // migrate to new secret encryption
-                userService.update(user.copy(encryptedSecret = userSecret.encrypt(passwordSecret)))
-            }
+            val userSecret = EncryptionSecret.decrypt(user.encryptedSecret, passwordSecret)
 
             Response(Status.OK).with(
                 resultLens of success(tokenSupport.createToken(user.id, user.password.tokenHash(), userSecret))
