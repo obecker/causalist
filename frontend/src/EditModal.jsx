@@ -1,4 +1,4 @@
-import { Dialog, Listbox } from '@headlessui/react';
+import { DialogTitle, Listbox } from '@headlessui/react';
 import { ChevronDownIcon, ChevronUpIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { useMediaQuery } from '@uidotdev/usehooks';
 import clsx from 'clsx/lite';
@@ -220,7 +220,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
 
   return (
     <ModalDialog isOpen={isOpen} onClose={close}>
-      {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
+      {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
       <div className={clsx('py-6 w-full min-w-[322px] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl',
         'transform transition-all overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl')}
       >
@@ -230,9 +230,9 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
             fieldsDisabled && 'cursor-wait')}
           style={{ maxHeight: 'calc(100vh - 8rem)' }}
         >
-          <Dialog.Title as="h3" className="text-lg font-semibold leading-6 tracking-tight sm:tracking-normal text-stone-900 sticky top-0 bg-white pb-4 z-50">
+          <DialogTitle as="h3" className="text-lg font-semibold leading-6 tracking-tight sm:tracking-normal text-stone-900 sticky top-0 bg-white pb-4 z-50">
             {selectedCase ? `Verfahren ${selectedCase.ref.value} bearbeiten` : 'Neues Verfahren'}
-          </Dialog.Title>
+          </DialogTitle>
           <FailureAlert message={errorOnLoad} className="w-full mb-4" />
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-6 lg:grid-cols-4 w-full pb-1">
             <div className="sm:col-span-4 lg:col-span-2 xl:col-span-1">

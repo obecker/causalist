@@ -1,4 +1,4 @@
-import { Dialog } from '@headlessui/react';
+import { DialogTitle } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx/lite';
 import { useContext, useEffect, useState } from 'react';
@@ -47,14 +47,14 @@ export default function FileUploadModal({ isOpen, setIsOpen, selectedCase, force
 
   return (selectedCase && (
     <ModalDialog isOpen={isOpen} onClose={close}>
-      {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
+      {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
       <div className={panelClasses}>
-        <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-stone-900 flex justify-between">
+        <DialogTitle as="h3" className="text-lg font-semibold leading-6 text-stone-900 flex justify-between">
           {`Datei zum Verfahren ${selectedCase.ref.value} hochladen`}
           <button onClick={close} title="Schließen" className="outline-none">
             <XMarkIcon className="inline size-6" />
           </button>
-        </Dialog.Title>
+        </DialogTitle>
         <FailureAlert message={errorMessage} className="my-4" />
         <div className="w-full mt-4">
           <div className="flex align-middle items-start justify-between gap-2">

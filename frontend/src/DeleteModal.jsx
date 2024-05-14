@@ -1,4 +1,4 @@
-import { Dialog } from '@headlessui/react';
+import { DialogTitle } from '@headlessui/react';
 import clsx from 'clsx/lite';
 import { useContext, useEffect, useState } from 'react';
 import { ApiContext } from './ApiProvider';
@@ -43,11 +43,11 @@ export default function DeleteModal({ isOpen, setIsOpen, selectedCase, forceUpda
 
   return (selectedCase && (
     <ModalDialog isOpen={isOpen} onClose={close}>
-      {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
+      {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
       <div className={panelClasses}>
-        <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-stone-900 text-center text-pretty">
+        <DialogTitle as="h3" className="text-lg font-semibold leading-6 text-stone-900 text-center text-pretty">
           {`Verfahren ${selectedCase.ref.value} aus dem Bestand löschen?`}
-        </Dialog.Title>
+        </DialogTitle>
         <div className="w-full mt-4">
           {selectedCase.parties}
         </div>
