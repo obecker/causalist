@@ -222,12 +222,12 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     <ModalDialog isOpen={isOpen} onClose={close}>
       {/* use div instead of Dialog.Panel, removes the onClose handler when clicked outside */}
       <div className={clsx('py-6 w-full min-w-[322px] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl',
-        'transform transition-all overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl',
-        fieldsDisabled && 'cursor-wait')}
+        'transform transition-all overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl')}
       >
         <form
           onSubmit={saveCase}
-          className="px-6 overflow-y-auto overflow-x-visible overscroll-contain no-scrollbar"
+          className={clsx('px-6 overflow-y-auto overflow-x-visible overscroll-contain no-scrollbar',
+            fieldsDisabled && 'cursor-wait')}
           style={{ maxHeight: 'calc(100vh - 8rem)' }}
         >
           <Dialog.Title as="h3" className="text-lg font-semibold leading-6 tracking-tight sm:tracking-normal text-stone-900 sticky top-0 bg-white pb-4 z-50">
