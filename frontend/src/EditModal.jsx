@@ -236,7 +236,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
           <FailureAlert message={errorOnLoad} className="w-full mb-4" />
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-6 lg:grid-cols-4 w-full pb-1">
             <div className="sm:col-span-4 lg:col-span-2 xl:col-span-1">
-              <label className="block">Aktenzeichen</label>
+              <label className="block mb-2 text-sm font-medium">Aktenzeichen</label>
               <div className="block w-fit rounded-md border border-stone-300">
                 <input
                   minLength="1"
@@ -288,36 +288,32 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
               </div>
             </div>
             <div className="sm:col-span-2 xl:col-span-1 sm:pt-2">
-              <div className="flex items-center mb-4">
-                <label className="text-sm font-medium">
-                  <input
-                    type="radio"
-                    name="type"
-                    value="SINGLE"
-                    tabIndex="5"
-                    disabled={fieldsDisabled}
-                    checked={caseType === 'SINGLE'}
-                    onChange={() => setCaseType('SINGLE')}
-                    className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
-                  />
-                  Einzelrichter
-                </label>
-              </div>
-              <div className="flex items-center">
-                <label className="text-sm font-medium">
-                  <input
-                    type="radio"
-                    name="type"
-                    value="CHAMBER"
-                    tabIndex="5"
-                    disabled={fieldsDisabled}
-                    checked={caseType === 'CHAMBER'}
-                    onChange={() => setCaseType('CHAMBER')}
-                    className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
-                  />
-                  Kammersache
-                </label>
-              </div>
+              <label className="flex items-center text-sm font-medium mb-4">
+                <input
+                  type="radio"
+                  name="type"
+                  value="SINGLE"
+                  tabIndex="5"
+                  disabled={fieldsDisabled}
+                  checked={caseType === 'SINGLE'}
+                  onChange={() => setCaseType('SINGLE')}
+                  className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                />
+                Einzelrichter
+              </label>
+              <label className="flex items-center text-sm font-medium">
+                <input
+                  type="radio"
+                  name="type"
+                  value="CHAMBER"
+                  tabIndex="5"
+                  disabled={fieldsDisabled}
+                  checked={caseType === 'CHAMBER'}
+                  onChange={() => setCaseType('CHAMBER')}
+                  className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                />
+                Kammersache
+              </label>
             </div>
             <div className="sm:col-span-6 lg:col-span-2">
               <label htmlFor="parties" className="block mb-2 text-sm font-medium">
