@@ -8,7 +8,8 @@ import dev.forkhandles.values.AbstractValue
 import dev.forkhandles.values.ValueFactory
 import javax.crypto.SecretKey
 
-class EncryptionSecret private constructor(value: ByteArray) : AbstractValue<ByteArray>(value, { "*****" }) {
+class EncryptionSecret private constructor(value: ByteArray) : AbstractValue<ByteArray>(value.clone(), { "*****" }) {
+
     companion object : ValueFactory<EncryptionSecret, ByteArray>(
         ::EncryptionSecret, { it.size == 32 }, { it.fromBase64() }, { "*****" }
     ) {
@@ -17,13 +18,11 @@ class EncryptionSecret private constructor(value: ByteArray) : AbstractValue<Byt
         fun decrypt(encryptedString: String, secretKey: SecretKey) = of(encryptedString.fromBase64().decrypt(secretKey))
     }
 
-    infix fun xor(other: EncryptionSecret) = EncryptionSecret(value xor other.value)
+    private val _value: ByteArray = super.value
 
-    fun toSecretKey() = value.toSecretKey()
+    override val value: ByteArray get() = _value.clone() // copy to prevent subsequent modification
 
-    fun encrypt(secretKey: SecretKey) = value.encrypt(secretKey).toBase64()
-
-    override fun hashCode(): Int = value.contentHashCode()
+    override fun hashCode(): Int = _value.contentHashCode()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -31,6 +30,12 @@ class EncryptionSecret private constructor(value: ByteArray) : AbstractValue<Byt
 
         other as EncryptionSecret
 
-        return value.contentEquals(other.value)
+        return _value.contentEquals(other._value)
     }
+
+    infix fun xor(other: EncryptionSecret) = EncryptionSecret(_value xor other._value)
+
+    fun toSecretKey() = _value.toSecretKey()
+
+    fun encrypt(secretKey: SecretKey) = _value.encrypt(secretKey).toBase64()
 }

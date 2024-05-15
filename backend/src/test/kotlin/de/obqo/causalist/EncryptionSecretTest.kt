@@ -6,6 +6,7 @@ import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotContain
+import kotlin.random.Random
 
 class EncryptionSecretTest : DescribeSpec({
 
@@ -65,6 +66,33 @@ class EncryptionSecretTest : DescribeSpec({
             // then
             secret1.hashCode() shouldBe secret2.hashCode()
             (secret1 == secret2) shouldBe true
+        }
+
+        it("should prevent modifications via its given value") {
+            // given
+            val bytes = Random.Default.nextBytes(32)
+            val secret1 = EncryptionSecret.of(bytes)
+            val secret2 = EncryptionSecret.of(bytes.clone())
+            secret1 shouldBe secret2
+
+            // when
+            bytes.fill(0)
+
+            // then
+            secret1 shouldBe secret2
+        }
+
+        it("should prevent modifications via its contained value") {
+            // given
+            val secret1 = EncryptionSecret.parse(validEncodedSecret)
+            val secret2 = EncryptionSecret.parse(validEncodedSecret)
+            val bytes = secret1.value
+
+            // when
+            bytes.fill(0)
+
+            // then
+            secret1 shouldBe secret2
         }
 
         it("should xor its value") {
