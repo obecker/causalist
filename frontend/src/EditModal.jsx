@@ -1,4 +1,4 @@
-import { DialogTitle, Listbox } from '@headlessui/react';
+import { DialogTitle, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { ChevronDownIcon, ChevronUpIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { useMediaQuery } from '@uidotdev/usehooks';
 import clsx from 'clsx/lite';
@@ -237,7 +237,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-6 lg:grid-cols-4 w-full pb-1">
             <div className="sm:col-span-4 lg:col-span-2 xl:col-span-1">
               <label className="block">Aktenzeichen</label>
-              <div className="block w-fit rounded-lg border border-stone-300">
+              <div className="block w-fit rounded-md border border-stone-300">
                 <input
                   minLength="1"
                   maxLength="4"
@@ -248,7 +248,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   onKeyDown={(e) => focusNextOnKey(e, ' ', refRegisterInput)}
                   onPaste={pasteReference}
                   onChange={(e) => setRefEntity(e.target.value.trim())}
-                  className={`mr-1 w-16 border-0 rounded-l-lg focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refEntityFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={`mr-1 w-16 text-sm border-0 rounded-l-md focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refEntityFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                 />
                 <input
                   minLength="1"
@@ -259,7 +259,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   ref={refRegisterInput}
                   onKeyDown={(e) => focusNextOnKey(e, ' ', refNoInput)}
                   onChange={(e) => setRefRegister(e.target.value.trim().toUpperCase())}
-                  className={`mr-1 w-12 border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refRegisterFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={`mr-1 w-12 text-sm border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refRegisterFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                 />
                 <input
                   minLength="1"
@@ -271,9 +271,9 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   ref={refNoInput}
                   onKeyDown={(e) => focusNextOnKey(e, '/', refYearInput)}
                   onChange={(e) => setRefNo(e.target.value.trim())}
-                  className={`w-16 border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refNoFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={`w-16 text-sm border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refNoFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                 />
-                <span>/</span>
+                <span className="text-sm">/</span>
                 <input
                   minLength="2"
                   maxLength="2"
@@ -283,7 +283,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   value={refYear}
                   ref={refYearInput}
                   onChange={(e) => setRefYear(e.target.value.trim())}
-                  className={`w-12 border-0 rounded-r-lg focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refYearFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={`w-12 text-sm border-0 rounded-r-md focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refYearFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                 />
               </div>
             </div>
@@ -330,7 +330,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 tabIndex="6"
                 disabled={fieldsDisabled}
                 onChange={(e) => setCaseParties(e.target.value)}
-                className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+                className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
               />
             </div>
             <div className="sm:col-span-6 lg:col-span-2">
@@ -344,7 +344,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 disabled={fieldsDisabled}
                 value={caseArea}
                 onChange={(e) => setCaseArea(e.target.value)}
-                className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+                className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
               />
             </div>
             <div className="sm:col-span-6 lg:col-span-4 xl:col-span-2 xl:col-start-1 xl:row-start-2">
@@ -354,17 +354,17 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
               <Listbox id="status" disabled={fieldsDisabled} value={caseStatus} onChange={setNewStatus}>
                 {({ open }) => {
                   const buttonClasses = clsx('flex items-center p-2 w-full text-sm bg-stone-50',
-                    'border border-stone-300 rounded-lg outline-none shadow-sm',
+                    'border border-stone-300 rounded-md outline-none shadow-sm',
                     'focus:ring-teal-700 focus:ring-2 focus:border-teal-700',
                     open && 'ring-teal-700 ring-2 border-teal-700',
                     fieldsDisabled && 'cursor-wait');
                   const optionsClasses = clsx('absolute w-full lg:max-h-72 overflow-y-auto mt-0.5 py-2',
-                    'z-20 bg-stone-50 border rounded-lg shadow shadow-stone-400 outline-none');
+                    'z-20 bg-stone-50 border rounded-md shadow shadow-stone-400 outline-none');
                   const optionClasses = clsx('flex items-center px-2 py-1',
                     'ui-active:!bg-teal-700 ui-active:text-white ui-selected:bg-stone-200');
                   return (
                     <div className="relative">
-                      <Listbox.Button tabIndex={xlWidth ? 7 : 8} className={buttonClasses}>
+                      <ListboxButton tabIndex={xlWidth ? 7 : 8} className={buttonClasses}>
                         <StatusIcon status={caseStatus} className="size-6 me-2 flex-none inline" />
                         <span className="flex-auto text-left">
                           {statusLabels[caseStatus]}
@@ -372,17 +372,17 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         {open
                           ? <ChevronUpIcon className="size-4 flex-none" />
                           : <ChevronDownIcon className="size-4 flex-none" />}
-                      </Listbox.Button>
-                      <Listbox.Options className={optionsClasses}>
+                      </ListboxButton>
+                      <ListboxOptions className={optionsClasses}>
                         {statusKeys.map((status) => (
-                          <Listbox.Option key={status} value={status} className={optionClasses}>
+                          <ListboxOption key={status} value={status} className={optionClasses}>
                             <StatusIcon status={status} className="size-6 me-2 flex-none inline" />
                             <span className="flex-auto text-sm text-left">
                               {statusLabels[status]}
                             </span>
-                          </Listbox.Option>
+                          </ListboxOption>
                         ))}
-                      </Listbox.Options>
+                      </ListboxOptions>
                     </div>
                   );
                 }}
@@ -400,7 +400,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 disabled={fieldsDisabled}
                 value={caseStatusNote}
                 onChange={(e) => setCaseStatusNote(e.target.value)}
-                className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+                className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
               />
             </div>
             <div className="sm:col-span-6 lg:col-span-2">
@@ -415,7 +415,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 disabled={fieldsDisabled}
                 value={caseMemo}
                 onChange={(e) => setCaseMemo(e.target.value)}
-                className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+                className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
               />
             </div>
             <div className="col-span-full flex gap-5">
@@ -451,7 +451,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 value={caseReceivedOn}
                 onChange={(e) => setCaseReceivedOn(e.target.value)}
                 onFocus={(e) => e.target.defaultValue = ''}
-                className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseReceivedOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                className={`text-sm border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseReceivedOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
               />
             </div>
             <div className="sm:col-span-3 lg:col-span-1">
@@ -467,7 +467,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 value={caseSettledOn}
                 onChange={(e) => setCaseSettledOn(e.target.value)}
                 onFocus={(e) => e.target.defaultValue = ''}
-                className={`border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseSettledOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                className={`text-sm border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseSettledOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
               />
             </div>
             <div className="sm:col-span-3 lg:col-span-1">
@@ -483,7 +483,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 value={caseTodoDate}
                 onChange={(e) => setCaseTodoDate(e.target.value)}
                 onFocus={(e) => e.target.defaultValue = ''}
-                className="border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait bg-stone-50"
+                className="text-sm border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait bg-stone-50"
               />
             </div>
             <div className="sm:col-span-3 lg:col-span-1">
@@ -500,7 +500,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   value={caseDueDate}
                   onChange={(e) => setCaseDueDate(e.target.value)}
                   onFocus={(e) => e.target.defaultValue = ''}
-                  className="bg-stone-50 border border-stone-300 text-sm rounded-lg focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+                  className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
                 />
                 <div
                   className="absolute bottom-0 top-0 right-9 px-1 py-3 text-stone-600 hover:text-stone-900"
@@ -521,7 +521,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
               <button
                 type="button"
                 tabIndex="16"
-                className="flex w-32 sm:w-40 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-stone-200 text-teal-700 shadow-sm hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus:ring-teal-700 focus:border-teal-700"
+                className="flex w-32 sm:w-40 justify-center px-3 py-1.5 text-sm font-semibold leading-6 rounded-md bg-stone-200 text-teal-700 shadow-sm hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus:ring-teal-700 focus:border-teal-700"
                 onClick={close}
               >
                 Abbrechen
@@ -530,7 +530,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 type="submit"
                 tabIndex="17"
                 disabled={fieldsDisabled || saving}
-                className="flex w-32 sm:w-40 justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 bg-teal-700 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                className="flex w-32 sm:w-40 justify-center px-3 py-1.5 text-sm font-semibold leading-6 rounded-md bg-teal-700 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
               >
                 {selectedCase ? 'Speichern' : 'Anlegen'}
               </button>

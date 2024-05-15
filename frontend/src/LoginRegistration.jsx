@@ -238,7 +238,7 @@ function FormInput({
     inputRef.current.focus();
   }
 
-  const inputClasses = clsx('block w-full rounded-lg border-0 py-1.5 text-stone-900 shadow-sm',
+  const inputClasses = clsx('block w-full rounded-md border-0 py-1.5 text-stone-900 shadow-sm',
     'ring-1 ring-inset ring-stone-300 placeholder:text-stone-400 focus:ring-2 focus:ring-inset focus:ring-teal-700',
     'sm:text-sm sm:leading-6',
     reveal && 'pr-9');
@@ -272,7 +272,7 @@ function FormInput({
 }
 
 function FormSubmit({ label, disabled }) {
-  const buttonClasses = clsx('flex w-full justify-center rounded-lg px-3 py-1.5 text-sm font-semibold leading-6',
+  const buttonClasses = clsx('flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6',
     'text-white bg-teal-700 hover:bg-teal-600 shadow-sm disabled:bg-stone-300 disabled:cursor-not-allowed',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
   return (

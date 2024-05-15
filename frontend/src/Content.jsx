@@ -1,4 +1,4 @@
-import { Listbox, Transition } from '@headlessui/react';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } from '@headlessui/react';
 import { ChevronLeftIcon, PaperClipIcon } from '@heroicons/react/20/solid';
 import {
   ArrowDownOnSquareIcon,
@@ -240,7 +240,7 @@ export default function Content() {
               placeholder="Suche"
               value={search}
               ref={searchRef}
-              className="block w-full min-w-20 pr-8 bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-lg focus:ring-teal-700 focus:border-teal-700"
+              className="block w-full min-w-20 pr-8 bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-md focus:ring-teal-700 focus:border-teal-700"
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => e.key === 'Escape' && setSearch('')}
             />
@@ -258,11 +258,11 @@ export default function Content() {
 
           <div className="hidden xl:block flex-1">{/* spacer */}</div>
 
-          <div className="inline-flex rounded-lg shadow-sm">
+          <div className="inline-flex rounded-md shadow-sm">
             {/* new case button */}
             <div className="inline-flex">
               <button
-                className="flex w-full items-center rounded-lg sm:rounded-r-none px-3 py-2 text-sm font-semibold leading-6 bg-teal-700 text-white border-r border-white hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                className="flex w-full items-center rounded-md sm:rounded-r-none px-3 py-2 text-sm font-semibold leading-6 bg-teal-700 text-white border-r border-white hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                 onClick={openEditModal}
               >
                 <PlusCircleIcon className="size-6 inline" />
@@ -272,7 +272,7 @@ export default function Content() {
             {/* rtf upload */}
             <div className="hidden sm:inline-flex">
               <button
-                className="flex w-full items-center rounded-r-lg bg-teal-700 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                className="flex w-full items-center rounded-r-md bg-teal-700 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                 onClick={() => setImportOpen(true)}
               >
                 <ArrowDownOnSquareIcon className="size-6 inline" />
@@ -290,42 +290,42 @@ export default function Content() {
       <div className="flex flex-row justify-between align-baseline">
         <Listbox value={settledOnly} onChange={setSettledOnly}>
           <div className="relative">
-            <Listbox.Button
+            <ListboxButton
               className="text-lg font-semibold mb-2 focus-visible:outline-none focus-visible:underline hover:underline decoration-teal-700"
             >
               {settledOnly ? 'Erledigte Verfahren' : `${filteredCases ? filteredCases.length : ''} Laufende Verfahren`}
               <ChevronDownIcon className="inline ui-open:hidden size-5 ml-1" />
               <ChevronUpIcon className="hidden ui-open:inline size-5 ml-1" />
-            </Listbox.Button>
-            <Listbox.Options
+            </ListboxButton>
+            <ListboxOptions
               className="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
             >
-              <Listbox.Option
+              <ListboxOption
                 value={false}
-                className={({ active }) =>
-                  clsx('relative cursor-default select-none py-2 px-4', active ? 'bg-stone-100 text-teal-700' : 'text-stone-900')}
+                className={({ focus }) =>
+                  clsx('relative cursor-default select-none py-2 px-4', focus ? 'bg-stone-100 text-teal-700' : 'text-stone-900')}
               >
                 Laufende Verfahren
-              </Listbox.Option>
-              <Listbox.Option
+              </ListboxOption>
+              <ListboxOption
                 value={true}
-                className={({ active }) =>
-                  clsx('relative cursor-default select-none py-2 px-4', active ? 'bg-stone-100 text-teal-700' : 'text-stone-900')}
+                className={({ focus }) =>
+                  clsx('relative cursor-default select-none py-2 px-4', focus ? 'bg-stone-100 text-teal-700' : 'text-stone-900')}
               >
                 Erledigte Verfahren
-              </Listbox.Option>
-            </Listbox.Options>
+              </ListboxOption>
+            </ListboxOptions>
           </div>
         </Listbox>
 
-        <label className={settledOnly ? 'hidden' : 'inline'}>
+        <label className={settledOnly ? 'hidden' : 'flex'}>
           <input
             type="checkbox"
-            className="size-4 mr-2 text-teal-700 bg-stone-50 border-stone-300 focus:ring-teal-700 focus:ring-2 "
+            className="self-center size-4 mr-2 rounded text-teal-700 bg-stone-50 border-stone-300 focus:ring-teal-700 focus:ring-2"
             checked={todosOnly}
             onChange={() => setTodosOnly((t) => !t)}
           />
-          Fristen
+          <span className="self-center pr-2">Fristen</span>
         </label>
       </div>
 
@@ -353,7 +353,7 @@ export default function Content() {
 
 function TypeFilter({ typeQuery, setTypeQuery }) {
   const buttonClasses = clsx('p-2 w-11 text-sm font-semibold text-stone-900 hover:text-white hover:bg-teal-700',
-    'border border-r-0 border-stone-300 last:border-r first:rounded-l-lg last:rounded-r-lg',
+    'border border-r-0 border-stone-300 last:border-r first:rounded-l-md last:rounded-r-md',
     'focus-visible:text-white focus-visible:bg-teal-700 focus-visible:outline-none',
     'data-selected:text-teal-700 data-selected:bg-stone-200',
     'data-selected:shadow-inner data-selected:shadow-stone-400/50',
@@ -384,7 +384,7 @@ function TypeFilter({ typeQuery, setTypeQuery }) {
   }
 
   return (
-    <div className="inline-flex rounded-lg shadow-sm" role="group">
+    <div className="inline-flex rounded-md shadow-sm" role="group">
       {
         typeKeys.map((type) => (
           <button
@@ -406,7 +406,7 @@ function TypeFilter({ typeQuery, setTypeQuery }) {
 
 function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
   const buttonClasses = clsx('p-2 w-full text-stone-900 hover:text-white hover:bg-teal-700',
-    'border border-r-0 last:border-r border-stone-300 first:rounded-l-lg last:rounded-r-lg',
+    'border border-r-0 last:border-r border-stone-300 first:rounded-l-md last:rounded-r-md',
     'focus-visible:text-white focus-visible:bg-teal-700 focus-visible:outline-none',
     'data-selected:text-teal-700 data-selected:bg-stone-200',
     'data-selected:shadow-inner data-selected:shadow-stone-400/50',
@@ -438,7 +438,7 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
   }
 
   return (
-    <div className="inline-flex rounded-lg shadow-sm order-first sm:order-none w-full sm:w-auto" role="group">
+    <div className="inline-flex rounded-md shadow-sm order-first sm:order-none w-full sm:w-auto" role="group">
       {
         filterStatusKeys.map((status) => (
           <button
@@ -595,12 +595,12 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
 
   const olClasses = clsx('grid grid-cols-cases md:grid-cols-cases-md lg:grid-cols-cases-lg',
     loadingSpinner && 'opacity-25');
-  const editButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-l-lg leading-4 text-sm font-semibold',
+  const editButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-l-md leading-4 text-sm font-semibold',
     'text-white shadow-sm bg-teal-700 hover:bg-teal-600 border-r-white border-r',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
-  const uploadButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-t-lg leading-4 text-sm font-semibold',
+  const uploadButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-t-md leading-4 text-sm font-semibold',
     'shadow-sm border border-stone-300 bg-white hover:bg-stone-100');
-  const deleteButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-b-lg leading-4 text-sm font-semibold',
+  const deleteButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-b-md leading-4 text-sm font-semibold',
     'text-rose-700 shadow-sm border border-stone-300 border-t-0 bg-white hover:bg-stone-100');
 
   return (
@@ -697,7 +697,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                         Bearbeiten
                       </button>
                       <button
-                        className="p-2 rounded-r-lg text-white bg-teal-700 hover:bg-teal-600"
+                        className="p-2 rounded-r-md text-white bg-teal-700 hover:bg-teal-600"
                         onClick={(e) => toggleDropdown(e, aCase.id)}
                         onDoubleClick={ignoreDefaults}
                       >
