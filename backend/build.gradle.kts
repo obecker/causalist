@@ -84,16 +84,18 @@ testlogger {
     theme = ThemeType.MOCHA
 }
 
-// https://kotlin.github.io/kotlinx-kover/gradle-plugin/configuring#configuring-default-reports
-koverReport {
-    filters {
-        excludes {
-            classes("de.obqo.causalist.api.Kotshi*") // generated
-        }
-    }
-    defaults {
-        html {
-            onCheck = true
+// https://kotlin.github.io/kotlinx-kover/gradle-plugin/#configuring-report-tasks
+kover {
+    reports {
+        total {
+            filters {
+                excludes {
+                    classes("de.obqo.causalist.api.Kotshi*") // generated
+                }
+            }
+            html {
+                onCheck = true
+            }
         }
     }
 }
