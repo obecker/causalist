@@ -156,13 +156,16 @@ export default function Content() {
     if (search === '') {
       return true;
     }
+    const searchItems = search.split(' ').filter((s) => s !== '');
     const props = ['parties', 'area', 'caseMemo', 'statusNote'];
-    for (const prop of props) {
-      if (aCase[prop] && aCase[prop].toLowerCase().indexOf(search) !== -1) {
-        return true;
+    return searchItems.every((s) => {
+      for (const prop of props) {
+        if (aCase[prop] && aCase[prop].toLowerCase().indexOf(s) !== -1) {
+          return true;
+        }
       }
-    }
-    return aCase.ref.value.toLowerCase().indexOf(search) !== -1;
+      return aCase.ref.value.toLowerCase().indexOf(s) !== -1;
+    });
   }
 
   function forceUpdate(updated) {
