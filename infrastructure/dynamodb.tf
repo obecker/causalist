@@ -25,6 +25,10 @@ resource "aws_dynamodb_table" "db_users" {
     hash_key        = "username"
     projection_type = "ALL"
   }
+
+  point_in_time_recovery {
+    enabled = false // not enabled yet
+  }
 }
 
 resource "aws_dynamodb_table" "db_cases" {
@@ -61,6 +65,10 @@ resource "aws_dynamodb_table" "db_cases" {
     range_key       = "settledOn"
     projection_type = "ALL"
   }
+
+  point_in_time_recovery {
+    enabled = var.env == "prod"
+  }
 }
 
 resource "aws_dynamodb_table" "db_documents" {
@@ -87,5 +95,9 @@ resource "aws_dynamodb_table" "db_documents" {
     name            = "ReferenceIndex"
     range_key       = "ref"
     projection_type = "ALL"
+  }
+
+  point_in_time_recovery {
+    enabled = false // needs to be in sync with s3
   }
 }
