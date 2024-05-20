@@ -42,9 +42,9 @@ input.marker.none {
     background-color: #059669;
 }
 .marker.blue {
-    /* indigo-600 */
-    color: #4f46e5;
-    background-color: #4f46e5;
+    /* blue-600 */
+    color: #2563eb;
+    background-color: #2563eb;
 }
 .marker.purple {
     /* purple-600 */
