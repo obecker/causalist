@@ -13,6 +13,7 @@ import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.with
 import se.ansman.kotshi.JsonSerializable
+import java.security.GeneralSecurityException
 import java.security.MessageDigest
 import java.time.Clock
 import java.time.Duration
@@ -99,7 +100,10 @@ class TokenSupport(private val config: Config) {
         } else {
             null
         }
-    } catch (ex: Exception) {
+    } catch (ex: RuntimeException) {
+        logger.info(ex) { "Token validation failed" }
+        null
+    } catch (ex: GeneralSecurityException) {
         logger.info(ex) { "Token validation failed" }
         null
     }
