@@ -8,6 +8,7 @@ updates:
       - obecker
     commit-message:
       prefix: ":arrow_up: "
+
   - package-ecosystem: gradle
     directory: backend
     schedule:
@@ -16,6 +17,12 @@ updates:
       - obecker
     commit-message:
       prefix: ":arrow_up: "
+    groups:
+      kotlin:
+        patterns:
+          - jvm
+          - com.google.devtools.ksp
+
   - package-ecosystem: npm
     directory: frontend
     schedule:
@@ -24,6 +31,7 @@ updates:
       - obecker
     commit-message:
       prefix: ":arrow_up: "
+
   - package-ecosystem: terraform
     directory: infrastructure
     schedule:
@@ -32,6 +40,7 @@ updates:
       - obecker
     commit-message:
       prefix: ":arrow_up: "
+
   - package-ecosystem: docker
     directory: scripts
     schedule:
