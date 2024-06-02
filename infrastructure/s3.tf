@@ -27,6 +27,18 @@ module "frontend_files" {
   source   = "hashicorp/dir/template"
   version  = "1.0.2"
   base_dir = "${local.project_dir}/frontend/build"
+  file_types = {
+    ".css" : "text/css; charset=utf-8",
+    ".html" : "text/html; charset=utf-8",
+    ".ico" : "image/vnd.microsoft.icon",
+    ".js" : "application/javascript",
+    ".json" : "application/json",
+    ".mjs" : "application/javascript",
+    ".png" : "image/png",
+    ".svg" : "image/svg+xml",
+    ".ttf" : "font/ttf",
+    ".txt" : "text/plain; charset=utf-8",
+  }
 }
 
 resource "aws_s3_object" "frontend" {
