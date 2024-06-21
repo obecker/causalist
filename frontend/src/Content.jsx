@@ -18,10 +18,11 @@ import DeleteModal from './DeleteModal';
 import EditModal from './EditModal';
 import FailureAlert from './FailureAlert';
 import FileUploadModal from './FileUploadModal';
+import { SettledIcon } from './Icons';
 import RtfImportModal from './RtfImportModal';
 import { statusKeys, statusLabels } from './status';
 import StatusIcon from './StatusIcon';
-import { startOfWeek } from './utils';
+import { startOfWeek, today } from './utils';
 
 const typeMap = {
   CHAMBER: 'K',
@@ -349,6 +350,7 @@ export default function Content() {
         openDeleteModal={openDeleteModal}
         reloadDocuments={reloadDocuments}
         setReloadDocuments={setReloadDocuments}
+        forceUpdate={forceUpdate}
       />
     </>
   );
@@ -462,7 +464,7 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
   );
 }
 
-function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, openUploadModal, openDeleteModal, reloadDocuments, setReloadDocuments }) {
+function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, openUploadModal, openDeleteModal, reloadDocuments, setReloadDocuments, forceUpdate }) {
   const api = useContext(ApiContext);
 
   const [openCaseId, setOpenCaseId] = useState(null);
@@ -520,6 +522,13 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
     event.stopPropagation();
     setOpenDropdown(null);
     openUploadModal(aCase);
+  }
+
+  function settleCase(event, aCase) {
+    event.stopPropagation();
+    aCase.status = 'SETTLED';
+    aCase.settledOn = today();
+    api.updateCase(aCase).then((response) => forceUpdate(response.data));
   }
 
   function openDelete(event, aCase) {
@@ -603,6 +612,8 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
   const uploadButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-t-md leading-4 text-sm font-semibold',
     'shadow-sm border border-stone-300 bg-white hover:bg-stone-100');
+  const settleButtonClasses = clsx('flex items-center w-full px-3 py-2 leading-4 text-sm font-semibold',
+    'shadow-sm border border-stone-300 border-t-0 bg-white hover:bg-stone-100');
   const deleteButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-b-md leading-4 text-sm font-semibold',
     'text-rose-700 shadow-sm border border-stone-300 border-t-0 bg-white hover:bg-stone-100');
 
@@ -723,6 +734,16 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                         >
                           <PaperClipIcon className="size-4 me-2 inline" />
                           Hochladen
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className={settleButtonClasses}
+                          onClick={(e) => settleCase(e, aCase)}
+                          onDoubleClick={ignoreDefaults}
+                        >
+                          <SettledIcon className="size-4 me-2 inline" />
+                          Erledigen
                         </button>
                       </li>
                       <li>
