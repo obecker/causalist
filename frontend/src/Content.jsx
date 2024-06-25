@@ -694,105 +694,98 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                 </div>
                 <Transition
                   show={openCaseId === aCase.id}
-                  as="div"
-                  appear={true}
-                  className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4"
-                  enter="transition-opacity duration-100 ease-out"
-                  enterFrom="opacity-20"
-                  enterTo="opacity-100"
-                  leave="transition-opacity duration-75 ease-out"
-                  leaveFrom="opacity-100 grid"
-                  leaveTo="opacity-0 hidden"
+                  appear
                 >
-                  <div className="col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5 relative">
-                    <div className="flex justify-between items-center">
-                      <button className={editButtonClasses} onClick={(e) => openEditModal(e, aCase)}>
-                        <PencilIcon className="size-4 me-2 inline" />
-                        Bearbeiten
-                      </button>
-                      <button
-                        className="p-2 rounded-r-md text-white bg-teal-700 hover:bg-teal-600"
-                        onClick={(e) => toggleDropdown(e, aCase.id)}
-                        onDoubleClick={ignoreDefaults}
-                      >
-                        {
+                  <div className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4 origin-top transition-all ease-out data-enter:duration-150 data-leave:duration-100 data-closed:opacity-0 data-closed:-scale-y-0">
+                    <div className="col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5 relative">
+                      <div className="flex justify-between items-center">
+                        <button className={editButtonClasses} onClick={(e) => openEditModal(e, aCase)}>
+                          <PencilIcon className="size-4 me-2 inline" />
+                          Bearbeiten
+                        </button>
+                        <button
+                          className="p-2 rounded-r-md text-white bg-teal-700 hover:bg-teal-600"
+                          onClick={(e) => toggleDropdown(e, aCase.id)}
+                          onDoubleClick={ignoreDefaults}
+                        >
+                          {
                           openDropdown === aCase.id
                             ? <ChevronUpIcon className="size-4" />
                             : <ChevronDownIcon className="size-4" />
                         }
-                      </button>
-                    </div>
-                    <ul
-                      className="absolute top-9 left-0 right-0 z-10 hidden data-open:block"
-                      data-open={openDropdown === aCase.id}
-                    >
-                      <li>
-                        <button
-                          className={uploadButtonClasses}
-                          onClick={(e) => openUpload(e, aCase)}
-                          onDoubleClick={ignoreDefaults}
-                        >
-                          <PaperClipIcon className="size-4 me-2 inline" />
-                          Hochladen
                         </button>
-                      </li>
-                      <li>
-                        <button
-                          className={settleButtonClasses}
-                          onClick={(e) => settleCase(e, aCase)}
-                          onDoubleClick={ignoreDefaults}
-                        >
-                          <SettledIcon className="size-4 me-2 inline" />
-                          Erledigen
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          className={deleteButtonClasses}
-                          onClick={(e) => openDelete(e, aCase)}
-                          onDoubleClick={ignoreDefaults}
-                        >
-                          <TrashIcon className="size-4 me-2 inline" />
-                          Löschen
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                  {aCase.area && (
-                    <div title="Rechtsgebiet" className="col-start-3 px-2 lg:hidden md:mr-4">
-                      {aCase.area}
+                      </div>
+                      <ul
+                        className="absolute top-9 left-0 right-0 z-10 hidden data-open:block"
+                        data-open={openDropdown === aCase.id}
+                      >
+                        <li>
+                          <button
+                            className={uploadButtonClasses}
+                            onClick={(e) => openUpload(e, aCase)}
+                            onDoubleClick={ignoreDefaults}
+                          >
+                            <PaperClipIcon className="size-4 me-2 inline" />
+                            Hochladen
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className={settleButtonClasses}
+                            onClick={(e) => settleCase(e, aCase)}
+                            onDoubleClick={ignoreDefaults}
+                          >
+                            <SettledIcon className="size-4 me-2 inline" />
+                            Erledigen
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className={deleteButtonClasses}
+                            onClick={(e) => openDelete(e, aCase)}
+                            onDoubleClick={ignoreDefaults}
+                          >
+                            <TrashIcon className="size-4 me-2 inline" />
+                            Löschen
+                          </button>
+                        </li>
+                      </ul>
                     </div>
-                  )}
-                  {aCase.todoDate && (
-                    <div title="Vorfrist" className="hidden md:max-lg:block col-start-4 pr-2 text-right">
-                      {formattedDate(aCase.todoDate)}
+                    {aCase.area && (
+                      <div title="Rechtsgebiet" className="col-start-3 px-2 lg:hidden md:mr-4">
+                        {aCase.area}
+                      </div>
+                    )}
+                    {aCase.todoDate && (
+                      <div title="Vorfrist" className="hidden md:max-lg:block col-start-4 pr-2 text-right">
+                        {formattedDate(aCase.todoDate)}
+                      </div>
+                    )}
+                    <div className="col-start-3 col-end-5 px-2">
+                      <b>Status:</b>
+                      {' ' + statusLabels[aCase.status]}
+                      {aCase.statusNote && (
+                        <span title="Status-Notiz">
+                          {' – '}
+                          <AutoLink
+                            text={aCase.statusNote}
+                            linkClassName="text-teal-700 hover:text-teal-800 hover:underline"
+                          />
+                        </span>
+                      )}
                     </div>
-                  )}
-                  <div className="col-start-3 col-end-5 px-2">
-                    <b>Status:</b>
-                    {' ' + statusLabels[aCase.status]}
-                    {aCase.statusNote && (
-                      <span title="Status-Notiz">
-                        {' – '}
+                    {aCase.memo && (
+                      <div title="Anmerkung" className="col-start-3 col-end-5 px-2 italic whitespace-pre-wrap">
                         <AutoLink
-                          text={aCase.statusNote}
+                          text={aCase.memo}
                           linkClassName="text-teal-700 hover:text-teal-800 hover:underline"
                         />
-                      </span>
+                      </div>
                     )}
-                  </div>
-                  {aCase.memo && (
-                    <div title="Anmerkung" className="col-start-3 col-end-5 px-2 italic whitespace-pre-wrap">
-                      <AutoLink
-                        text={aCase.memo}
-                        linkClassName="text-teal-700 hover:text-teal-800 hover:underline"
-                      />
-                    </div>
-                  )}
-                  {documents.length > 0 && (
-                    <div className="col-start-3 col-end-5 px-2 text-sm">
-                      <ol>
-                        {
+                    {documents.length > 0 && (
+                      <div className="col-start-3 col-end-5 px-2 text-sm">
+                        <ol>
+                          {
                           documents.map((doc) => (
                             <li key={doc.id} className="flex items-center">
                               <PaperClipIcon className="size-3.5 inline me-1 shrink-0 self-start mt-1" />
@@ -827,18 +820,19 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                             </li>
                           ))
                         }
-                      </ol>
-                    </div>
-                  )}
-                  <FailureAlert message={errorMessage} className="col-start-3 md:col-end-5 lg:col-end-7" />
-                  <div
-                    className="col-start-3 md:col-end-5 lg:col-end-7 text-xs flex flex-col sm:flex-row justify-between px-2 gap-2"
-                  >
-                    <div>
-                      {`Eingegangen am ${formattedDate(aCase.receivedOn)}`}
-                    </div>
-                    <div>
-                      {`Geändert ${formattedDateTime(aCase.updatedAt)}`}
+                        </ol>
+                      </div>
+                    )}
+                    <FailureAlert message={errorMessage} className="col-start-3 md:col-end-5 lg:col-end-7" />
+                    <div
+                      className="col-start-3 md:col-end-5 lg:col-end-7 text-xs flex flex-col sm:flex-row justify-between px-2 gap-2"
+                    >
+                      <div>
+                        {`Eingegangen am ${formattedDate(aCase.receivedOn)}`}
+                      </div>
+                      <div>
+                        {`Geändert ${formattedDateTime(aCase.updatedAt)}`}
+                      </div>
                     </div>
                   </div>
                 </Transition>

@@ -12,6 +12,10 @@ export default {
     data: {
       open: 'open=true',
       selected: 'selected=true',
+      // for headless UI transitions
+      closed: 'closed',
+      enter: 'enter',
+      leave: 'leave',
     },
     extend: {
       animation: {
