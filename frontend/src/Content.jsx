@@ -610,13 +610,8 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
   const editButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-l-md leading-4 text-sm font-semibold',
     'text-white shadow-sm bg-teal-700 hover:bg-teal-600 border-r-white border-r',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
-  const uploadButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-t-md leading-4 text-sm font-semibold',
-    'shadow-sm border border-stone-300 bg-white hover:bg-stone-100');
-  const settleButtonClasses = clsx('flex items-center w-full px-3 py-2 leading-4 text-sm font-semibold',
-    'shadow-sm border border-stone-300 border-t-0 bg-white hover:bg-stone-100');
-  const deleteButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-b-md leading-4 text-sm font-semibold',
-    'text-rose-700 shadow-sm border border-stone-300 border-t-0 bg-white hover:bg-stone-100');
-
+  const menuItemsClasses = 'border border-stone-300 border-b-0 last:border-b first:rounded-t-md last:rounded-b-md';
+  const menuItemButtonClasses = 'flex items-center w-full px-3 py-2 leading-4 text-sm font-semibold bg-white hover:bg-stone-100';
   return (
     <ol className={olClasses}>
       {cases.length === 0 && (
@@ -719,9 +714,9 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                         className="absolute top-9 left-0 right-0 z-10 hidden data-open:block"
                         data-open={openDropdown === aCase.id}
                       >
-                        <li>
+                        <li className={menuItemsClasses}>
                           <button
-                            className={uploadButtonClasses}
+                            className={clsx(menuItemButtonClasses, 'rounded-t-md')}
                             onClick={(e) => openUpload(e, aCase)}
                             onDoubleClick={ignoreDefaults}
                           >
@@ -729,9 +724,9 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                             Hochladen
                           </button>
                         </li>
-                        <li>
+                        <li className={menuItemsClasses}>
                           <button
-                            className={settleButtonClasses}
+                            className={clsx(menuItemButtonClasses)}
                             onClick={(e) => settleCase(e, aCase)}
                             onDoubleClick={ignoreDefaults}
                           >
@@ -739,9 +734,9 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                             Erledigen
                           </button>
                         </li>
-                        <li>
+                        <li className={menuItemsClasses}>
                           <button
-                            className={deleteButtonClasses}
+                            className={clsx(menuItemButtonClasses, 'rounded-b-md text-rose-700')}
                             onClick={(e) => openDelete(e, aCase)}
                             onDoubleClick={ignoreDefaults}
                           >
