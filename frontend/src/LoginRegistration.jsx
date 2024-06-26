@@ -16,17 +16,17 @@ export default function LoginRegistration() {
         {
           showLogin
             ? (
-              <LoginForm
-                successMessage={successMessage}
-                setSuccessMessage={setSuccessMessage}
-                toggleForm={() => setShowLogin(false)}
-              />
+                <LoginForm
+                  successMessage={successMessage}
+                  setSuccessMessage={setSuccessMessage}
+                  toggleForm={() => setShowLogin(false)}
+                />
               )
             : (
-              <RegistrationForm
-                setSuccessMessage={setSuccessMessage}
-                toggleForm={() => setShowLogin(true)}
-              />
+                <RegistrationForm
+                  setSuccessMessage={setSuccessMessage}
+                  toggleForm={() => setShowLogin(true)}
+                />
               )
         }
       </div>

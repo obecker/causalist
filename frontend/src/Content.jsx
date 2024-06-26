@@ -704,10 +704,10 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                           onDoubleClick={ignoreDefaults}
                         >
                           {
-                          openDropdown === aCase.id
-                            ? <ChevronUpIcon className="size-4" />
-                            : <ChevronDownIcon className="size-4" />
-                        }
+                            openDropdown === aCase.id
+                              ? <ChevronUpIcon className="size-4" />
+                              : <ChevronDownIcon className="size-4" />
+                          }
                         </button>
                       </div>
                       <ul
@@ -781,40 +781,40 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       <div className="col-start-3 col-end-5 px-2 text-sm">
                         <ol>
                           {
-                          documents.map((doc) => (
-                            <li key={doc.id} className="flex items-center">
-                              <PaperClipIcon className="size-3.5 inline me-1 shrink-0 self-start mt-1" />
-                              <a
-                                href="#"
-                                className="text-teal-700 hover:text-teal-800 hover:underline"
-                                onClick={(e) => downloadDocument(e, aCase.id, doc.id, doc.filename)}
-                                onDoubleClick={ignoreDefaults}
-                              >
-                                {doc.filename}
-                              </a>
-                              <XMarkIcon
-                                className={clsx('size-3 inline ms-2 shrink-0 self-start mt-1 hover:text-teal-700 hover:cursor-pointer',
-                                  selectedDocumentId === doc.id && 'hidden')}
-                                title="Löschen"
-                                onClick={(e) => selectDocument(e, doc.id)}
-                                onDoubleClick={ignoreDefaults}
-                              />
-                              <div className={clsx('self-start inline-flex items-center ms-2', selectedDocumentId !== doc.id && 'hidden')}>
-                                <ChevronLeftIcon
-                                  className="size-3 cursor-pointer inline"
-                                  onClick={(e) => selectDocument(e, null)}
+                            documents.map((doc) => (
+                              <li key={doc.id} className="flex items-center">
+                                <PaperClipIcon className="size-3.5 inline me-1 shrink-0 self-start mt-1" />
+                                <a
+                                  href="#"
+                                  className="text-teal-700 hover:text-teal-800 hover:underline"
+                                  onClick={(e) => downloadDocument(e, aCase.id, doc.id, doc.filename)}
+                                  onDoubleClick={ignoreDefaults}
+                                >
+                                  {doc.filename}
+                                </a>
+                                <XMarkIcon
+                                  className={clsx('size-3 inline ms-2 shrink-0 self-start mt-1 hover:text-teal-700 hover:cursor-pointer',
+                                    selectedDocumentId === doc.id && 'hidden')}
+                                  title="Löschen"
+                                  onClick={(e) => selectDocument(e, doc.id)}
                                   onDoubleClick={ignoreDefaults}
                                 />
-                                <span className="ms-1 font-semibold">Löschen?</span>
-                                <TrashIcon
-                                  className="inline size-3 ms-1 cursor-pointer"
-                                  onClick={(e) => deleteDocument(e, aCase.id, doc.id)}
-                                  onDoubleClick={ignoreDefaults}
-                                />
-                              </div>
-                            </li>
-                          ))
-                        }
+                                <div className={clsx('self-start inline-flex items-center ms-2', selectedDocumentId !== doc.id && 'hidden')}>
+                                  <ChevronLeftIcon
+                                    className="size-3 cursor-pointer inline"
+                                    onClick={(e) => selectDocument(e, null)}
+                                    onDoubleClick={ignoreDefaults}
+                                  />
+                                  <span className="ms-1 font-semibold">Löschen?</span>
+                                  <TrashIcon
+                                    className="inline size-3 ms-1 cursor-pointer"
+                                    onClick={(e) => deleteDocument(e, aCase.id, doc.id)}
+                                    onDoubleClick={ignoreDefaults}
+                                  />
+                                </div>
+                              </li>
+                            ))
+                          }
                         </ol>
                       </div>
                     )}
