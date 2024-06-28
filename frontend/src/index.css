@@ -16,40 +16,40 @@
     src: url("fonts/KaushanScript-Regular.ttf");
 }
 
-input.marker.none {
-    /* stone-100 */
-    color: #f5f5f4;
-    background-color: #f5f5f4;
+.marker {
+    --marker-color: #ffffff;
+    color: var(--marker-color); /* for radio buttons */
+    background-color: var(--marker-color);
+    /* radial gradient from a slightly brighter center */
+    background-image: radial-gradient(closest-side, lch(from var(--marker-color) calc(l * 1.1) c h), var(--marker-color));
 }
 .marker.gray {
     /* stone-600 */
-    color: #57534e;
-    background-color: #57534e;
+    --marker-color: #57534e;
 }
 .marker.red {
     /* rose-600 */
-    color: #e11d48;
-    background-color: #e11d48;
+    --marker-color: #e11d48;
 }
 .marker.yellow {
     /* amber-500 */
-    color: #f59e0b;
-    background-color: #f59e0b;
+    --marker-color: #f59e0b;
 }
 .marker.green {
     /* emerald-600 */
-    color: #059669;
-    background-color: #059669;
+    --marker-color: #059669;
 }
 .marker.blue {
     /* blue-600 */
-    color: #2563eb;
-    background-color: #2563eb;
+    --marker-color: #2563eb;
 }
 .marker.purple {
     /* purple-600 */
-    color: #9333ea;
-    background-color: #9333ea;
+    --marker-color: #9333ea;
+}
+input.marker.none {
+    /* stone-100 */
+    --marker-color: #f5f5f4;
 }
 
 .no-scrollbar::-webkit-scrollbar { /* Chrome, Safari, Opera */
