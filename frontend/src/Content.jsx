@@ -691,7 +691,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                   show={openCaseId === aCase.id}
                   appear
                 >
-                  <div className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4 origin-top transition-all ease-out data-enter:duration-150 data-leave:duration-100 data-closed:opacity-0 data-closed:-scale-y-0">
+                  <div className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4 origin-top transition-all ease-out data-enter:duration-150 data-leave:duration-100 data-closed:opacity-0">
                     <div className="col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5 relative">
                       <div className="flex justify-between items-center">
                         <button className={editButtonClasses} onClick={(e) => openEditModal(e, aCase)}>
