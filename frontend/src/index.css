@@ -50,6 +50,9 @@
     /* purple-600 */
     --marker-color: #9333ea;
 }
+.marker.none {
+    background-image: none;
+}
 input.marker.none {
     /* stone-100 */
     --marker-color: #f5f5f4;

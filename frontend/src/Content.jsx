@@ -642,7 +642,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
             {aCase.ref && ( // a case without ref is a placeholder for an empty week
               <>
                 <div className="flex justify-end w-full items-baseline">
-                  <span className={`ml-2 size-3 rounded-full marker ${aCase.markerColor}`}></span>
+                  <span className={`ml-2 size-3 rounded-full marker ${aCase.markerColor || 'none'}`}></span>
                   <span className="grow flex-none text-right">{aCase.ref.value}</span>
                   <span className="basis-4 flex-none text-left font-bold text-teal-600 text-xs ml-1 relative">
                     {typeMap[aCase.type]}
