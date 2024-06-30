@@ -28,8 +28,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4.0.2 # see https://github.com/actions/setup-node
         with:
-          node-version: '21.x'
+          node-version: '22.x'
           cache-dependency-path: "frontend"
+      - name: Check dependency constraints
+        working-directory: frontend
+        run: pnpm install --resolution-only --no-frozen-lockfile # https://github.com/pnpm/pnpm/issues/7087
       - name: Install dependencies
         working-directory: frontend
         run: pnpm install
