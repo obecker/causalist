@@ -1,10 +1,13 @@
-# update: docker compose pull
-# run: docker compose up
+# run: docker compose up --build
 
 services:
 
   dynamodb:
-    image: amazon/dynamodb-local:2.2.1
+    # instead of "image: ...", use service specific Dockerfile, which will be updated by dependabot
+    # see https://github.com/dependabot/dependabot-core/issues/390#issuecomment-1062170379
+    build:
+      context: docker
+      dockerfile: dynamodb.Dockerfile
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     ports:
       - '8000:8000'
@@ -13,7 +16,9 @@ services:
     working_dir: /home/dynamodblocal
 
   minio:
-    image: quay.io/minio/minio
+    build:
+      context: docker
+      dockerfile: minio.Dockerfile
     command: server /data --console-address ":9001"
     ports:
       - '9000:9000'

@@ -47,7 +47,7 @@ updates:
       prefix: ":arrow_up: "
 
   - package-ecosystem: docker
-    directory: scripts
+    directory: "scripts/docker"
     schedule:
       interval: weekly
     assignees:
