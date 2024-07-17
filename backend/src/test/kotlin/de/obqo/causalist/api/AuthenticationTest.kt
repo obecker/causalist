@@ -16,7 +16,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.http4k.cloudnative.env.Secret
+import org.http4k.config.Secret
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
