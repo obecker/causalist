@@ -9,7 +9,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import org.http4k.cloudnative.env.Secret
+import org.http4k.config.Secret
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant

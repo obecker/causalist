@@ -1,7 +1,7 @@
 package de.obqo.causalist
 
-import org.http4k.cloudnative.env.Environment
-import org.http4k.cloudnative.env.EnvironmentKey
+import org.http4k.config.Environment
+import org.http4k.config.EnvironmentKey
 import org.http4k.connect.amazon.dynamodb.model.TableName
 import org.http4k.connect.amazon.s3.model.BucketName
 import org.http4k.lens.secret

@@ -8,7 +8,7 @@ import de.obqo.causalist.UserService
 import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.every
 import io.mockk.mockk
-import org.http4k.cloudnative.env.Secret
+import org.http4k.config.Secret
 import org.http4k.core.ContentType
 import org.http4k.core.Method
 import org.http4k.core.Request
