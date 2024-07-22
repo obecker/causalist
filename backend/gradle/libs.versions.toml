@@ -1,5 +1,5 @@
 [versions]
-kotshi = "2.15.0"
+kotshi = "3.0.0"
 
 [libraries]
 http4k-bom = "org.http4k:http4k-bom:5.26.0.0"
