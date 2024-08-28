@@ -14,7 +14,7 @@
     "@headlessui/react": "^2.1.2",
     "@headlessui/tailwindcss": "^0.2.1",
     "@heroicons/react": "^2.1.5",
-    "@tailwindcss/forms": "^0.5.6",
+    "@tailwindcss/forms": "^0.5.8",
     "@uidotdev/usehooks": "^2.4.1",
     "axios": "^1.7.5",
     "clsx": "^2.1.1",
