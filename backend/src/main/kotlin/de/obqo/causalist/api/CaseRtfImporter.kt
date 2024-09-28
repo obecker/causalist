@@ -23,13 +23,14 @@ import java.util.UUID
 import javax.crypto.SecretKey
 
 enum class ImportType {
-    NEW_CASES, UPDATED_RECEIVED_DATES, UPDATED_DUE_DATES
+    NEW_CASES, SETTLED_CASES, UPDATED_RECEIVED_DATES, UPDATED_DUE_DATES
 }
 
 @JsonSerializable
 data class ImportResult(
     val importType: ImportType?,
     val importedCaseRefs: List<String>,
+    val settledCaseRefs: List<String>,
     val updatedCaseRefs: List<String>,
     val ignoredCaseRefs: List<String>,
     val unknownCaseRefs: List<String>,
@@ -54,9 +55,11 @@ fun importCases(
     parser.parse(source, listener)
 
     val importedCaseRefs = mutableListOf<String>()
+    val settledCaseRefs = mutableListOf<String>()
     val updatedCaseRefs = mutableListOf<String>()
     val ignoredCaseRefs = mutableListOf<String>()
     val unknownCaseRefs = mutableListOf<String>()
+
     when (listener.detectedImportType) {
         ImportType.NEW_CASES -> listener.newCases.forEach { caseResource ->
             val importedCase = caseResource.toEntity(currentUserId, secretKey)
@@ -79,6 +82,24 @@ fun importCases(
                     caseService.update(updatedCase)
                     updatedCaseRefs.addCase(updatedCase)
                 }
+            }
+        }
+
+        ImportType.SETTLED_CASES -> listener.updatedCases.forEach { caseResource ->
+            val importedCase = caseResource.toEntity(currentUserId, secretKey)
+            val persistedCase = caseService.get(importedCase)
+            if (persistedCase != null) {
+                if (persistedCase.status != SETTLED) {
+                    caseService.update(persistedCase.copy(status = SETTLED, settledOn = importedCase.settledOn))
+                    settledCaseRefs.addCase(persistedCase)
+                } else if (persistedCase.settledOn != importedCase.settledOn) {
+                    caseService.update(persistedCase.copy(settledOn = importedCase.settledOn))
+                    updatedCaseRefs.addCase(persistedCase)
+                } else {
+                    ignoredCaseRefs.addCase(persistedCase)
+                }
+            } else {
+                unknownCaseRefs.addCase(importedCase)
             }
         }
 
@@ -144,6 +165,7 @@ fun importCases(
     return ImportResult(
         importType = listener.detectedImportType,
         importedCaseRefs = importedCaseRefs,
+        settledCaseRefs = settledCaseRefs,
         updatedCaseRefs = updatedCaseRefs,
         ignoredCaseRefs = ignoredCaseRefs,
         unknownCaseRefs = unknownCaseRefs,
@@ -161,6 +183,13 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
 
     private var currentCell: String = ""
     private val cells = mutableListOf<String>()
+
+    private val newCasesTableHeaders = listOf("Aktenzeichen", "Kurzrubrum", "Status", "ER / K")
+    private val receivedDateTableHeaders =
+        listOf("Aktenzeichen", "Kurzrubrum", "Status", "ZK-Eingang", "ZK-Nr.", "B-Nr.")
+    private val settledDateTableHeaders = listOf("", "AZ", "Kurzrubrum", "Status", "Erledigungsdatum", "nächste WV")
+    private val dueDateTableHeaders =
+        listOf("Nr", "AZ", "Kurzrubrum", "Art", "Datum", "Uhr", "Saal", "P", "Z", "S", "D", "Besetzung")
 
     override fun processString(string: String?) {
         currentCell += string ?: return
@@ -193,22 +222,25 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
 
         when (cells.size) {
             4 -> processNewCase()
-            6 -> processReceivedDateUpdate()
+            6 -> processReceivedDateUpdateOrSettledCases()
             12 -> processDueDateUpdate()
         }
     }
 
-    private fun abort() {
+    private fun abort(error: String? = null) {
         detectedImportType = null
         processingAborted = true
         errors.clear()
+        error?.let { errors.add(it) }
     }
 
-    private fun checkImportType(importType: ImportType) {
+    private fun checkImportType(importType: ImportType, expectedHeaders: List<String>) {
         if (detectedImportType != null) {
             if (detectedImportType != importType) {
                 abort()
             }
+        } else if (expectedHeaders != cells) {
+            abort("Unbekannte Tabelle: ${cells.joinToString()}")
         } else {
             detectedImportType = importType
         }
@@ -217,9 +249,9 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
     private fun parseReference(refString: String) = runCatching { Reference.parseValue(refString) }.getOrNull()
 
     private fun processNewCase() {
-        checkImportType(ImportType.NEW_CASES)
+        checkImportType(ImportType.NEW_CASES, newCasesTableHeaders)
 
-        if (cells[0] == "Aktenzeichen") { // table header
+        if (cells == newCasesTableHeaders) { // table header
             return
         }
 
@@ -255,13 +287,21 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
         newCases.add(case)
     }
 
-    private fun processReceivedDateUpdate() {
-        checkImportType(ImportType.UPDATED_RECEIVED_DATES)
+    private fun processReceivedDateUpdateOrSettledCases() {
+        when (detectedImportType) {
+            null -> when (cells) {
+                receivedDateTableHeaders -> detectedImportType = ImportType.UPDATED_RECEIVED_DATES
+                settledDateTableHeaders -> detectedImportType = ImportType.SETTLED_CASES
+                else -> abort("Unbekannte Tabelle: ${cells.joinToString()}")
+            }
 
-        if (cells[0] == "Aktenzeichen") { // table header
-            return
+            ImportType.UPDATED_RECEIVED_DATES -> processReceivedDateUpdate()
+            ImportType.SETTLED_CASES -> processSettledCases()
+            else -> abort()
         }
+    }
 
+    private fun processReceivedDateUpdate() {
         val refString = cells[0]
         val reference = parseReference(refString)?.toResource() ?: run {
             errors.add("Unerkanntes Aktenzeichen: $refString")
@@ -291,10 +331,40 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
         )
     }
 
-    private fun processDueDateUpdate() {
-        checkImportType(ImportType.UPDATED_DUE_DATES)
+    private fun processSettledCases() {
+        val refString = cells[1]
+        val reference = parseReference(refString)?.toResource() ?: run {
+            errors.add("Unerkanntes Aktenzeichen: $refString")
+            return
+        }
 
-        if (cells[0] == "Nr") { // table header
+        val settledDate = runCatching { LocalDate.parse(cells[4], localDateFormatter) }.getOrElse {
+            errors.add("Unerkanntes Datum ${cells[4]} für Aktenzeichen $refString")
+            return
+        }
+
+        updatedCases.add(
+            CaseResource(
+                ref = reference,
+                type = SINGLE.name, // required field - but not used
+                parties = null,
+                area = "",
+                status = SETTLED.name,
+                statusNote = "",
+                memo = "",
+                markerColor = null,
+                receivedOn = importDate, // required field - but not used
+                settledOn = settledDate,
+                dueDate = null,
+                todoDate = null
+            )
+        )
+    }
+
+    private fun processDueDateUpdate() {
+        checkImportType(ImportType.UPDATED_DUE_DATES, dueDateTableHeaders)
+
+        if (cells == dueDateTableHeaders) { // table header
             return
         }
 

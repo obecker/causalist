@@ -1,12 +1,12 @@
 package de.obqo.causalist.api
 
-import de.obqo.causalist.Type.CHAMBER
-import de.obqo.causalist.Type.SINGLE
 import de.obqo.causalist.CryptoUtils.decrypt
 import de.obqo.causalist.CryptoUtils.encrypt
 import de.obqo.causalist.CryptoUtils.generateRandomAesKey
 import de.obqo.causalist.Reference
 import de.obqo.causalist.Status
+import de.obqo.causalist.Type.CHAMBER
+import de.obqo.causalist.Type.SINGLE
 import de.obqo.causalist.aCase
 import de.obqo.causalist.caseService
 import de.obqo.causalist.fakeCaseRepository
@@ -15,6 +15,7 @@ import de.obqo.causalist.withOwnerId
 import de.obqo.causalist.withParties
 import de.obqo.causalist.withReceivedOn
 import de.obqo.causalist.withRef
+import de.obqo.causalist.withSettledOn
 import de.obqo.causalist.withStatus
 import de.obqo.causalist.withTodoDate
 import de.obqo.causalist.withType
@@ -124,6 +125,50 @@ class CaseRtfImporterTest : DescribeSpec({
             persistedCases.shouldForAll {
                 val expectedStatus = if (refsWithSession.contains(it.ref)) Status.SESSION else Status.UNKNOWN
                 it.status shouldBe expectedStatus
+            }
+        }
+
+        it("should import settled cases from an RTF document") {
+            // given
+            val ref1 = Reference.parseValue("123 O 54/21")
+            val ref2 = Reference.parseValue("123 S 4/23")
+            val ref3 = Reference.parseValue("123 O 14/22")
+
+            caseService.persist(aCase().withOwnerId(userId).withRef(ref1))
+            caseService.persist(
+                aCase().withOwnerId(userId).withRef(ref2).withStatus(Status.SETTLED)
+                    .withSettledOn(LocalDate.of(2024, 3, 31))
+            )
+            caseService.persist(
+                aCase().withOwnerId(userId).withRef(ref3).withStatus(Status.SETTLED)
+                    .withSettledOn(LocalDate.of(2023, 7, 20))
+            )
+
+            val inputStream = ImportResult::class.java.getResourceAsStream("CasesToSettle.rtf")
+                ?: throw AssertionError("file not found")
+
+            // when
+            val importResult = importCases(inputStream, LocalDate.now(), caseService, userId, secretKey)
+
+            // then
+            importResult.importType shouldBe ImportType.SETTLED_CASES
+            importResult.importedCaseRefs.shouldBeEmpty()
+            importResult.settledCaseRefs.shouldContainExactly(ref1.toValue())
+            importResult.updatedCaseRefs.shouldContainExactly(ref2.toValue())
+            importResult.ignoredCaseRefs.shouldContainExactly(ref3.toValue())
+            importResult.unknownCaseRefs.shouldContainExactly("123 O 13/22")
+            importResult.errors.shouldContainExactly(
+                "Unerkanntes Aktenzeichen: 123 Z 1/21",
+                "Unerkanntes Datum 2023-08-30 für Aktenzeichen 123 O 38/21"
+            )
+
+            caseService.get(userId, ref1).shouldNotBeNull().apply {
+                status shouldBe Status.SETTLED
+                settledOn shouldBe LocalDate.of(2023, 8, 16)
+            }
+            caseService.get(userId, ref2).shouldNotBeNull().apply {
+                status shouldBe Status.SETTLED
+                settledOn shouldBe LocalDate.of(2024, 3, 26)
             }
         }
 

@@ -8,6 +8,7 @@ import FailureAlert from './FailureAlert';
 import ModalDialog from './ModalDialog';
 
 const IMPORTED = 'IMPORTED';
+const SETTLED = 'SETTLED';
 const UPDATED = 'UPDATED';
 const IGNORED = 'IGNORED';
 const UNKNOWN = 'UNKNOWN';
@@ -52,6 +53,8 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
   function header(type) {
     if (type === 'NEW_CASES') {
       return 'Neue Verfahren';
+    } else if (type === 'SETTLED_CASES') {
+      return 'Erledigte Verfahren';
     } else if (type === 'UPDATED_RECEIVED_DATES') {
       return 'Aktualisierung Eingangsdatum';
     } else if (type === 'UPDATED_DUE_DATES') {
@@ -106,6 +109,7 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
               <div className="font-semibold mb-2">{header(result.importType)}</div>
               <div>
                 <ImportResultDetails importType={result.importType} casesType={IMPORTED} refs={result.importedCaseRefs} />
+                <ImportResultDetails importType={result.importType} casesType={SETTLED} refs={result.settledCaseRefs} />
                 <ImportResultDetails importType={result.importType} casesType={UPDATED} refs={result.updatedCaseRefs} />
                 <ImportResultDetails importType={result.importType} casesType={IGNORED} refs={result.ignoredCaseRefs} />
                 <ImportResultDetails importType={result.importType} casesType={UNKNOWN} refs={result.unknownCaseRefs} />
@@ -129,6 +133,12 @@ const importResultDetails = {
     IMPORTED: (num) => num === 1 ? '1 Verfahren wurde importiert' : `${num} Verfahren wurden importiert`,
     UPDATED: (num) => num === 1 ? '1 Verfahren wurde aktualisiert' : `${num} Verfahren wurden aktualisiert`,
     IGNORED: (num) => num === 1 ? '1 bekanntes Verfahren wurde ignoriert' : `${num} bekannte Verfahren wurden ignoriert`,
+  },
+  SETTLED_CASES: {
+    SETTLED: (num) => num === 1 ? '1 Verfahren wurde erledigt' : `${num} Verfahren wurden erledigt`,
+    UPDATED: (num) => num === 1 ? '1 Erledigung wurde aktualisiert' : `${num} Erledigungen wurden aktualisiert`,
+    IGNORED: (num) => num === 1 ? '1 Erledigung war bereits aktuell' : `${num} Erledigungen waren bereits aktuell`,
+    UNKNOWN: (num) => num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`,
   },
   UPDATED_RECEIVED_DATES: {
     UPDATED: (num) => num === 1 ? '1 Eingangsdatum wurde aktualisiert' : `${num} Eingangsdaten wurden aktualisiert`,

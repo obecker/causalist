@@ -113,8 +113,9 @@ object Spec {
         ImportType.NEW_CASES,
         listOf("123 O 45/23", "123 O 67/23"),
         listOf("123 O 12/24"),
-        listOf("123 O 3/23"),
-        listOf("123 O 4/23"),
+        listOf("123 O 34/23"),
+        listOf("123 O 56/23"),
+        listOf("123 O 78/23"),
         listOf("Unknown reference")
     )
     private val documentSample = CaseDocumentResource(UUID.randomUUID(), "foobar.txt")
