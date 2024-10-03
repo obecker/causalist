@@ -232,14 +232,14 @@ class NewCasesImporter : AbstractStrategy(ImportType.NEW_CASES, tableHeaders) {
 
 class SettledCasesImporter : AbstractStrategy(ImportType.SETTLED_CASES, tableHeaders) {
     companion object : ImportStrategyFactory {
-        private val tableHeaders = listOf("", "AZ", "Kurzrubrum", "Status", "Erledigungsdatum", "nächste WV")
+        private val tableHeaders = listOf("", "AZ", "Kurzrubrum", "Status", "Eingangsdatum", "Erledigungsdatum", "nächste WV")
         override fun matchesHeader(cells: Cells) = tableHeaders == cells
 
         override fun create() = SettledCasesImporter()
     }
 
     private val refLens = CellsLens.reference().required(1)
-    private val settledLens = CellsLens.localDate().required(4)
+    private val settledLens = CellsLens.localDate().required(5)
 
     override fun processCells(
         cells: Cells,
