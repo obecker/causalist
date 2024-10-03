@@ -22,6 +22,69 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 import javax.crypto.SecretKey
 
+typealias Cells = List<String>
+
+class CellsLensException(val error: String) : RuntimeException()
+
+class CellsLens<FINAL>(private val getFn: (Cells) -> FINAL) {
+
+    operator fun invoke(target: Cells) = getFn(target)
+
+    companion object {
+        private val localDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+        private fun base(): Spec<String> = Spec(Get { index, target -> target[index] })
+        private fun nullIfEmpty() = base().map { it.ifEmpty { null } }
+
+        fun string() = base()
+        fun reference() = nullIfEmpty().map { str ->
+            runCatching {
+                Reference.parseValue(str).toResource()
+            }.getOrElse {
+                throw CellsLensException("Unerkanntes Aktenzeichen: $str")
+            }
+        }
+
+        fun localDate() = nullIfEmpty().map { str ->
+            runCatching {
+                LocalDate.parse(str, localDateFormatter)
+            }.getOrElse {
+                throw CellsLensException("Unerkanntes Datum: $str")
+            }
+        }
+
+        fun type() = base().map { str ->
+            when (str) {
+                "Berichterstatter" -> CHAMBER
+                "Einzelrichter" -> SINGLE
+                else -> throw CellsLensException("Unerkannter Bearbeiter: $str")
+            }
+        }
+
+        fun dueDateStatus() = base().map { str ->
+            when (str) {
+                "Verkündungstermin" -> DECISION
+                else -> SESSION
+            }
+        }
+    }
+
+    class Get<OUT>(private val getFn: (Int, Cells) -> OUT) {
+        operator fun invoke(index: Int) = { target: Cells -> getFn(index, target) }
+
+        fun <NEXT> map(nextFn: (OUT & Any) -> NEXT) = Get { index, target -> getFn(index, target)?.let { nextFn(it) } }
+    }
+
+    class Spec<OUT>(private val get: Get<OUT>) {
+        fun required(index: Int) =
+            CellsLens { get(index)(it) ?: throw CellsLensException("Fehlender Eintrag in Spalte ${index + 1}") }
+
+        fun optional(index: Int) = CellsLens { get(index)(it) }
+
+        fun <NEXT> map(nextFn: (OUT & Any) -> NEXT) = Spec(get.map(nextFn))
+    }
+}
+
 enum class ImportType {
     NEW_CASES, SETTLED_CASES, UPDATED_RECEIVED_DATES, UPDATED_DUE_DATES
 }
@@ -37,31 +100,112 @@ data class ImportResult(
     val errors: List<String>
 )
 
-private val localDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+sealed interface ImportStrategy {
+    val type: ImportType
 
-private fun MutableList<String>.addCase(case: Case) = add(case.ref.toValue())
+    fun processCells(
+        cells: Cells,
+        importDate: LocalDate,
+        caseService: CaseService,
+        currentUserId: UUID,
+        secretKey: SecretKey
+    )
 
-fun importCases(
-    stream: InputStream,
-    importDate: LocalDate,
-    caseService: CaseService,
-    currentUserId: UUID,
-    secretKey: SecretKey
-): ImportResult {
-    val source = RtfStreamSource(stream)
-    val parser = StandardRtfParser()
-    val listener = CaseRtfImporter(importDate)
+    fun result(): ImportResult
+}
 
-    parser.parse(source, listener)
+abstract class AbstractStrategy(
+    override val type: ImportType,
+    private val tableHeaders: List<String>
+) : ImportStrategy {
+    protected val importedCaseRefs = mutableListOf<String>()
+    protected val settledCaseRefs = mutableListOf<String>()
+    protected val updatedCaseRefs = mutableListOf<String>()
+    protected val ignoredCaseRefs = mutableListOf<String>()
+    protected val unknownCaseRefs = mutableListOf<String>()
+    private val errors = mutableListOf<String>()
 
-    val importedCaseRefs = mutableListOf<String>()
-    val settledCaseRefs = mutableListOf<String>()
-    val updatedCaseRefs = mutableListOf<String>()
-    val ignoredCaseRefs = mutableListOf<String>()
-    val unknownCaseRefs = mutableListOf<String>()
+    override fun result(): ImportResult = ImportResult(
+        importType = type,
+        importedCaseRefs = importedCaseRefs,
+        settledCaseRefs = settledCaseRefs,
+        updatedCaseRefs = updatedCaseRefs,
+        ignoredCaseRefs = ignoredCaseRefs,
+        unknownCaseRefs = unknownCaseRefs,
+        errors = errors
+    )
 
-    when (listener.detectedImportType) {
-        ImportType.NEW_CASES -> listener.newCases.forEach { caseResource ->
+    protected fun processCells(cells: Cells, block: () -> Unit) {
+        if (cells.size != tableHeaders.size) {
+            return
+        }
+        try {
+            block()
+        } catch (e: CellsLensException) {
+            errors.add(e.error)
+        } catch (e: Exception) {
+            errors.add("Fehler beim Verarbeiten der Zeile: ${cells.joinToString()}")
+        }
+    }
+
+    protected fun MutableList<String>.addCase(case: Case) = add(case.ref.toValue())
+
+    protected fun case(
+        ref: ReferenceResource,
+        type: String = SINGLE.name,
+        parties: String? = null,
+        status: String = UNKNOWN.name,
+        receivedOn: LocalDate = LocalDate.now(),
+        settledOn: LocalDate? = null,
+        dueDate: LocalDate? = null,
+    ) = CaseResource(
+        ref = ref,
+        type = type,
+        parties = parties,
+        area = "",
+        status = status,
+        statusNote = "",
+        memo = "",
+        markerColor = null,
+        receivedOn = receivedOn,
+        settledOn = settledOn,
+        dueDate = dueDate,
+        todoDate = null
+    )
+}
+
+interface ImportStrategyFactory {
+    fun matchesHeader(cells: Cells): Boolean
+    fun create(): ImportStrategy
+}
+
+class NewCasesImporter : AbstractStrategy(ImportType.NEW_CASES, tableHeaders) {
+    companion object : ImportStrategyFactory {
+        private val tableHeaders = listOf("Aktenzeichen", "Kurzrubrum", "Status", "ER / K")
+        override fun matchesHeader(cells: Cells) = tableHeaders == cells
+
+        override fun create() = NewCasesImporter()
+    }
+
+    private val refLens = CellsLens.reference().required(0)
+    private val partiesLens = CellsLens.string().optional(1)
+    private val typeLens = CellsLens.type().required(3)
+
+    override fun processCells(
+        cells: Cells,
+        importDate: LocalDate,
+        caseService: CaseService,
+        currentUserId: UUID,
+        secretKey: SecretKey
+    ) = processCells(cells) {
+        val caseResource = case(
+            ref = refLens(cells),
+            type = typeLens(cells).name,
+            parties = partiesLens(cells),
+            status = UNKNOWN.name,
+            receivedOn = importDate,
+        )
+
             val importedCase = caseResource.toEntity(currentUserId, secretKey)
             val persistedCase = caseService.get(importedCase)
             if (persistedCase == null) {
@@ -84,8 +228,32 @@ fun importCases(
                 }
             }
         }
+}
 
-        ImportType.SETTLED_CASES -> listener.updatedCases.forEach { caseResource ->
+class SettledCasesImporter : AbstractStrategy(ImportType.SETTLED_CASES, tableHeaders) {
+    companion object : ImportStrategyFactory {
+        private val tableHeaders = listOf("", "AZ", "Kurzrubrum", "Status", "Erledigungsdatum", "nächste WV")
+        override fun matchesHeader(cells: Cells) = tableHeaders == cells
+
+        override fun create() = SettledCasesImporter()
+    }
+
+    private val refLens = CellsLens.reference().required(1)
+    private val settledLens = CellsLens.localDate().required(4)
+
+    override fun processCells(
+        cells: Cells,
+        importDate: LocalDate,
+        caseService: CaseService,
+        currentUserId: UUID,
+        secretKey: SecretKey
+    ) = processCells(cells) {
+        val caseResource = case(
+            ref = refLens(cells),
+            status = SETTLED.name,
+            settledOn = settledLens(cells),
+        )
+
             val importedCase = caseResource.toEntity(currentUserId, secretKey)
             val persistedCase = caseService.get(importedCase)
             if (persistedCase != null) {
@@ -102,8 +270,31 @@ fun importCases(
                 unknownCaseRefs.addCase(importedCase)
             }
         }
+}
 
-        ImportType.UPDATED_RECEIVED_DATES -> listener.updatedCases.forEach { caseResource ->
+class UpdateReceivedDatesImporter : AbstractStrategy(ImportType.UPDATED_RECEIVED_DATES, tableHeaders) {
+    companion object : ImportStrategyFactory {
+        private val tableHeaders = listOf("Aktenzeichen", "Kurzrubrum", "Status", "ZK-Eingang", "ZK-Nr.", "B-Nr.")
+        override fun matchesHeader(cells: Cells) = tableHeaders == cells
+
+        override fun create() = UpdateReceivedDatesImporter()
+    }
+
+    private val refLens = CellsLens.reference().required(0)
+    private val dateLens = CellsLens.localDate().required(3)
+
+    override fun processCells(
+        cells: Cells,
+        importDate: LocalDate,
+        caseService: CaseService,
+        currentUserId: UUID,
+        secretKey: SecretKey
+    ) = processCells(cells) {
+        val caseResource = case(
+            ref = refLens(cells),
+            receivedOn = dateLens(cells),
+        )
+
             val importedCase = caseResource.toEntity(currentUserId, secretKey)
             val persistedCase = caseService.get(importedCase)
             if (persistedCase != null) {
@@ -115,11 +306,36 @@ fun importCases(
                 }
             } else {
                 unknownCaseRefs.addCase(importedCase)
-
             }
-        }
+    }
+}
 
-        ImportType.UPDATED_DUE_DATES -> listener.updatedCases.forEach { caseResource: CaseResource ->
+class UpdateDueDatesImporter : AbstractStrategy(ImportType.UPDATED_DUE_DATES, tableHeaders) {
+    companion object : ImportStrategyFactory {
+        private val tableHeaders =
+            listOf("Nr", "AZ", "Kurzrubrum", "Art", "Datum", "Uhr", "Saal", "P", "Z", "S", "D", "Besetzung")
+
+        override fun matchesHeader(cells: Cells) = tableHeaders == cells
+
+        override fun create() = UpdateDueDatesImporter()
+    }
+
+    private val refLens = CellsLens.reference().required(1)
+    private val statusLens = CellsLens.dueDateStatus().required(3)
+    private val dueLens = CellsLens.localDate().required(4)
+
+    override fun processCells(
+        cells: Cells,
+        importDate: LocalDate,
+        caseService: CaseService,
+        currentUserId: UUID,
+        secretKey: SecretKey
+    ) = processCells(cells) {
+        val caseResource = case(
+            ref = refLens(cells),
+            status = statusLens(cells).name,
+            dueDate = dueLens(cells),
+        )
             val importedCase = caseResource.toEntity(currentUserId, secretKey)
             val persistedCase = caseService.get(importedCase)
             if (persistedCase != null) {
@@ -156,40 +372,47 @@ fun importCases(
                 unknownCaseRefs.addCase(importedCase)
             }
         }
+}
 
-        else -> if (listener.errors.isEmpty()) {
-            listener.errors.add("Es konnten leider keine Daten in der RTF-Datei erkannt werden.")
-        }
-    }
 
-    return ImportResult(
-        importType = listener.detectedImportType,
-        importedCaseRefs = importedCaseRefs,
-        settledCaseRefs = settledCaseRefs,
-        updatedCaseRefs = updatedCaseRefs,
-        ignoredCaseRefs = ignoredCaseRefs,
-        unknownCaseRefs = unknownCaseRefs,
-        errors = listener.errors
+fun importCases(
+    stream: InputStream,
+    importDate: LocalDate,
+    caseService: CaseService,
+    currentUserId: UUID,
+    secretKey: SecretKey
+): ImportResult {
+    val source = RtfStreamSource(stream)
+    val parser = StandardRtfParser()
+    val listener = CaseRtfImporter(importDate, caseService, currentUserId, secretKey)
+
+    parser.parse(source, listener)
+
+    return listener.importStrategy?.result() ?: ImportResult(
+        importType = null,
+        importedCaseRefs = emptyList(),
+        settledCaseRefs = emptyList(),
+        updatedCaseRefs = emptyList(),
+        ignoredCaseRefs = emptyList(),
+        unknownCaseRefs = emptyList(),
+        errors = listOf("Es konnten leider keine Daten in der RTF-Datei erkannt werden.")
     )
 }
 
-private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() {
+private class CaseRtfImporter(
+    private val importDate: LocalDate,
+    private val caseService: CaseService,
+    private val currentUserId: UUID,
+    private val secretKey: SecretKey
+) : RtfListenerAdaptor() {
 
-    var detectedImportType: ImportType? = null
-    val newCases = mutableListOf<CaseResource>()
-    val updatedCases = mutableListOf<CaseResource>()
-    val errors = mutableListOf<String>()
-    var processingAborted = false
+    var importStrategy: ImportStrategy? = null
+
+    private val importCandidates =
+        listOf(NewCasesImporter, SettledCasesImporter, UpdateDueDatesImporter, UpdateReceivedDatesImporter)
 
     private var currentCell: String = ""
     private val cells = mutableListOf<String>()
-
-    private val newCasesTableHeaders = listOf("Aktenzeichen", "Kurzrubrum", "Status", "ER / K")
-    private val receivedDateTableHeaders =
-        listOf("Aktenzeichen", "Kurzrubrum", "Status", "ZK-Eingang", "ZK-Nr.", "B-Nr.")
-    private val settledDateTableHeaders = listOf("", "AZ", "Kurzrubrum", "Status", "Erledigungsdatum", "nächste WV")
-    private val dueDateTableHeaders =
-        listOf("Nr", "AZ", "Kurzrubrum", "Art", "Datum", "Uhr", "Saal", "P", "Z", "S", "D", "Besetzung")
 
     override fun processString(string: String?) {
         currentCell += string ?: return
@@ -216,189 +439,8 @@ private class CaseRtfImporter(val importDate: LocalDate) : RtfListenerAdaptor() 
     }
 
     private fun processTableRow() {
-        if (processingAborted) {
-            return
+        importStrategy?.processCells(cells, importDate, caseService, currentUserId, secretKey) ?: run {
+            importStrategy = importCandidates.firstOrNull { it.matchesHeader(cells) }?.create()
         }
-
-        when (cells.size) {
-            4 -> processNewCase()
-            6 -> processReceivedDateUpdateOrSettledCases()
-            12 -> processDueDateUpdate()
-        }
-    }
-
-    private fun abort(error: String? = null) {
-        detectedImportType = null
-        processingAborted = true
-        errors.clear()
-        error?.let { errors.add(it) }
-    }
-
-    private fun checkImportType(importType: ImportType, expectedHeaders: List<String>) {
-        if (detectedImportType != null) {
-            if (detectedImportType != importType) {
-                abort()
-            }
-        } else if (expectedHeaders != cells) {
-            abort("Unbekannte Tabelle: ${cells.joinToString()}")
-        } else {
-            detectedImportType = importType
-        }
-    }
-
-    private fun parseReference(refString: String) = runCatching { Reference.parseValue(refString) }.getOrNull()
-
-    private fun processNewCase() {
-        checkImportType(ImportType.NEW_CASES, newCasesTableHeaders)
-
-        if (cells == newCasesTableHeaders) { // table header
-            return
-        }
-
-        val refString = cells[0]
-        val reference = parseReference(refString)?.toResource() ?: run {
-            errors.add("Unerkanntes Aktenzeichen: $refString")
-            return
-        }
-
-        val type = when (val typeString = cells[3]) {
-            "Berichterstatter" -> CHAMBER
-            "Einzelrichter" -> SINGLE
-            else -> {
-                errors.add(("Unerkannter Bearbeiter: $typeString"))
-                return
-            }
-        }
-
-        val case = CaseResource(
-            ref = reference,
-            type = type.name,
-            parties = cells[1],
-            area = "",
-            status = UNKNOWN.name,
-            statusNote = "",
-            memo = "",
-            markerColor = null,
-            receivedOn = importDate,
-            settledOn = null,
-            dueDate = null,
-            todoDate = null
-        )
-        newCases.add(case)
-    }
-
-    private fun processReceivedDateUpdateOrSettledCases() {
-        when (detectedImportType) {
-            null -> when (cells) {
-                receivedDateTableHeaders -> detectedImportType = ImportType.UPDATED_RECEIVED_DATES
-                settledDateTableHeaders -> detectedImportType = ImportType.SETTLED_CASES
-                else -> abort("Unbekannte Tabelle: ${cells.joinToString()}")
-            }
-
-            ImportType.UPDATED_RECEIVED_DATES -> processReceivedDateUpdate()
-            ImportType.SETTLED_CASES -> processSettledCases()
-            else -> abort()
-        }
-    }
-
-    private fun processReceivedDateUpdate() {
-        val refString = cells[0]
-        val reference = parseReference(refString)?.toResource() ?: run {
-            errors.add("Unerkanntes Aktenzeichen: $refString")
-            return
-        }
-
-        val receivedDate = runCatching { LocalDate.parse(cells[3], localDateFormatter) }.getOrElse {
-            errors.add("Unerkanntes Datum ${cells[3]} für Aktenzeichen $refString")
-            return
-        }
-
-        updatedCases.add(
-            CaseResource(
-                ref = reference,
-                type = SINGLE.name, // required field - but not used
-                parties = null,
-                area = "",
-                status = UNKNOWN.name, // required field - but not used
-                statusNote = "",
-                memo = "",
-                markerColor = null,
-                receivedOn = receivedDate,
-                settledOn = null,
-                dueDate = null,
-                todoDate = null
-            )
-        )
-    }
-
-    private fun processSettledCases() {
-        val refString = cells[1]
-        val reference = parseReference(refString)?.toResource() ?: run {
-            errors.add("Unerkanntes Aktenzeichen: $refString")
-            return
-        }
-
-        val settledDate = runCatching { LocalDate.parse(cells[4], localDateFormatter) }.getOrElse {
-            errors.add("Unerkanntes Datum ${cells[4]} für Aktenzeichen $refString")
-            return
-        }
-
-        updatedCases.add(
-            CaseResource(
-                ref = reference,
-                type = SINGLE.name, // required field - but not used
-                parties = null,
-                area = "",
-                status = SETTLED.name,
-                statusNote = "",
-                memo = "",
-                markerColor = null,
-                receivedOn = importDate, // required field - but not used
-                settledOn = settledDate,
-                dueDate = null,
-                todoDate = null
-            )
-        )
-    }
-
-    private fun processDueDateUpdate() {
-        checkImportType(ImportType.UPDATED_DUE_DATES, dueDateTableHeaders)
-
-        if (cells == dueDateTableHeaders) { // table header
-            return
-        }
-
-        val refString = cells[1]
-        val reference = parseReference(refString)?.toResource() ?: run {
-            errors.add("Unerkanntes Aktenzeichen: $refString")
-            return
-        }
-
-        val status = when (cells[3]) {
-            "Verkündungstermin" -> DECISION
-            else -> SESSION
-        }
-
-        val dueDate = runCatching { LocalDate.parse(cells[4], localDateFormatter) }.getOrElse {
-            errors.add("Unerkanntes Datum ${cells[4]} für Aktenzeichen $refString")
-            return
-        }
-
-        updatedCases.add(
-            CaseResource(
-                ref = reference,
-                type = SINGLE.name, // required field - but not used
-                parties = null,
-                area = "",
-                status = status.name,
-                statusNote = "",
-                memo = "",
-                markerColor = null,
-                receivedOn = importDate, // required field - but not used
-                settledOn = null,
-                dueDate = dueDate,
-                todoDate = null
-            )
-        )
     }
 }

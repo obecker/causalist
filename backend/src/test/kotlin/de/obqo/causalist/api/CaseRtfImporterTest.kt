@@ -39,6 +39,12 @@ class CaseRtfImporterTest : DescribeSpec({
         val userId = UUID.randomUUID()
         val secretKey = generateRandomAesKey()
 
+        fun importFile(name: String, importDate: LocalDate = LocalDate.now()): ImportResult {
+            val inputStream = CaseRtfImporterTest::class.java.getResourceAsStream(name)
+                ?: throw AssertionError("file $name not found")
+            return importCases(inputStream, importDate, caseService, userId, secretKey)
+        }
+
         beforeEach {
             fakeCaseRepository.deleteAll()
         }
@@ -63,12 +69,10 @@ class CaseRtfImporterTest : DescribeSpec({
                     .withParties("Settled".encrypt(secretKey)).withType(CHAMBER).withReceivedOn(existingDate)
             )
 
-            val inputStream = ImportResult::class.java.getResourceAsStream("CasesToImport.rtf")
-                ?: throw AssertionError("file not found")
             val importDate = LocalDate.of(2023, 12, 27)
 
             // when
-            val importResult = importCases(inputStream, importDate, caseService, userId, secretKey)
+            val importResult = importFile("CasesToImport.rtf", importDate)
 
             // then
             importResult.importType shouldBe ImportType.NEW_CASES
@@ -126,6 +130,25 @@ class CaseRtfImporterTest : DescribeSpec({
                 val expectedStatus = if (refsWithSession.contains(it.ref)) Status.SESSION else Status.UNKNOWN
                 it.status shouldBe expectedStatus
             }
+
+            // when reimporting
+            val secondImportResult = importFile("CasesToImport.rtf", importDate)
+
+            // then all imported cases should be ignored
+            secondImportResult.importType shouldBe ImportType.NEW_CASES
+            secondImportResult.importedCaseRefs.shouldBeEmpty()
+            secondImportResult.updatedCaseRefs.shouldBeEmpty()
+            secondImportResult.ignoredCaseRefs.shouldContainExactly(
+                "123 O 358/14",
+                "123 O 85/17",
+                "123 O 209/18",
+                "123 O 132/19",
+                "123 O 195/19",
+                "123 O 54/21",
+                "123 O 201/22",
+                "123 S 4/23",
+                "123 S 5/23"
+            )
         }
 
         it("should import settled cases from an RTF document") {
@@ -144,11 +167,8 @@ class CaseRtfImporterTest : DescribeSpec({
                     .withSettledOn(LocalDate.of(2023, 7, 20))
             )
 
-            val inputStream = ImportResult::class.java.getResourceAsStream("CasesToSettle.rtf")
-                ?: throw AssertionError("file not found")
-
             // when
-            val importResult = importCases(inputStream, LocalDate.now(), caseService, userId, secretKey)
+            val importResult = importFile("CasesToSettle.rtf")
 
             // then
             importResult.importType shouldBe ImportType.SETTLED_CASES
@@ -159,7 +179,7 @@ class CaseRtfImporterTest : DescribeSpec({
             importResult.unknownCaseRefs.shouldContainExactly("123 O 13/22")
             importResult.errors.shouldContainExactly(
                 "Unerkanntes Aktenzeichen: 123 Z 1/21",
-                "Unerkanntes Datum 2023-08-30 für Aktenzeichen 123 O 38/21"
+                "Unerkanntes Datum: 2023-08-30"
             )
 
             caseService.get(userId, ref1).shouldNotBeNull().apply {
@@ -170,6 +190,15 @@ class CaseRtfImporterTest : DescribeSpec({
                 status shouldBe Status.SETTLED
                 settledOn shouldBe LocalDate.of(2024, 3, 26)
             }
+
+            // when reimporting
+            val secondImportResult = importFile("CasesToSettle.rtf")
+
+            // then all imported cases should be ignored
+            secondImportResult.importType shouldBe ImportType.SETTLED_CASES
+            secondImportResult.settledCaseRefs.shouldBeEmpty()
+            secondImportResult.updatedCaseRefs.shouldBeEmpty()
+            secondImportResult.ignoredCaseRefs.shouldContainExactly(ref1.toValue(), ref2.toValue(), ref3.toValue())
         }
 
         it("should import received date from an RTF document") {
@@ -182,11 +211,8 @@ class CaseRtfImporterTest : DescribeSpec({
                 aCase().withOwnerId(userId).withRef(ref2).withReceivedOn(LocalDate.of(2019, 8, 29))
             )
 
-            val inputStream = ImportResult::class.java.getResourceAsStream("CasesToUpdateReceivedOn.rtf")
-                ?: throw AssertionError("file not found")
-
             // when
-            val importResult = importCases(inputStream, LocalDate.now(), caseService, userId, secretKey)
+            val importResult = importFile("CasesToUpdateReceivedOn.rtf")
 
             // then
             importResult.importType shouldBe ImportType.UPDATED_RECEIVED_DATES
@@ -196,7 +222,7 @@ class CaseRtfImporterTest : DescribeSpec({
             importResult.unknownCaseRefs.shouldContainExactly("123 O 203/22", "123 O 207/22")
             importResult.errors.shouldContainExactly(
                 "Unerkanntes Aktenzeichen: 123 Z 46/20",
-                "Unerkanntes Datum 2021-01-02 für Aktenzeichen 123 O 3/21"
+                "Unerkanntes Datum: 2021-01-02"
             )
 
             caseService.get(userId, ref1.toId()).shouldNotBeNull().apply {
@@ -205,6 +231,14 @@ class CaseRtfImporterTest : DescribeSpec({
             caseService.get(userId, ref2.toId()).shouldNotBeNull().apply {
                 receivedOn shouldBe LocalDate.of(2019, 8, 29)
             }
+
+            // when reimporting
+            val secondImportResult = importFile("CasesToUpdateReceivedOn.rtf")
+
+            // then all imported cases should be ignored
+            secondImportResult.importType shouldBe ImportType.UPDATED_RECEIVED_DATES
+            secondImportResult.updatedCaseRefs.shouldBeEmpty()
+            secondImportResult.ignoredCaseRefs.shouldContainExactly(ref1.toValue(), ref2.toValue())
         }
 
         it("should import session dates from an RTF document") {
@@ -226,11 +260,8 @@ class CaseRtfImporterTest : DescribeSpec({
                     .withTodoDate(LocalDate.of(2024, 1, 15))
             )
 
-            val inputStream = ImportResult::class.java.getResourceAsStream("CasesToUpdateDueDate.rtf")
-                ?: throw AssertionError("file not found")
-
             // when
-            val importResult = importCases(inputStream, LocalDate.now(), caseService, userId, secretKey)
+            val importResult = importFile("CasesToUpdateDueDate.rtf")
 
             // then
             importResult.importType shouldBe ImportType.UPDATED_DUE_DATES
@@ -245,7 +276,7 @@ class CaseRtfImporterTest : DescribeSpec({
             importResult.unknownCaseRefs.shouldContainExactly("123 O 1/23")
             importResult.errors.shouldContainExactly(
                 "Unerkanntes Aktenzeichen: 123 Z 46/20",
-                "Unerkanntes Datum 2024-01-12 für Aktenzeichen 123 O 3/21"
+                "Unerkanntes Datum: 2024-01-12"
             )
 
             caseService.get(userId, refChamber1.toId()).shouldNotBeNull().apply {
@@ -273,14 +304,25 @@ class CaseRtfImporterTest : DescribeSpec({
                 dueDate shouldBe LocalDate.of(2024, 1, 19)
                 todoDate shouldBe LocalDate.of(2024, 1, 15) // unchanged
             }
+
+            // when reimporting
+            val secondImportResult = importFile("CasesToUpdateDueDate.rtf")
+
+            // then all imported cases should be ignored
+            secondImportResult.importType shouldBe ImportType.UPDATED_DUE_DATES
+            secondImportResult.updatedCaseRefs.shouldBeEmpty()
+            secondImportResult.ignoredCaseRefs.shouldContainExactly(
+                refChamber1.toValue(),
+                refSingle1.toValue(),
+                refChamber2.toValue(),
+                refSingle2.toValue(),
+                refNotUpdated.toValue()
+            )
         }
 
         it("should handle unknown RTF document") {
-            val inputStream = ImportResult::class.java.getResourceAsStream("Text.rtf")
-                ?: throw AssertionError("file not found")
-
             // when
-            val importResult = importCases(inputStream, LocalDate.now(), caseService, userId, secretKey)
+            val importResult = importFile("Text.rtf")
 
             // then
             importResult.importType.shouldBeNull()
