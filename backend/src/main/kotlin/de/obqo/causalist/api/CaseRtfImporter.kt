@@ -206,28 +206,28 @@ class NewCasesImporter : AbstractStrategy(ImportType.NEW_CASES, tableHeaders) {
             receivedOn = importDate,
         )
 
-            val importedCase = caseResource.toEntity(currentUserId, secretKey)
-            val persistedCase = caseService.get(importedCase)
-            if (persistedCase == null) {
-                caseService.persist(importedCase)
-                importedCaseRefs.addCase(importedCase)
-            } else {
-                var updatedCase: Case = persistedCase
-                if (importedCase.type != persistedCase.type) {
-                    updatedCase = updatedCase.copy(type = importedCase.type)
-                }
-                if (persistedCase.status == SETTLED) {
-                    updatedCase = updatedCase.copy(status = UNKNOWN)
-                }
+        val importedCase = caseResource.toEntity(currentUserId, secretKey)
+        val persistedCase = caseService.get(importedCase)
+        if (persistedCase == null) {
+            caseService.persist(importedCase)
+            importedCaseRefs.addCase(importedCase)
+        } else {
+            var updatedCase: Case = persistedCase
+            if (importedCase.type != persistedCase.type) {
+                updatedCase = updatedCase.copy(type = importedCase.type)
+            }
+            if (persistedCase.status == SETTLED) {
+                updatedCase = updatedCase.copy(status = UNKNOWN)
+            }
 
-                if (updatedCase === persistedCase) {
-                    ignoredCaseRefs.addCase(persistedCase)
-                } else {
-                    caseService.update(updatedCase)
-                    updatedCaseRefs.addCase(updatedCase)
-                }
+            if (updatedCase === persistedCase) {
+                ignoredCaseRefs.addCase(persistedCase)
+            } else {
+                caseService.update(updatedCase)
+                updatedCaseRefs.addCase(updatedCase)
             }
         }
+    }
 }
 
 class SettledCasesImporter : AbstractStrategy(ImportType.SETTLED_CASES, tableHeaders) {
@@ -254,22 +254,22 @@ class SettledCasesImporter : AbstractStrategy(ImportType.SETTLED_CASES, tableHea
             settledOn = settledLens(cells),
         )
 
-            val importedCase = caseResource.toEntity(currentUserId, secretKey)
-            val persistedCase = caseService.get(importedCase)
-            if (persistedCase != null) {
-                if (persistedCase.status != SETTLED) {
-                    caseService.update(persistedCase.copy(status = SETTLED, settledOn = importedCase.settledOn))
-                    settledCaseRefs.addCase(persistedCase)
-                } else if (persistedCase.settledOn != importedCase.settledOn) {
-                    caseService.update(persistedCase.copy(settledOn = importedCase.settledOn))
-                    updatedCaseRefs.addCase(persistedCase)
-                } else {
-                    ignoredCaseRefs.addCase(persistedCase)
-                }
+        val importedCase = caseResource.toEntity(currentUserId, secretKey)
+        val persistedCase = caseService.get(importedCase)
+        if (persistedCase != null) {
+            if (persistedCase.status != SETTLED) {
+                caseService.update(persistedCase.copy(status = SETTLED, settledOn = importedCase.settledOn))
+                settledCaseRefs.addCase(persistedCase)
+            } else if (persistedCase.settledOn != importedCase.settledOn) {
+                caseService.update(persistedCase.copy(settledOn = importedCase.settledOn))
+                updatedCaseRefs.addCase(persistedCase)
             } else {
-                unknownCaseRefs.addCase(importedCase)
+                ignoredCaseRefs.addCase(persistedCase)
             }
+        } else {
+            unknownCaseRefs.addCase(importedCase)
         }
+    }
 }
 
 class UpdateReceivedDatesImporter : AbstractStrategy(ImportType.UPDATED_RECEIVED_DATES, tableHeaders) {
@@ -295,18 +295,18 @@ class UpdateReceivedDatesImporter : AbstractStrategy(ImportType.UPDATED_RECEIVED
             receivedOn = dateLens(cells),
         )
 
-            val importedCase = caseResource.toEntity(currentUserId, secretKey)
-            val persistedCase = caseService.get(importedCase)
-            if (persistedCase != null) {
-                if (persistedCase.receivedOn != importedCase.receivedOn) {
-                    caseService.update(persistedCase.copy(receivedOn = importedCase.receivedOn))
-                    updatedCaseRefs.addCase(persistedCase)
-                } else {
-                    ignoredCaseRefs.addCase(persistedCase)
-                }
+        val importedCase = caseResource.toEntity(currentUserId, secretKey)
+        val persistedCase = caseService.get(importedCase)
+        if (persistedCase != null) {
+            if (persistedCase.receivedOn != importedCase.receivedOn) {
+                caseService.update(persistedCase.copy(receivedOn = importedCase.receivedOn))
+                updatedCaseRefs.addCase(persistedCase)
             } else {
-                unknownCaseRefs.addCase(importedCase)
+                ignoredCaseRefs.addCase(persistedCase)
             }
+        } else {
+            unknownCaseRefs.addCase(importedCase)
+        }
     }
 }
 
@@ -336,42 +336,43 @@ class UpdateDueDatesImporter : AbstractStrategy(ImportType.UPDATED_DUE_DATES, ta
             status = statusLens(cells).name,
             dueDate = dueLens(cells),
         )
-            val importedCase = caseResource.toEntity(currentUserId, secretKey)
-            val persistedCase = caseService.get(importedCase)
-            if (persistedCase != null) {
-                val preparationDays: Long? = when {
-                    persistedCase.type == SINGLE && importedCase.status == SESSION -> 1
-                    persistedCase.type == SINGLE && importedCase.status == DECISION -> 2
-                    persistedCase.type == CHAMBER && importedCase.status == SESSION -> 7
-                    persistedCase.type == CHAMBER && importedCase.status == DECISION -> 7
-                    else -> null // will not happen
-                }
 
-                if (persistedCase.dueDate != importedCase.dueDate || persistedCase.status != importedCase.status) {
-                    // prevent updates of todoDate when dueDate and status haven't changed
-                    val todoDate = preparationDays?.let { importedCase.dueDate?.minus(it, ChronoUnit.DAYS) }
-                        ?.let {
-                            when (it.dayOfWeek) {
-                                DayOfWeek.SATURDAY -> it.minus(1, ChronoUnit.DAYS)
-                                DayOfWeek.SUNDAY -> it.minus(2, ChronoUnit.DAYS)
-                                else -> it
-                            }
-                        }
-                    caseService.update(
-                        persistedCase.copy(
-                            status = importedCase.status,
-                            dueDate = importedCase.dueDate,
-                            todoDate = todoDate
-                        )
-                    )
-                    updatedCaseRefs.addCase(persistedCase)
-                } else {
-                    ignoredCaseRefs.addCase(persistedCase)
-                }
-            } else {
-                unknownCaseRefs.addCase(importedCase)
+        val importedCase = caseResource.toEntity(currentUserId, secretKey)
+        val persistedCase = caseService.get(importedCase)
+        if (persistedCase != null) {
+            val preparationDays: Long? = when {
+                persistedCase.type == SINGLE && importedCase.status == SESSION -> 1
+                persistedCase.type == SINGLE && importedCase.status == DECISION -> 2
+                persistedCase.type == CHAMBER && importedCase.status == SESSION -> 7
+                persistedCase.type == CHAMBER && importedCase.status == DECISION -> 7
+                else -> null // will not happen
             }
+
+            if (persistedCase.dueDate != importedCase.dueDate || persistedCase.status != importedCase.status) {
+                // prevent updates of todoDate when dueDate and status haven't changed
+                val todoDate = preparationDays?.let { importedCase.dueDate?.minus(it, ChronoUnit.DAYS) }
+                    ?.let {
+                        when (it.dayOfWeek) {
+                            DayOfWeek.SATURDAY -> it.minus(1, ChronoUnit.DAYS)
+                            DayOfWeek.SUNDAY -> it.minus(2, ChronoUnit.DAYS)
+                            else -> it
+                        }
+                    }
+                caseService.update(
+                    persistedCase.copy(
+                        status = importedCase.status,
+                        dueDate = importedCase.dueDate,
+                        todoDate = todoDate
+                    )
+                )
+                updatedCaseRefs.addCase(persistedCase)
+            } else {
+                ignoredCaseRefs.addCase(persistedCase)
+            }
+        } else {
+            unknownCaseRefs.addCase(importedCase)
         }
+    }
 }
 
 
