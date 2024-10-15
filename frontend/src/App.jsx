@@ -4,11 +4,12 @@ import Content from './Content';
 import LoginRegistration from './LoginRegistration';
 
 export default function App() {
+  const host = window.location.host;
   return (
     <ApiProvider>
       {(apiKey) => (
         <div className="min-h-screen relative">
-          <StageDevAppearance />
+          { host !== 'www.causalist.de' && <StageDevAppearance host={host} /> }
           <div className="container mx-auto p-3 sm:p-8 pb-12 min-w-[352px] text-stone-900">
             {apiKey ? <Content /> : <LoginRegistration />}
           </div>
@@ -30,12 +31,7 @@ export default function App() {
   );
 }
 
-function StageDevAppearance() {
-  const host = window.location.host;
-  if (host === 'www.causalist.de') { // prod
-    return null;
-  }
-
+function StageDevAppearance({ host }) {
   const stage = host === 'stage.causalist.de';
 
   useDocumentTitle(stage ? 'S | Causalist' : 'D | Causalist');

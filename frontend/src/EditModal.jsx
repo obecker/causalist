@@ -105,7 +105,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     setCaseTypeFailure(false);
     setCaseReceivedOnFailure(false);
     setCaseSettledOnFailure(false);
-  }, [selectedCase, isOpen]);
+  }, [api, selectedCase, isOpen]);
 
   function close() {
     setErrorOnLoad('');

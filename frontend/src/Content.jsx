@@ -22,7 +22,7 @@ import { SettledIcon } from './Icons';
 import RtfImportModal from './RtfImportModal';
 import { statusKeys, statusLabels } from './status';
 import StatusIcon from './StatusIcon';
-import { startOfWeek, today } from './utils';
+import { single, startOfWeek, today } from './utils';
 
 const typeMap = {
   CHAMBER: 'K',
@@ -73,12 +73,7 @@ export default function Content() {
     // in the API, type is a single nullable parameter (i.e. SINGLE or CHAMBER or null)
     api.getCases(statusQuery, typeQuery.length === 1 ? typeQuery[0] : null, settledOnly)
       .then((response) => {
-        setCases(response.data?.cases.map((c) => {
-          if (c.id === recentlyUpdatedId) {
-            c.recentlyUpdated = true;
-          }
-          return c;
-        }));
+        setCases(response.data?.cases);
         setLoading(false);
         setForceSpinner(false);
         setErrorMessage('');
@@ -86,14 +81,16 @@ export default function Content() {
         setTimeout(() => setRecentlyUpdatedId(undefined), 1600);
       })
       .catch((error) => setErrorMessage(error.userMessage));
-  }, [reloadCases, statusQuery, typeQuery, settledOnly]);
+  }, [api, reloadCases, statusQuery, typeQuery, settledOnly]);
 
   useEffect(() => {
     if (!cases) {
       return;
     }
+
+    let newCases;
     if (todosOnly && !settledOnly) {
-      let newCases = cases.filter((c) => c.todoDate)
+      newCases = cases.filter((c) => c.todoDate)
         .filter((c) => containsSearch(c, search))
         .sort((c1, c2) => c1.todoDate.localeCompare(c2.todoDate))
         .map((c) => Object.assign({}, c));
@@ -131,11 +128,16 @@ export default function Content() {
           },
           ...newCases.slice(e.casesIndex)];
       }
-      setFilteredCases(newCases);
     } else {
-      setFilteredCases(cases.filter((c) => containsSearch(c, search)));
+      newCases = cases.filter((c) => containsSearch(c, search));
     }
-  }, [cases, todosOnly, settledOnly, search]);
+    setFilteredCases(newCases.map((c) => {
+      if (c.id === recentlyUpdatedId) {
+        c.recentlyUpdated = true;
+      }
+      return c;
+    }));
+  }, [cases, todosOnly, settledOnly, search, recentlyUpdatedId]);
 
   // pull to refresh on mobile devices (tested on iOS only)
   useEffect(() => {
@@ -488,22 +490,28 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
       setClickedCaseId(null);
       setDocuments([]);
     }
-  }, [singleClickedCaseId]);
+  }, [clickedCaseId, singleClickedCaseId]);
 
   useEffect(() => {
+    if (!cases || !openCaseId) {
+      return;
+    }
+
     setSelectedDocumentId(null);
     setErrorMessage(null);
-    if (openCaseId) {
-      api.getCaseDocuments(openCaseId)
+
+    let openCase = single(cases.filter((c) => c.id === openCaseId));
+    if (openCase && openCase.hasDocuments) {
+      api.getCaseDocuments(openCase.id)
         .then((response) => {
           setDocuments(response.data.documents);
-          cases.filter((c) => c.id === openCaseId).forEach((c) => c.hasDocuments = (response.data.documents.length > 0));
+          openCase.hasDocuments = (response.data.documents.length > 0);
         })
         .catch((error) => setErrorMessage(error.userMessage));
     } else {
       setDocuments([]);
     }
-  }, [openCaseId, reloadDocuments]);
+  }, [api, cases, openCaseId, reloadDocuments]);
 
   function clickCase(event, id) {
     setClickedCaseId((c) => {

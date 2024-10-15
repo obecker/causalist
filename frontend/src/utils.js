@@ -12,3 +12,10 @@ export function startOfWeek(dateString, weekOffset) {
   }
   return date;
 }
+
+export function single(array) {
+  if (!Array.isArray(array) || array.length !== 1) {
+    return null;
+  }
+  return array[0];
+}

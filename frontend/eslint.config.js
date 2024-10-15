@@ -1,13 +1,24 @@
 import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
-import reactRecommended from 'eslint-plugin-react/configs/recommended.js';
+import pluginReact from 'eslint-plugin-react';
+import pluginReactHooks from 'eslint-plugin-react-hooks';
 import vitestGlobals from 'eslint-plugin-vitest-globals';
 import globals from 'globals';
+
+const pluginReactHooksRecommended = {
+  plugins: {
+    'react-hooks': pluginReactHooks,
+  },
+  rules: {
+    ...pluginReactHooks.configs.recommended.rules,
+  },
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default [
   js.configs.recommended,
-  reactRecommended,
+  pluginReact.configs.flat.recommended,
+  pluginReactHooksRecommended,
   stylistic.configs.customize({
     semi: true,
     braceStyle: '1tbs',
