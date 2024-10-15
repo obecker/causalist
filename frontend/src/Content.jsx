@@ -432,7 +432,7 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
     setStatusQuery((sq) => {
       const newStatusQuery = [];
       if (sq.length === 0 || (sq.length === 1 && sq[0] === status)) {
-        statusKeys.filter((s) => s !== status).forEach((s) => newStatusQuery.push(s));
+        filterStatusKeys.filter((s) => s !== status).forEach((s) => newStatusQuery.push(s));
       } else {
         newStatusQuery.push(status);
       }
