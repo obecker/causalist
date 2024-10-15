@@ -359,12 +359,10 @@ export default function Content() {
 }
 
 function TypeFilter({ typeQuery, setTypeQuery }) {
-  const buttonClasses = clsx('p-2 w-11 text-sm font-semibold text-stone-900 hover:text-white hover:bg-teal-700',
+  const buttonClasses = clsx('p-2 w-11 text-sm font-semibold text-stone-900 hover:text-teal-700',
     'border border-r-0 border-stone-300 last:border-r first:rounded-l-md last:rounded-r-md',
-    'focus-visible:text-white focus-visible:bg-teal-700 focus-visible:outline-none',
-    'data-selected:text-teal-700 data-selected:bg-stone-200',
-    'data-selected:shadow-inner data-selected:shadow-stone-400/50',
-    'data-selected:hover:text-teal-100 data-selected:hover:bg-teal-700');
+    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus-visible:z-10',
+    'data-selected:text-white data-selected:bg-teal-700 data-selected:hover:bg-teal-600');
 
   function toggleType(type) {
     setTypeQuery((tq) => {
@@ -412,12 +410,10 @@ function TypeFilter({ typeQuery, setTypeQuery }) {
 }
 
 function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
-  const buttonClasses = clsx('p-2 w-full text-stone-900 hover:text-white hover:bg-teal-700',
+  const buttonClasses = clsx('p-2 w-full text-stone-900 hover:text-teal-700',
     'border border-r-0 last:border-r border-stone-300 first:rounded-l-md last:rounded-r-md',
-    'focus-visible:text-white focus-visible:bg-teal-700 focus-visible:outline-none',
-    'data-selected:text-teal-700 data-selected:bg-stone-200',
-    'data-selected:shadow-inner data-selected:shadow-stone-400/50',
-    'data-selected:hover:text-teal-100 data-selected:hover:bg-teal-700',
+    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus-visible:z-10',
+    'data-selected:text-white data-selected:bg-teal-700 data-selected:hover:bg-teal-600',
     'disabled:!text-stone-900 disabled:!bg-white disabled:opacity-40 disabled:cursor-not-allowed');
 
   function toggleStatus(status) {
