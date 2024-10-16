@@ -637,6 +637,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
             className={liClasses}
             onClick={(e) => clickCase(e, aCase.ref && aCase.id)}
             onDoubleClick={(e) => openEditModal(e, aCase.ref && aCase)}
+            onMouseDown={(e) => e.detail === 2 && e.preventDefault()} // no text selection on double click
           >
             {aCase.newWeek && (
               <div className={weekMarkerClasses}>
