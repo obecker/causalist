@@ -34,6 +34,7 @@ module "frontend_files" {
     ".js" : "application/javascript",
     ".json" : "application/json",
     ".mjs" : "application/javascript",
+    ".pfb" : "application/x-font-type1",
     ".png" : "image/png",
     ".svg" : "image/svg+xml",
     ".ttf" : "font/ttf",
