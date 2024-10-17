@@ -661,7 +661,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                   data-open={openCaseId === aCase.id}
                   className="px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:md:mr-4"
                 >
-                  <span title={aCase.parties ? 'Parteien' : null}>{aCase.parties}</span>
+                  <span title={openCaseId === aCase.id ? null : aCase.parties}>{aCase.parties}</span>
                   <div className="md:hidden text-sm">
                     <span title={aCase.todoDate && 'Vorfrist'} className={!isSettled(aCase) && aCase.todoDate ? 'pr-4' : 'hidden'}>
                       {formattedDate(aCase.todoDate)}
@@ -677,7 +677,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                   </div>
                 </div>
                 <div
-                  title={aCase.area ? 'Rechtsgebiet' : null}
+                  title={openCaseId === aCase.id ? null : aCase.area}
                   data-open={openCaseId === aCase.id}
                   className="hidden lg:inline px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:mr-4"
                 >
@@ -752,7 +752,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       </ul>
                     </div>
                     {aCase.area && (
-                      <div title="Rechtsgebiet" className="col-start-3 px-2 lg:hidden md:mr-4">
+                      <div className="col-start-3 px-2 lg:hidden md:mr-4">
                         {aCase.area}
                       </div>
                     )}
@@ -765,7 +765,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       <b>Status:</b>
                       {' ' + statusLabels[aCase.status]}
                       {aCase.statusNote && (
-                        <span title="Status-Notiz">
+                        <span>
                           {' – '}
                           <AutoLink
                             text={aCase.statusNote}
@@ -775,7 +775,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       )}
                     </div>
                     {aCase.memo && (
-                      <div title="Anmerkung" className="col-start-3 col-end-5 px-2 italic whitespace-pre-wrap">
+                      <div className="col-start-3 col-end-5 px-2 italic whitespace-pre-wrap">
                         <AutoLink
                           text={aCase.memo}
                           linkClassName="text-teal-700 hover:text-teal-800 hover:underline"
