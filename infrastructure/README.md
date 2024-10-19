@@ -16,8 +16,8 @@ flowchart LR
     end
     
     user -. "http://..." .-> cloudfront
-    cloudfront -- * --> s3_frontend
-    cloudfront -- /api --> api
+    cloudfront -- "#42;" --> s3_frontend
+    cloudfront -- "/api" --> api
     api --> lambda
     lambda --> dynamo
     lambda --> s3_documents

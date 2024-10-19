@@ -30,7 +30,7 @@ Within the [frontend](frontend) directory, you'll find the source code for a sin
 with the backend service. This application is developed in JavaScript, employing [Vite](https://vitejs.dev), 
 [React](https://react.dev), and [Tailwind CSS](https://tailwindcss.com).
 
-To initiate a server delivering the frontend, execute the command `npm run start`.
+To initiate a server delivering the frontend, execute the command `pnpm run start`.
 The frontend will be accessible at http://localhost:3000, while it will interact with the backend service at 
 `http://localhost:4000`.
 
@@ -47,7 +47,7 @@ for deploying the service on AWS. Before the first deployment you need to:
 To execute an AWS deployment, follow these steps:
 
 1. Run `gradle assemble` in the backend directory.
-2. Run `npm run build` in the frontend directory.
+2. Run `pnpm run build` in the frontend directory.
 3. Execute `scripts/deploy.sh prod` or `scripts/deploy.sh stage`.
 
 Note: Every AWS Lambda deployment creates a new function version, however
