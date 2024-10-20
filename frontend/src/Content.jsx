@@ -18,22 +18,13 @@ import DeleteModal from './DeleteModal';
 import EditModal from './EditModal';
 import FailureAlert from './FailureAlert';
 import FileUploadModal from './FileUploadModal';
+import { FortuneModal } from './FortuneModal';
 import { SettledIcon } from './Icons';
 import RtfImportModal from './RtfImportModal';
 import { statusKeys, statusLabels } from './status';
 import StatusIcon from './StatusIcon';
+import { typeKeys, typeLabels, typeMap } from './type';
 import { single, startOfWeek, today } from './utils';
-
-const typeMap = {
-  CHAMBER: 'K',
-  SINGLE: 'ER',
-};
-const typeKeys = Object.keys(typeMap);
-
-const typeLabels = {
-  CHAMBER: 'Kammersache',
-  SINGLE: 'Einzelrichter',
-};
 
 const filterStatusKeys = statusKeys.filter((value) => value !== 'SETTLED');
 
@@ -54,6 +45,7 @@ export default function Content() {
   const [isImportOpen, setImportOpen] = useState(false);
   const [isUploadOpen, setUploadOpen] = useState(false);
   const [isDeleteOpen, setDeleteOpen] = useState(false);
+  const [isFortuneOpen, setFortuneOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState(null);
   const [todosOnly, setTodosOnly] = useState(false);
   const [settledOnly, setSettledOnly] = useState(false);
@@ -206,10 +198,12 @@ export default function Content() {
 
       <DeleteModal isOpen={isDeleteOpen} setIsOpen={setDeleteOpen} selectedCase={selectedCase} forceUpdate={forceUpdate} />
 
+      <FortuneModal isOpen={isFortuneOpen} setIsOpen={setFortuneOpen} cases={cases} />
+
       {/* header */}
       <div className="mb-8 flex flex-row justify-between items-baseline border-b-2 border-b-stone-400 border-solid">
         <div className="mb-2 flex flex-row justify-start items-baseline">
-          <img src="/logo.svg" alt="Logo" className="mr-2 my-auto size-5" />
+          <img src="/logo.svg" alt="Logo" className="mr-2 my-auto size-5" onClick={() => setFortuneOpen(true)} />
           <span className="font-kaushanScript text-lg">Causalist</span>
         </div>
         { // responsiveness helper (development only)
