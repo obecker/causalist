@@ -1,6 +1,6 @@
 import { DialogPanel, DialogTitle } from '@headlessui/react';
 import clsx from 'clsx';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ModalDialog from './ModalDialog';
 import { statusLabels } from './status';
 import StatusIcon from './StatusIcon';
@@ -36,7 +36,7 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
           <span>🎉🎉🎉</span>
         </DialogTitle>
         <div className="mt-8">
-          <FortuneWheel reference={fortuneCase.ref} done={() => setRevealDetails(true)} />
+          <FortuneWheel reference={fortuneCase.ref} onFinish={() => setRevealDetails(true)} />
         </div>
         <div
           className="mt-8 relative max-h-lvh overflow-y-scroll transition-opacity duration-1000"
@@ -78,19 +78,25 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
   );
 }
 
-function FortuneWheel({ reference, done = () => {} }) {
+function FortuneWheel({ reference, onFinish = () => {} }) {
+  const startedWheels = useRef(0);
   const finishedWheels = useRef(0);
 
   useEffect(() => {
+    startedWheels.current = 0;
     finishedWheels.current = 0;
   }, [reference]);
 
-  function finishedWheel() {
+  const started = useCallback(() => {
+    startedWheels.current += 1;
+  }, []);
+
+  const finished = useCallback(() => {
     finishedWheels.current += 1;
-    if (finishedWheels.current === 9) { // there are 9 single wheels below
-      done();
+    if (finishedWheels.current === startedWheels.current) {
+      onFinish();
     }
-  }
+  }, [onFinish]);
 
   return (
     <div
@@ -99,26 +105,32 @@ function FortuneWheel({ reference, done = () => {} }) {
         lineHeight: `${lineHeight}px`,
       }}
     >
-      <DigitWheel digit={Math.trunc(reference.entity / 100) % 10} done={finishedWheel} />
-      <DigitWheel digit={Math.trunc(reference.entity / 10) % 10} direction="down" done={finishedWheel} />
-      <DigitWheel digit={reference.entity % 10} done={finishedWheel} />
+      <DigitWheel digit={Math.trunc(reference.entity / 100) % 10} delay={100} onStart={started} onFinish={finished} />
+      <DigitWheel digit={Math.trunc(reference.entity / 10) % 10} direction="down" delay={200} onStart={started} onFinish={finished} />
+      <DigitWheel digit={reference.entity % 10} delay={300} onStart={started} onFinish={finished} />
       <Space />
-      <RegisterWheel register={reference.register} direction="down" done={finishedWheel} />
+      <RegisterWheel register={reference.register} direction="down" delay={400} onStart={started} onFinish={finished} />
       <Space />
-      <DigitWheel digit={Math.trunc(reference.number / 100) % 10} done={finishedWheel} />
-      <DigitWheel digit={Math.trunc(reference.number / 10) % 10} direction="down" done={finishedWheel} />
-      <DigitWheel digit={reference.number % 10} done={finishedWheel} />
+      <DigitWheel digit={Math.trunc(reference.number / 100) % 10} delay={500} onStart={started} onFinish={finished} />
+      <DigitWheel digit={Math.trunc(reference.number / 10) % 10} direction="down" delay={600} onStart={started} onFinish={finished} />
+      <DigitWheel digit={reference.number % 10} delay={700} onStart={started} onFinish={finished} />
       <Space>/</Space>
-      <DigitWheel digit={Math.trunc(reference.year / 10) % 10} direction="down" done={finishedWheel} />
-      <DigitWheel digit={reference.year % 10} done={finishedWheel} />
+      <DigitWheel digit={Math.trunc(reference.year / 10) % 10} delay={800} direction="down" onStart={started} onFinish={finished} />
+      <DigitWheel digit={reference.year % 10} delay={900} onStart={started} onFinish={finished} />
     </div>
   );
 }
 
-function DigitWheel({ digit, direction = 'up', done = () => {} }) {
-  const count = 10;
-  const digitStrip = Array.from(Array(2 * count + 3), (_, index) => (index + 9) % 10);
+function createStrip(array, repetitions) {
+  return [...(array.slice(-1)), ...(Array(repetitions).fill(array).flat()), ...(array.slice(0, 2))];
+}
+
+function DigitWheel({ digit, direction = 'up', delay = 100, onStart = () => {}, onFinish = () => {} }) {
+  const digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const repetitions = 3;
+  const digitStrip = createStrip(digits, repetitions);
   const isDown = direction === 'down';
+  const targetShift = digit + 1 + (isDown ? 0 : (repetitions - Math.sign(digit)) * digits.length);
 
   const [shift, setShift] = useState(isDown ? digitStrip.length - 2 : 1);
   const [selectedClassName, setSelectedClassName] = useState('');
@@ -126,17 +138,20 @@ function DigitWheel({ digit, direction = 'up', done = () => {} }) {
   useEffect(() => {
     setSelectedClassName('');
     const timeout = setTimeout(
-      () => setShift(digit + 1 + (isDown ? 0 : (2 - Math.sign(digit)) * count)),
-      100);
+      () => {
+        onStart();
+        setShift(targetShift);
+      },
+      delay);
     return () => clearTimeout(timeout);
-  }, [digit, isDown]);
+  }, [delay, onStart, targetShift]);
 
   return (
     <WheelWindow
       shift={shift}
-      done={() => {
+      onFinish={() => {
         setSelectedClassName('text-teal-700');
-        done();
+        onFinish();
       }}
     >
       {digitStrip.map((digit, index) => (
@@ -146,11 +161,13 @@ function DigitWheel({ digit, direction = 'up', done = () => {} }) {
   );
 }
 
-function RegisterWheel({ register, direction = 'up', done = () => {} }) {
+function RegisterWheel({ register, direction = 'up', delay = 100, onStart = () => {}, onFinish = () => {} }) {
   const registers = ['O', 'OH', 'S', 'T'];
-  const registerStrip = [...(registers.slice(-1)), ...registers, ...registers, ...registers, ...(registers.slice(0, 2))];
+  const repetitions = 5;
+  const registerStrip = createStrip(registers, repetitions);
   const targetIndex = registers.indexOf(register);
   const isDown = direction === 'down';
+  const targetShift = targetIndex + 1 + (isDown ? 0 : (repetitions - Math.sign(targetIndex)) * registers.length);
 
   const [shift, setShift] = useState(isDown ? registerStrip.length - 2 : 1);
   const [selectedClassName, setSelectedClassName] = useState('');
@@ -158,10 +175,13 @@ function RegisterWheel({ register, direction = 'up', done = () => {} }) {
   useEffect(() => {
     setSelectedClassName('');
     const timeout = setTimeout(
-      () => setShift(targetIndex + 1 + (isDown ? 0 : (3 - Math.sign(targetIndex)) * registers.length)),
-      100);
+      () => {
+        onStart();
+        setShift(targetShift);
+      },
+      delay);
     return () => clearTimeout(timeout);
-  }, [isDown, registers.length, targetIndex]);
+  }, [delay, onStart, targetShift]);
 
   if (targetIndex < 0) {
     console.error('Illegal register sign', register);
@@ -172,9 +192,9 @@ function RegisterWheel({ register, direction = 'up', done = () => {} }) {
     <WheelWindow
       shift={shift}
       width="w-12"
-      done={() => {
+      onFinish={() => {
         setSelectedClassName('text-teal-700');
-        done();
+        onFinish();
       }}
     >
       {registerStrip.map((reg, index) => (
@@ -184,7 +204,7 @@ function RegisterWheel({ register, direction = 'up', done = () => {} }) {
   );
 }
 
-function WheelWindow({ shift, children, width = 'w-8', done }) {
+function WheelWindow({ shift, children, width = 'w-8', onFinish }) {
   return (
     <div className={`border border-gray-200 px-1 py-2 ${width} h-10 shadow-inner overflow-hidden relative`}>
       <div
@@ -193,7 +213,7 @@ function WheelWindow({ shift, children, width = 'w-8', done }) {
           transform: `translateY(-${shift * lineHeight}px)`,
           transitionDuration: `${Math.floor(Math.random() * 1500) + 3000}ms`,
         }}
-        onTransitionEnd={done}
+        onTransitionEnd={onFinish}
       >
         {children}
       </div>
