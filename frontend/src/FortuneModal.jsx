@@ -1,6 +1,7 @@
 import { DialogPanel, DialogTitle } from '@headlessui/react';
 import clsx from 'clsx';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import ConfettiExplosion from 'react-confetti-explosion';
 import ModalDialog from './ModalDialog';
 import { statusLabels } from './status';
 import StatusIcon from './StatusIcon';
@@ -11,6 +12,7 @@ const lineHeight = 22;
 export function FortuneModal({ isOpen, setIsOpen, cases }) {
   const [fortuneCase, setFortuneCase] = useState(null);
   const [revealDetails, setRevealDetails] = useState(false);
+  const [explode, setExplode] = useState(false);
 
   useEffect(() => {
     let newFortuneCase = cases && isOpen ? cases[Math.floor(Math.random() * cases.length)] : null;
@@ -30,13 +32,34 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
       <DialogPanel className={clsx('p-6 w-full max-w-md sm:max-w-lg md:max-w-xl text-stone-900',
         'transform transition-all overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl')}
       >
-        <DialogTitle as="h3" className="text-lg sm:text-xl font-semibold flex justify-center gap-2 sm:gap-4">
-          <span>🎉🎉🎉</span>
+        <DialogTitle
+          as="h3"
+          className="text-lg sm:text-xl font-semibold flex justify-center gap-2 sm:gap-4"
+          onClick={() => setExplode(true)}
+        >
+          <span className={revealDetails ? 'opacity-100' : 'opacity-0'}>🎉🎉🎉</span>
           <span>Akte des Tages</span>
-          <span>🎉🎉🎉</span>
+          <span className={revealDetails ? 'opacity-100' : 'opacity-0'}>🎉🎉🎉</span>
         </DialogTitle>
+        <div className="flex justify-center">
+          { explode && (
+            <ConfettiExplosion
+              particleCount={200}
+              colors={['#e11d48', '#f59e0b', '#059669', '#2563eb', '#9333ea']} // marker colors from index.css
+              force={0.6}
+              zIndex={1000}
+              onComplete={() => setExplode(false)}
+            />
+          )}
+        </div>
         <div className="mt-8">
-          <FortuneWheel reference={fortuneCase.ref} onFinish={() => setRevealDetails(true)} />
+          <FortuneWheel
+            reference={fortuneCase.ref}
+            onFinish={() => {
+              setRevealDetails(true);
+              setExplode(true);
+            }}
+          />
         </div>
         <div
           className="mt-8 relative max-h-lvh overflow-y-scroll transition-opacity duration-1000"
