@@ -125,12 +125,11 @@ function createStrip(array, repetitions) {
   return [...(array.slice(-1)), ...(Array(repetitions).fill(array).flat()), ...(array.slice(0, 2))];
 }
 
+const digitStrip = createStrip([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 3);
+
 function DigitWheel({ digit, direction = 'up', delay = 100, onStart = () => {}, onFinish = () => {} }) {
-  const digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-  const repetitions = 3;
-  const digitStrip = createStrip(digits, repetitions);
   const isDown = direction === 'down';
-  const targetShift = digit + 1 + (isDown ? 0 : (repetitions - Math.sign(digit)) * digits.length);
+  const targetShift = isDown ? digitStrip.indexOf(digit, 1) : digitStrip.lastIndexOf(digit, digitStrip.length - 2);
 
   const [shift, setShift] = useState(isDown ? digitStrip.length - 2 : 1);
   const [selectedClassName, setSelectedClassName] = useState('');
@@ -161,13 +160,11 @@ function DigitWheel({ digit, direction = 'up', delay = 100, onStart = () => {}, 
   );
 }
 
+const registerStrip = createStrip(['O', 'OH', 'S', 'T'], 5);
+
 function RegisterWheel({ register, direction = 'up', delay = 100, onStart = () => {}, onFinish = () => {} }) {
-  const registers = ['O', 'OH', 'S', 'T'];
-  const repetitions = 5;
-  const registerStrip = createStrip(registers, repetitions);
-  const targetIndex = registers.indexOf(register);
   const isDown = direction === 'down';
-  const targetShift = targetIndex + 1 + (isDown ? 0 : (repetitions - Math.sign(targetIndex)) * registers.length);
+  const targetShift = isDown ? registerStrip.indexOf(register, 1) : registerStrip.lastIndexOf(register, registerStrip.length - 2);
 
   const [shift, setShift] = useState(isDown ? registerStrip.length - 2 : 1);
   const [selectedClassName, setSelectedClassName] = useState('');
@@ -183,7 +180,7 @@ function RegisterWheel({ register, direction = 'up', delay = 100, onStart = () =
     return () => clearTimeout(timeout);
   }, [delay, onStart, targetShift]);
 
-  if (targetIndex < 0) {
+  if (targetShift < 0) {
     console.error('Illegal register sign', register);
     return;
   }
