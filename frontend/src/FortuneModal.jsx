@@ -1,6 +1,6 @@
 import { DialogPanel, DialogTitle } from '@headlessui/react';
 import clsx from 'clsx';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ModalDialog from './ModalDialog';
 import { statusLabels } from './status';
 import StatusIcon from './StatusIcon';
@@ -36,7 +36,7 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
           <span>🎉🎉🎉</span>
         </DialogTitle>
         <div className="mt-8">
-          <FortuneWheel reference={fortuneCase.ref} done={() => setRevealDetails(true)} />
+          <FortuneWheel reference={fortuneCase.ref} onFinish={() => setRevealDetails(true)} />
         </div>
         <div
           className="mt-8 relative max-h-lvh overflow-y-scroll transition-opacity duration-1000"
@@ -78,19 +78,25 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
   );
 }
 
-function FortuneWheel({ reference, done = () => {} }) {
+function FortuneWheel({ reference, onFinish = () => {} }) {
+  const startedWheels = useRef(0);
   const finishedWheels = useRef(0);
 
   useEffect(() => {
+    startedWheels.current = 0;
     finishedWheels.current = 0;
   }, [reference]);
 
-  function finishedWheel() {
+  const started = useCallback(() => {
+    startedWheels.current += 1;
+  }, []);
+
+  const finished = useCallback(() => {
     finishedWheels.current += 1;
-    if (finishedWheels.current === 9) { // there are 9 single wheels below
-      done();
+    if (finishedWheels.current === startedWheels.current) {
+      onFinish();
     }
-  }
+  }, [onFinish]);
 
   return (
     <div
@@ -99,103 +105,72 @@ function FortuneWheel({ reference, done = () => {} }) {
         lineHeight: `${lineHeight}px`,
       }}
     >
-      <DigitWheel digit={Math.trunc(reference.entity / 100) % 10} done={finishedWheel} />
-      <DigitWheel digit={Math.trunc(reference.entity / 10) % 10} direction="down" done={finishedWheel} />
-      <DigitWheel digit={reference.entity % 10} done={finishedWheel} />
+      <DigitWheel digit={Math.trunc(reference.entity / 100) % 10} delay={100} onStart={started} onFinish={finished} />
+      <DigitWheel digit={Math.trunc(reference.entity / 10) % 10} direction="down" delay={200} onStart={started} onFinish={finished} />
+      <DigitWheel digit={reference.entity % 10} delay={300} onStart={started} onFinish={finished} />
       <Space />
-      <RegisterWheel register={reference.register} direction="down" done={finishedWheel} />
+      <RegisterWheel register={reference.register} direction="down" delay={400} onStart={started} onFinish={finished} />
       <Space />
-      <DigitWheel digit={Math.trunc(reference.number / 100) % 10} done={finishedWheel} />
-      <DigitWheel digit={Math.trunc(reference.number / 10) % 10} direction="down" done={finishedWheel} />
-      <DigitWheel digit={reference.number % 10} done={finishedWheel} />
+      <DigitWheel digit={Math.trunc(reference.number / 100) % 10} delay={500} onStart={started} onFinish={finished} />
+      <DigitWheel digit={Math.trunc(reference.number / 10) % 10} direction="down" delay={600} onStart={started} onFinish={finished} />
+      <DigitWheel digit={reference.number % 10} delay={700} onStart={started} onFinish={finished} />
       <Space>/</Space>
-      <DigitWheel digit={Math.trunc(reference.year / 10) % 10} direction="down" done={finishedWheel} />
-      <DigitWheel digit={reference.year % 10} done={finishedWheel} />
+      <DigitWheel digit={Math.trunc(reference.year / 10) % 10} delay={800} direction="down" onStart={started} onFinish={finished} />
+      <DigitWheel digit={reference.year % 10} delay={900} onStart={started} onFinish={finished} />
     </div>
   );
 }
 
-function DigitWheel({ digit, direction = 'up', done = () => {} }) {
-  const count = 10;
-  const digitStrip = Array.from(Array(2 * count + 3), (_, index) => (index + 9) % 10);
-  const isDown = direction === 'down';
+const createStrip = (array, repetitions) => [...(array.slice(-1)), ...(Array(repetitions).fill(array).flat()), ...(array.slice(0, 2))];
+const digitStrip = createStrip([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 3);
+const registerStrip = createStrip(['O', 'OH', 'S', 'T'], 7);
 
-  const [shift, setShift] = useState(isDown ? digitStrip.length - 2 : 1);
-  const [selectedClassName, setSelectedClassName] = useState('');
-
-  useEffect(() => {
-    setSelectedClassName('');
-    const timeout = setTimeout(
-      () => setShift(digit + 1 + (isDown ? 0 : (2 - Math.sign(digit)) * count)),
-      100);
-    return () => clearTimeout(timeout);
-  }, [digit, isDown]);
-
-  return (
-    <WheelWindow
-      shift={shift}
-      done={() => {
-        setSelectedClassName('text-teal-700');
-        done();
-      }}
-    >
-      {digitStrip.map((digit, index) => (
-        <div key={index} className={shift === index ? selectedClassName : null}>{digit}</div>
-      ))}
-    </WheelWindow>
-  );
+function DigitWheel({ digit, direction = 'up', delay, onStart, onFinish }) {
+  return <SpinningWheel value={digit} valueStrip={digitStrip} direction={direction} delay={delay} onStart={onStart} onFinish={onFinish} />;
 }
 
-function RegisterWheel({ register, direction = 'up', done = () => {} }) {
-  const registers = ['O', 'OH', 'S', 'T'];
-  const registerStrip = [...(registers.slice(-1)), ...registers, ...registers, ...registers, ...(registers.slice(0, 2))];
-  const targetIndex = registers.indexOf(register);
-  const isDown = direction === 'down';
+function RegisterWheel({ register, direction = 'up', delay, onStart, onFinish }) {
+  return <SpinningWheel value={register} valueStrip={registerStrip} direction={direction} delay={delay} widthClass="w-12" onStart={onStart} onFinish={onFinish} />;
+}
 
-  const [shift, setShift] = useState(isDown ? registerStrip.length - 2 : 1);
+function SpinningWheel({ value, valueStrip, direction, delay, widthClass = 'w-8', onStart, onFinish }) {
+  const isDown = direction === 'down';
+  const targetShift = isDown ? valueStrip.indexOf(value, 1) : valueStrip.lastIndexOf(value, valueStrip.length - 2);
+
+  const [shift, setShift] = useState(isDown ? valueStrip.length - 2 : 1);
   const [selectedClassName, setSelectedClassName] = useState('');
 
   useEffect(() => {
-    setSelectedClassName('');
     const timeout = setTimeout(
-      () => setShift(targetIndex + 1 + (isDown ? 0 : (3 - Math.sign(targetIndex)) * registers.length)),
-      100);
+      () => {
+        onStart();
+        setShift(targetShift);
+      },
+      delay);
     return () => clearTimeout(timeout);
-  }, [isDown, registers.length, targetIndex]);
+  }, [delay, onStart, targetShift]);
 
-  if (targetIndex < 0) {
-    console.error('Illegal register sign', register);
+  if (targetShift < 0) {
+    console.error('Illegal value', value, 'not contained in', valueStrip);
     return;
   }
 
   return (
-    <WheelWindow
-      shift={shift}
-      width="w-12"
-      done={() => {
-        setSelectedClassName('text-teal-700');
-        done();
-      }}
-    >
-      {registerStrip.map((reg, index) => (
-        <div key={index} className={shift === index ? selectedClassName : null}>{reg}</div>
-      ))}
-    </WheelWindow>
-  );
-}
-
-function WheelWindow({ shift, children, width = 'w-8', done }) {
-  return (
-    <div className={`border border-gray-200 px-1 py-2 ${width} h-10 shadow-inner overflow-hidden relative`}>
+    <div className={`border border-gray-200 px-1 py-2 ${widthClass} h-10 shadow-inner overflow-hidden relative`}>
       <div
         className="flex flex-col transition-transform"
         style={{
           transform: `translateY(-${shift * lineHeight}px)`,
           transitionDuration: `${Math.floor(Math.random() * 1500) + 3000}ms`,
         }}
-        onTransitionEnd={done}
+        onTransitionEnd={() => {
+          setSelectedClassName('text-teal-700');
+          onFinish();
+        }}
       >
-        {children}
+        {valueStrip.map((v, index) => (
+          <div key={index} className={shift === index ? selectedClassName : null}>{v}</div>
+        ))}
       </div>
       <div className="absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-stone-400/40" />
       <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-stone-400/40" />
