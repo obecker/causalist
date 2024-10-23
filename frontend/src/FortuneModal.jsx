@@ -121,56 +121,26 @@ function FortuneWheel({ reference, onFinish = () => {} }) {
   );
 }
 
-function createStrip(array, repetitions) {
-  return [...(array.slice(-1)), ...(Array(repetitions).fill(array).flat()), ...(array.slice(0, 2))];
-}
-
+const createStrip = (array, repetitions) => [...(array.slice(-1)), ...(Array(repetitions).fill(array).flat()), ...(array.slice(0, 2))];
 const digitStrip = createStrip([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 3);
+const registerStrip = createStrip(['O', 'OH', 'S', 'T'], 7);
 
-function DigitWheel({ digit, direction = 'up', delay = 100, onStart = () => {}, onFinish = () => {} }) {
-  const isDown = direction === 'down';
-  const targetShift = isDown ? digitStrip.indexOf(digit, 1) : digitStrip.lastIndexOf(digit, digitStrip.length - 2);
-
-  const [shift, setShift] = useState(isDown ? digitStrip.length - 2 : 1);
-  const [selectedClassName, setSelectedClassName] = useState('');
-
-  useEffect(() => {
-    setSelectedClassName('');
-    const timeout = setTimeout(
-      () => {
-        onStart();
-        setShift(targetShift);
-      },
-      delay);
-    return () => clearTimeout(timeout);
-  }, [delay, onStart, targetShift]);
-
-  return (
-    <WheelWindow
-      shift={shift}
-      onFinish={() => {
-        setSelectedClassName('text-teal-700');
-        onFinish();
-      }}
-    >
-      {digitStrip.map((digit, index) => (
-        <div key={index} className={shift === index ? selectedClassName : null}>{digit}</div>
-      ))}
-    </WheelWindow>
-  );
+function DigitWheel({ digit, direction = 'up', delay, onStart, onFinish }) {
+  return <SpinningWheel value={digit} valueStrip={digitStrip} direction={direction} delay={delay} onStart={onStart} onFinish={onFinish} />;
 }
 
-const registerStrip = createStrip(['O', 'OH', 'S', 'T'], 5);
+function RegisterWheel({ register, direction = 'up', delay, onStart, onFinish }) {
+  return <SpinningWheel value={register} valueStrip={registerStrip} direction={direction} delay={delay} widthClass="w-12" onStart={onStart} onFinish={onFinish} />;
+}
 
-function RegisterWheel({ register, direction = 'up', delay = 100, onStart = () => {}, onFinish = () => {} }) {
+function SpinningWheel({ value, valueStrip, direction, delay, widthClass = 'w-8', onStart, onFinish }) {
   const isDown = direction === 'down';
-  const targetShift = isDown ? registerStrip.indexOf(register, 1) : registerStrip.lastIndexOf(register, registerStrip.length - 2);
+  const targetShift = isDown ? valueStrip.indexOf(value, 1) : valueStrip.lastIndexOf(value, valueStrip.length - 2);
 
-  const [shift, setShift] = useState(isDown ? registerStrip.length - 2 : 1);
+  const [shift, setShift] = useState(isDown ? valueStrip.length - 2 : 1);
   const [selectedClassName, setSelectedClassName] = useState('');
 
   useEffect(() => {
-    setSelectedClassName('');
     const timeout = setTimeout(
       () => {
         onStart();
@@ -181,38 +151,26 @@ function RegisterWheel({ register, direction = 'up', delay = 100, onStart = () =
   }, [delay, onStart, targetShift]);
 
   if (targetShift < 0) {
-    console.error('Illegal register sign', register);
+    console.error('Illegal value', value, 'not contained in', valueStrip);
     return;
   }
 
   return (
-    <WheelWindow
-      shift={shift}
-      width="w-12"
-      onFinish={() => {
-        setSelectedClassName('text-teal-700');
-        onFinish();
-      }}
-    >
-      {registerStrip.map((reg, index) => (
-        <div key={index} className={shift === index ? selectedClassName : null}>{reg}</div>
-      ))}
-    </WheelWindow>
-  );
-}
-
-function WheelWindow({ shift, children, width = 'w-8', onFinish }) {
-  return (
-    <div className={`border border-gray-200 px-1 py-2 ${width} h-10 shadow-inner overflow-hidden relative`}>
+    <div className={`border border-gray-200 px-1 py-2 ${widthClass} h-10 shadow-inner overflow-hidden relative`}>
       <div
         className="flex flex-col transition-transform"
         style={{
           transform: `translateY(-${shift * lineHeight}px)`,
           transitionDuration: `${Math.floor(Math.random() * 1500) + 3000}ms`,
         }}
-        onTransitionEnd={onFinish}
+        onTransitionEnd={() => {
+          setSelectedClassName('text-teal-700');
+          onFinish();
+        }}
       >
-        {children}
+        {valueStrip.map((v, index) => (
+          <div key={index} className={shift === index ? selectedClassName : null}>{v}</div>
+        ))}
       </div>
       <div className="absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-stone-400/40" />
       <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-stone-400/40" />
