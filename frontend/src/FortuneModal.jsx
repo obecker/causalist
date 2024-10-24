@@ -25,6 +25,7 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
   function close() {
     setIsOpen(false);
     setRevealDetails(false);
+    setExplode(false);
   }
 
   return fortuneCase && (
@@ -37,9 +38,9 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
           className="text-lg sm:text-xl font-semibold flex justify-center gap-2 sm:gap-4"
           onClick={() => setExplode(true)}
         >
-          <span className={revealDetails ? 'opacity-100' : 'opacity-0'}>🎉🎉🎉</span>
+          <span style={{ opacity: revealDetails ? 1 : 0 }}>🎉🎉🎉</span>
           <span>Akte des Tages</span>
-          <span className={revealDetails ? 'opacity-100' : 'opacity-0'}>🎉🎉🎉</span>
+          <span style={{ opacity: revealDetails ? 1 : 0 }}>🎉🎉🎉</span>
         </DialogTitle>
         <div className="flex justify-center">
           { explode && (
