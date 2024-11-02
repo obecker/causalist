@@ -1,9 +1,8 @@
 import { useSessionStorage } from '@uidotdev/usehooks';
 import axios from 'axios';
-import { createContext, useRef } from 'react';
+import { useRef } from 'react';
+import { ApiContext } from './ApiContext';
 import { today } from './utils';
-
-export const ApiContext = createContext({});
 
 export default function ApiProvider({ children }) {
   const [apiKey, setApiKey] = useSessionStorage('apiKey', null);

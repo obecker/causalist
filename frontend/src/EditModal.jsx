@@ -3,7 +3,7 @@ import { ChevronDownIcon, ChevronUpIcon, XMarkIcon } from '@heroicons/react/24/s
 import { useMediaQuery } from '@uidotdev/usehooks';
 import clsx from 'clsx/lite';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { ApiContext } from './ApiProvider';
+import { ApiContext } from './ApiContext';
 import FailureAlert from './FailureAlert';
 import ModalDialog from './ModalDialog';
 import { statusKeys, statusLabels } from './status';

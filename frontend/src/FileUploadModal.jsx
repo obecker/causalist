@@ -2,7 +2,7 @@ import { DialogTitle } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx/lite';
 import { useContext, useEffect, useState } from 'react';
-import { ApiContext } from './ApiProvider';
+import { ApiContext } from './ApiContext';
 import FailureAlert from './FailureAlert';
 import ModalDialog from './ModalDialog';
 

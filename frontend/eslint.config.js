@@ -1,9 +1,10 @@
-import js from '@eslint/js';
-import stylistic from '@stylistic/eslint-plugin';
+import globals from 'globals';
+import pluginJs from '@eslint/js';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
+import pluginReactRefresh from 'eslint-plugin-react-refresh';
+import stylistic from '@stylistic/eslint-plugin';
 import vitestGlobals from 'eslint-plugin-vitest-globals';
-import globals from 'globals';
 
 const pluginReactHooksRecommended = {
   plugins: {
@@ -16,7 +17,7 @@ const pluginReactHooksRecommended = {
 
 // noinspection JSUnusedGlobalSymbols
 export default [
-  js.configs.recommended,
+  pluginJs.configs.recommended,
   pluginReact.configs.flat.recommended,
   pluginReactHooksRecommended,
   stylistic.configs.customize({
@@ -39,9 +40,13 @@ export default [
         BUILD_NUMBER: 'readonly',
       },
     },
+    plugins: {
+      'react-refresh': pluginReactRefresh,
+    },
     rules: {
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
+      'react-refresh/only-export-components': 'warn',
     },
   },
 ];

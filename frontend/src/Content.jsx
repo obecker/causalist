@@ -12,7 +12,7 @@ import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import { useDebounce } from '@uidotdev/usehooks';
 import clsx from 'clsx/lite';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { ApiContext } from './ApiProvider';
+import { ApiContext } from './ApiContext';
 import AutoLink from './AutoLink';
 import DeleteModal from './DeleteModal';
 import EditModal from './EditModal';
