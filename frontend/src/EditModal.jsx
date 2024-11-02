@@ -8,7 +8,7 @@ import FailureAlert from './FailureAlert';
 import ModalDialog from './ModalDialog';
 import { statusKeys, statusLabels } from './status';
 import StatusIcon from './StatusIcon';
-import { today } from './utils';
+import { addDays, daysDiff, today } from './utils';
 
 export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate }) {
   const api = useContext(ApiContext);
@@ -28,6 +28,9 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   const [caseSettledOn, setCaseSettledOn] = useState('');
   const [caseDueDate, setCaseDueDate] = useState('');
   const [caseTodoDate, setCaseTodoDate] = useState('');
+  const [previousDueDate, setPreviousDueDate] = useState('');
+  const [previousTodoDate, setPreviousTodoDate] = useState('');
+  const [todoDateEdited, setTodoDateEdited] = useState(false);
 
   const [refEntityFailure, setRefEntityFailure] = useState(false);
   const [refRegisterFailure, setRefRegisterFailure] = useState(false);
@@ -68,6 +71,9 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
       setCaseSettledOn('');
       setCaseDueDate('');
       setCaseTodoDate('');
+      setPreviousDueDate('');
+      setPreviousTodoDate('');
+      setTodoDateEdited(false);
     }
 
     if (selectedCase && isOpen) {
@@ -90,6 +96,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
           setCaseSettledOn(caseResource.settledOn ?? '');
           setCaseDueDate(caseResource.dueDate ?? '');
           setCaseTodoDate(caseResource.todoDate ?? '');
+          setPreviousDueDate(caseResource.dueDate ?? '');
+          setPreviousTodoDate(caseResource.todoDate ?? '');
           setFieldsDisabled(false);
         })
         .catch((error) => setErrorOnLoad(error.userMessage));
@@ -131,6 +139,32 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
       event.preventDefault();
       next.current.focus();
     }
+  }
+
+  function changeTodoDate(newDate) {
+    setCaseTodoDate(newDate);
+    setTodoDateEdited(true);
+  }
+
+  function changeDueDate(newDate) {
+    setCaseDueDate(newDate);
+    if (!todoDateEdited) {
+      if (previousDueDate && previousTodoDate) {
+        const days = daysDiff(previousDueDate, newDate);
+        setCaseTodoDate(addDays(previousTodoDate, days));
+      }
+      if (!previousDueDate && !previousTodoDate) {
+        setCaseTodoDate(newDate);
+      }
+    }
+  }
+
+  function clearDueDate() {
+    setCaseDueDate('');
+    setCaseTodoDate('');
+    setPreviousDueDate('');
+    setPreviousTodoDate('');
+    setTodoDateEdited(false);
   }
 
   function pasteReference(event) {
@@ -477,7 +511,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 tabIndex="14"
                 disabled={fieldsDisabled}
                 value={caseTodoDate}
-                onChange={(e) => setCaseTodoDate(e.target.value)}
+                onChange={(e) => changeTodoDate(e.target.value)}
                 onFocus={(e) => e.target.defaultValue = ''}
                 className="text-sm border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait bg-stone-50"
               />
@@ -494,17 +528,14 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   tabIndex="15"
                   disabled={fieldsDisabled}
                   value={caseDueDate}
-                  onChange={(e) => setCaseDueDate(e.target.value)}
+                  onChange={(e) => changeDueDate(e.target.value)}
                   onFocus={(e) => e.target.defaultValue = ''}
                   className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
                 />
                 <div
                   className="absolute bottom-0 top-0 right-9 px-1 py-3 text-stone-600 hover:text-stone-900"
                   title="Leeren"
-                  onClick={() => {
-                    setCaseDueDate('');
-                    setCaseTodoDate('');
-                  }}
+                  onClick={clearDueDate}
                 >
                   <XMarkIcon className="size-5" />
                 </div>
