@@ -1,4 +1,5 @@
 import { useDocumentTitle, useFavicon } from '@uidotdev/usehooks';
+
 import ApiProvider from './ApiProvider';
 import Content from './Content';
 import LoginRegistration from './LoginRegistration';

@@ -2,6 +2,7 @@ import { DialogPanel, DialogTitle } from '@headlessui/react';
 import clsx from 'clsx';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ConfettiExplosion from 'react-confetti-explosion';
+
 import ModalDialog from './ModalDialog';
 import { statusLabels } from './status';
 import StatusIcon from './StatusIcon';

@@ -1,10 +1,11 @@
-import globals from 'globals';
-import pluginJs from '@eslint/js';
+import js from '@eslint/js';
+import stylistic from '@stylistic/eslint-plugin';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import pluginReactRefresh from 'eslint-plugin-react-refresh';
-import stylistic from '@stylistic/eslint-plugin';
-import vitestGlobals from 'eslint-plugin-vitest-globals';
+import pluginSimpleImportSort from 'eslint-plugin-simple-import-sort';
+import pluginVitestGlobals from 'eslint-plugin-vitest-globals';
+import globals from 'globals';
 
 const pluginReactHooksRecommended = {
   plugins: {
@@ -17,7 +18,7 @@ const pluginReactHooksRecommended = {
 
 // noinspection JSUnusedGlobalSymbols
 export default [
-  pluginJs.configs.recommended,
+  js.configs.recommended,
   pluginReact.configs.flat.recommended,
   pluginReactHooksRecommended,
   stylistic.configs.customize({
@@ -36,14 +37,17 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.node,
-        ...vitestGlobals.environments.env.globals,
+        ...pluginVitestGlobals.environments.env.globals,
         BUILD_NUMBER: 'readonly',
       },
     },
     plugins: {
       'react-refresh': pluginReactRefresh,
+      'simple-import-sort': pluginSimpleImportSort,
     },
     rules: {
+      'no-duplicate-imports': 'warn',
+      'simple-import-sort/imports': 'warn',
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       'react-refresh/only-export-components': 'warn',

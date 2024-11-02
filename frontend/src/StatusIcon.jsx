@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { statusMap } from './status';
 
 export default function StatusIcon({ status, className }) {

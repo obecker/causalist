@@ -3,15 +3,17 @@ import { ChevronLeftIcon, PaperClipIcon } from '@heroicons/react/20/solid';
 import {
   ArrowDownOnSquareIcon,
   ArrowPathIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
   PencilIcon,
   PlusCircleIcon,
   TrashIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import { useDebounce } from '@uidotdev/usehooks';
 import clsx from 'clsx/lite';
 import { useContext, useEffect, useRef, useState } from 'react';
+
 import { ApiContext } from './ApiContext';
 import AutoLink from './AutoLink';
 import DeleteModal from './DeleteModal';
