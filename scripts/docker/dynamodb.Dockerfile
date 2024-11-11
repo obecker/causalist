@@ -1,1 +1,1 @@
-FROM amazon/dynamodb-local:2.5.2
+FROM amazon/dynamodb-local:2.5.3
