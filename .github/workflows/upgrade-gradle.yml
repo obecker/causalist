@@ -21,7 +21,7 @@ jobs:
 
       - name: Upgrade Gradle
         id: upgrade-gradle
-        uses: EdwarDDay/upgrade-gradle-action@v1.3.0
+        uses: EdwarDDay/upgrade-gradle-action@v1.5.0
         with:
           working-directory: backend
 
