@@ -168,6 +168,19 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     setTodoDateEdited(false);
   }
 
+  function dateEdit(event, date, setDate) {
+    switch (event.key) {
+      case 'ArrowUp':
+        event.preventDefault();
+        date && setDate(addDays(date, 1));
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        date && setDate(addDays(date, -1));
+        break;
+    }
+  }
+
   function pasteReference(event) {
     event.preventDefault();
     const reference = (event.clipboardData ?? window.clipboardData).getData('text');
@@ -482,6 +495,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 value={caseReceivedOn}
                 onChange={(e) => setCaseReceivedOn(e.target.value)}
                 onFocus={(e) => e.target.defaultValue = ''}
+                onKeyDown={(e) => dateEdit(e, caseReceivedOn, setCaseReceivedOn)}
                 className={`text-sm border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseReceivedOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
               />
             </div>
@@ -498,6 +512,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 value={caseSettledOn}
                 onChange={(e) => setCaseSettledOn(e.target.value)}
                 onFocus={(e) => e.target.defaultValue = ''}
+                onKeyDown={(e) => dateEdit(e, caseSettledOn, setCaseSettledOn)}
                 className={`text-sm border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseSettledOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
               />
             </div>
@@ -514,6 +529,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 value={caseTodoDate}
                 onChange={(e) => changeTodoDate(e.target.value)}
                 onFocus={(e) => e.target.defaultValue = ''}
+                onKeyDown={(e) => dateEdit(e, caseTodoDate, changeTodoDate)}
                 className="text-sm border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait bg-stone-50"
               />
             </div>
@@ -531,6 +547,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   value={caseDueDate}
                   onChange={(e) => changeDueDate(e.target.value)}
                   onFocus={(e) => e.target.defaultValue = ''}
+                  onKeyDown={(e) => dateEdit(e, caseDueDate, changeDueDate)}
                   className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
                 />
                 <div
