@@ -30,8 +30,6 @@ dependencies {
         exclude("org.jetbrains.kotlin", "kotlin-reflect")
     }
     implementation("org.http4k:http4k-serverless-lambda")
-
-    implementation(platform(libs.http4k.connect.bom))
     implementation("org.http4k:http4k-connect-amazon-containercredentials")
     implementation("org.http4k:http4k-connect-amazon-dynamodb")
     implementation("org.http4k:http4k-connect-amazon-s3")
