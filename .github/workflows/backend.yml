@@ -28,7 +28,7 @@ jobs:
           java-version: 17
           distribution: corretto
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4.1.0 # https://github.com/marketplace/actions/build-with-gradle
+        uses: gradle/actions/setup-gradle@v4.2.1 # https://github.com/marketplace/actions/build-with-gradle
         with:
           add-job-summary-as-pr-comment: on-failure
       - name: Execute Gradle build
