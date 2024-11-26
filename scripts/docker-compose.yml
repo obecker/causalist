@@ -1,7 +1,8 @@
 # run: docker compose up --build
 
-services:
+name: local-dynamodb-minio
 
+services:
   dynamodb:
     # instead of "image: ...", use service specific Dockerfile, which will be updated by dependabot
     # see https://github.com/dependabot/dependabot-core/issues/390#issuecomment-1062170379
@@ -16,9 +17,8 @@ services:
     working_dir: /home/dynamodblocal
 
   minio:
-    build:
-      context: docker
-      dockerfile: minio.Dockerfile
+    # since dependabot won't update minio's "RELEASE.date-time" tags, there's no point in using the above workaround
+    image: minio/minio:RELEASE.2024-11-07T00-52-20Z
     command: server /data --console-address ":9001"
     ports:
       - '9000:9000'
