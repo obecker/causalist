@@ -82,6 +82,13 @@ resource "aws_cloudfront_distribution" "causalist" {
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_viewer_except_host_header.id
   }
 
+  custom_error_response {
+    error_code            = 404
+    error_caching_min_ttl = 86400 # seconds (1 day)
+    response_code         = 404
+    response_page_path    = "/404.html"
+  }
+
   restrictions {
     geo_restriction {
       restriction_type = "whitelist"
@@ -90,7 +97,8 @@ resource "aws_cloudfront_distribution" "causalist" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = var.certificate_arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = var.certificate_arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 }

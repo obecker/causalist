@@ -8,6 +8,11 @@ function handler(event) {
         return request;
     }
 
+    if (requestUri.endsWith("/")) {
+        requestUri += "index.html";
+        request.uri = requestUri;
+    }
+
     // check basic authentication
     var encodedBasicAuth = "${basic_auth}";
     var authHeaders = request.headers.authorization;

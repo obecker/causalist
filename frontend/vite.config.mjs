@@ -1,5 +1,6 @@
 import eslintPlugin from '@nabla/vite-plugin-eslint';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
 // noinspection JSUnusedGlobalSymbols
@@ -11,6 +12,12 @@ export default defineConfig(() => {
   return {
     build: {
       outDir: 'build',
+      rollupOptions: {
+        input: {
+          index: resolve(__dirname, 'index.html'),
+          404: resolve(__dirname, '404.html'),
+        },
+      },
     },
     plugins: [
       react(),

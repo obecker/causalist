@@ -19,7 +19,8 @@ export default {
     },
     extend: {
       animation: {
-        updated: 'updated 1s cubic-bezier(0.4, 0, 1, 1) 500ms',
+        'updated': 'updated 1s cubic-bezier(0.4, 0, 1, 1) 500ms',
+        'spin-slow': 'spin 8s linear infinite',
       },
       fontFamily: {
         sans: ['Cabin', ...defaultTheme.fontFamily.sans],
