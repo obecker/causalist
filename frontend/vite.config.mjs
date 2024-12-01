@@ -18,6 +18,12 @@ export default defineConfig(() => {
           404: resolve(__dirname, '404.html'),
         },
       },
+      commonjsOptions: {
+        // see https://github.com/rollup/plugins/tree/master/packages/commonjs#strictrequires
+        // the default 'strictRequires: true' increases the bundle size,
+        // so let's use 'debug' to get a warning if there are any potential issues with 'auto'
+        strictRequires: 'debug',
+      },
     },
     plugins: [
       react(),
