@@ -20,6 +20,7 @@ const pluginReactHooksRecommended = {
 export default [
   js.configs.recommended,
   pluginReact.configs.flat.recommended,
+  pluginReactRefresh.configs.recommended,
   pluginReactHooksRecommended,
   stylistic.configs.customize({
     semi: true,
@@ -42,7 +43,6 @@ export default [
       },
     },
     plugins: {
-      'react-refresh': pluginReactRefresh,
       'simple-import-sort': pluginSimpleImportSort,
     },
     rules: {
@@ -50,7 +50,6 @@ export default [
       'simple-import-sort/imports': 'warn',
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
-      'react-refresh/only-export-components': 'warn',
     },
   },
 ];
