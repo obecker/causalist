@@ -41,6 +41,7 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
 
   function importCases() {
     if (selectedFile) {
+      setErrorMessage('');
       api.importCases(selectedFile)
         .then((response) => {
           setResult(response.data);

@@ -136,14 +136,14 @@ abstract class AbstractStrategy(
     )
 
     protected fun processCells(cells: Cells, block: () -> Unit) {
-        if (cells.size != tableHeaders.size) {
+        if (cells.size != tableHeaders.size || cells == tableHeaders) {
             return
         }
         try {
             block()
         } catch (e: CellsLensException) {
             errors.add(e.error)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             errors.add("Fehler beim Verarbeiten der Zeile: ${cells.joinToString()}")
         }
     }
