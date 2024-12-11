@@ -588,7 +588,9 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
     const due = (date && new Date(date)) || now;
     const oneWeek = 7 * 24 * 60 * 60 * 1000;
 
-    if (date && (due < now)) {
+    if (!aCase.dueDate) {
+      return '';
+    } else if (date && (due < now)) {
       return 'bg-rose-50';
     } else if (date && (due < new Date(now.getTime() + oneWeek))) {
       return 'bg-amber-50';
