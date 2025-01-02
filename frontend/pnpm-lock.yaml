@@ -44,7 +44,7 @@ importers:
         version: 9.17.0
       '@nabla/vite-plugin-eslint':
         specifier: ^2.0.5
-        version: 2.0.5(eslint@9.17.0(jiti@1.21.6))(vite@6.0.6(jiti@1.21.6)(yaml@2.4.5))
+        version: 2.0.5(eslint@9.17.0(jiti@1.21.6))(vite@6.0.7(jiti@1.21.6)(yaml@2.4.5))
       '@stylistic/eslint-plugin':
         specifier: ^2.12.1
         version: 2.12.1(eslint@9.17.0(jiti@1.21.6))(typescript@5.4.5)
@@ -59,7 +59,7 @@ importers:
         version: 14.5.2(@testing-library/dom@10.1.0)
       '@vitejs/plugin-react':
         specifier: ^4.3.4
-        version: 4.3.4(vite@6.0.6(jiti@1.21.6)(yaml@2.4.5))
+        version: 4.3.4(vite@6.0.7(jiti@1.21.6)(yaml@2.4.5))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)
@@ -94,8 +94,8 @@ importers:
         specifier: ^3.4.17
         version: 3.4.17
       vite:
-        specifier: ^6.0.6
-        version: 6.0.6(jiti@1.21.6)(yaml@2.4.5)
+        specifier: ^6.0.7
+        version: 6.0.7(jiti@1.21.6)(yaml@2.4.5)
       vitest:
         specifier: ^2.1.6
         version: 2.1.6(jiti@1.21.6)(jsdom@25.0.1)(yaml@2.4.5)
@@ -2414,8 +2414,8 @@ packages:
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
 
-  vite@6.0.6:
-    resolution: {integrity: sha512-NSjmUuckPmDU18bHz7QZ+bTYhRR0iA72cs2QAxCqDpafJ0S6qetco0LB3WW2OxlMHS0JmAv+yZ/R3uPmMyGTjQ==}
+  vite@6.0.7:
+    resolution: {integrity: sha512-RDt8r/7qx9940f8FcOIAH9PTViRrghKaK2K1jY3RaAURrEUbm9Du1mJ72G+jlhtG3WwodnfzY8ORQZbBavZEAQ==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
     peerDependencies:
@@ -2919,13 +2919,13 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@nabla/vite-plugin-eslint@2.0.5(eslint@9.17.0(jiti@1.21.6))(vite@6.0.6(jiti@1.21.6)(yaml@2.4.5))':
+  '@nabla/vite-plugin-eslint@2.0.5(eslint@9.17.0(jiti@1.21.6))(vite@6.0.7(jiti@1.21.6)(yaml@2.4.5))':
     dependencies:
       '@types/eslint': 8.56.10
       chalk: 4.1.2
       debug: 4.3.7
       eslint: 9.17.0(jiti@1.21.6)
-      vite: 6.0.6(jiti@1.21.6)(yaml@2.4.5)
+      vite: 6.0.7(jiti@1.21.6)(yaml@2.4.5)
     transitivePeerDependencies:
       - supports-color
 
@@ -3175,14 +3175,14 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@vitejs/plugin-react@4.3.4(vite@6.0.6(jiti@1.21.6)(yaml@2.4.5))':
+  '@vitejs/plugin-react@4.3.4(vite@6.0.7(jiti@1.21.6)(yaml@2.4.5))':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/plugin-transform-react-jsx-self': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-react-jsx-source': 7.25.9(@babel/core@7.26.0)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 6.0.6(jiti@1.21.6)(yaml@2.4.5)
+      vite: 6.0.7(jiti@1.21.6)(yaml@2.4.5)
     transitivePeerDependencies:
       - supports-color
 
@@ -3193,13 +3193,13 @@ snapshots:
       chai: 5.1.2
       tinyrainbow: 1.2.0
 
-  '@vitest/mocker@2.1.6(vite@6.0.6(jiti@1.21.6)(yaml@2.4.5))':
+  '@vitest/mocker@2.1.6(vite@6.0.7(jiti@1.21.6)(yaml@2.4.5))':
     dependencies:
       '@vitest/spy': 2.1.6
       estree-walker: 3.0.3
       magic-string: 0.30.12
     optionalDependencies:
-      vite: 6.0.6(jiti@1.21.6)(yaml@2.4.5)
+      vite: 6.0.7(jiti@1.21.6)(yaml@2.4.5)
 
   '@vitest/pretty-format@2.1.6':
     dependencies:
@@ -5253,7 +5253,7 @@ snapshots:
       debug: 4.3.7
       es-module-lexer: 1.5.4
       pathe: 1.1.2
-      vite: 6.0.6(jiti@1.21.6)(yaml@2.4.5)
+      vite: 6.0.7(jiti@1.21.6)(yaml@2.4.5)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -5268,7 +5268,7 @@ snapshots:
       - tsx
       - yaml
 
-  vite@6.0.6(jiti@1.21.6)(yaml@2.4.5):
+  vite@6.0.7(jiti@1.21.6)(yaml@2.4.5):
     dependencies:
       esbuild: 0.24.2
       postcss: 8.4.49
@@ -5281,7 +5281,7 @@ snapshots:
   vitest@2.1.6(jiti@1.21.6)(jsdom@25.0.1)(yaml@2.4.5):
     dependencies:
       '@vitest/expect': 2.1.6
-      '@vitest/mocker': 2.1.6(vite@6.0.6(jiti@1.21.6)(yaml@2.4.5))
+      '@vitest/mocker': 2.1.6(vite@6.0.7(jiti@1.21.6)(yaml@2.4.5))
       '@vitest/pretty-format': 2.1.6
       '@vitest/runner': 2.1.6
       '@vitest/snapshot': 2.1.6
@@ -5297,7 +5297,7 @@ snapshots:
       tinyexec: 0.3.1
       tinypool: 1.0.1
       tinyrainbow: 1.2.0
-      vite: 6.0.6(jiti@1.21.6)(yaml@2.4.5)
+      vite: 6.0.7(jiti@1.21.6)(yaml@2.4.5)
       vite-node: 2.1.6(jiti@1.21.6)(yaml@2.4.5)
       why-is-node-running: 2.3.0
     optionalDependencies:
