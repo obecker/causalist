@@ -410,7 +410,7 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
     'border border-r-0 last:border-r border-stone-300 first:rounded-l-md last:rounded-r-md',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus-visible:z-10',
     'data-selected:text-white data-selected:bg-teal-700 data-selected:hover:bg-teal-600',
-    'disabled:!text-stone-900 disabled:!bg-white disabled:opacity-40 disabled:cursor-not-allowed');
+    'disabled:!text-stone-400 disabled:!bg-white disabled:cursor-not-allowed');
 
   function toggleStatus(status) {
     setStatusQuery((sq) => {
@@ -609,11 +609,11 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
 
   const olClasses = clsx('grid grid-cols-cases md:grid-cols-cases-md lg:grid-cols-cases-lg',
     loadingSpinner && 'opacity-25');
-  const editButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-l-md leading-4 text-sm font-semibold',
+  const editButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-l-md leading-5 text-sm font-semibold',
     'text-white shadow-sm bg-teal-700 hover:bg-teal-600 border-r-white border-r',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
   const menuItemsClasses = 'border border-stone-300 border-b-0 last:border-b first:rounded-t-md last:rounded-b-md';
-  const menuItemButtonClasses = 'flex items-center w-full px-3 py-2 leading-4 text-sm font-semibold bg-white hover:bg-stone-100';
+  const menuItemButtonClasses = 'flex items-center w-full px-3 py-2 leading-5 text-sm font-semibold bg-white hover:bg-stone-100';
   return (
     <ol className={olClasses}>
       {cases.length === 0 && (
@@ -702,7 +702,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                           Bearbeiten
                         </button>
                         <button
-                          className="p-2 rounded-r-md text-white bg-teal-700 hover:bg-teal-600"
+                          className="p-2.5 rounded-r-md text-white bg-teal-700 hover:bg-teal-600"
                           onClick={(e) => toggleDropdown(e, aCase.id)}
                           onDoubleClick={ignoreDefaults}
                         >
@@ -729,7 +729,8 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                         </li>
                         <li className={menuItemsClasses}>
                           <button
-                            className={clsx(menuItemButtonClasses)}
+                            className={clsx(menuItemButtonClasses, 'disabled:text-stone-400')}
+                            disabled={isSettled(aCase)}
                             onClick={(e) => settleCase(e, aCase)}
                             onDoubleClick={ignoreDefaults}
                           >
