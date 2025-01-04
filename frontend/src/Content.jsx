@@ -190,6 +190,8 @@ export default function Content() {
     setDeleteOpen(true);
   }
 
+  const casesHeader = `${filteredCases?.length ?? ''} ${settledOnly ? 'Erledigte' : 'Laufende'}${filteredCases?.length === 1 ? 's' : ''} Verfahren`;
+
   return (
     <>
       {/* modals */}
@@ -295,7 +297,7 @@ export default function Content() {
             <ListboxButton
               className="text-lg font-semibold mb-2 focus-visible:outline-none focus-visible:underline hover:underline decoration-teal-700"
             >
-              {settledOnly ? 'Erledigte Verfahren' : `${filteredCases ? filteredCases.length : ''} Laufende Verfahren`}
+              {casesHeader}
               <ChevronDownIcon className="inline ui-open:hidden size-5 ml-1" />
               <ChevronUpIcon className="hidden ui-open:inline size-5 ml-1" />
             </ListboxButton>
