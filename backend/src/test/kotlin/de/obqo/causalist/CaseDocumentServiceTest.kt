@@ -1,6 +1,5 @@
 package de.obqo.causalist
 
-import de.obqo.causalist.s3.S3BucketWrapper
 import dev.forkhandles.result4k.onFailure
 import dev.forkhandles.result4k.valueOrNull
 import io.kotest.core.spec.style.DescribeSpec
@@ -28,7 +27,7 @@ class CaseDocumentServiceTest : DescribeSpec({
         val credentials = AwsCredentials("accessKey", "secretKey")
         val http = FakeS3()
         val s3 = S3.Http({ credentials }, http)
-        val bucket = S3BucketWrapper(bucketName, S3Bucket.Http(bucketName, region, { credentials }, http))
+        val bucket = S3Bucket.Http(bucketName, region, { credentials }, http)
 
         s3.createBucket(bucketName, region).onFailure { it.reason.throwIt() }
 
@@ -79,6 +78,25 @@ class CaseDocumentServiceTest : DescribeSpec({
             // then
             download.shouldNotBeNull()
             String(download.readAllBytes()) shouldBe fileContent
+        }
+
+        it("should move documents") {
+            // given
+            val fileContent = "dummy"
+            val ref = mutableReference()
+            val refId1 = ref.next().toId()
+            val refId2 = ref.next().toId()
+            val document = caseDocumentService.upload(ownerId, refId1, "foo.txt", fileContent.byteInputStream())
+
+            // when
+            caseDocumentService.move(ownerId, refId1, refId2)
+
+            // then
+            caseDocumentService.hasDocuments(ownerId, refId1) shouldBe false
+            caseDocumentService.download(ownerId, document.id, refId1).shouldBeNull()
+
+            caseDocumentService.hasDocuments(ownerId, refId2) shouldBe true
+            caseDocumentService.download(ownerId, document.id, refId2).shouldNotBeNull()
         }
 
         it("should return no stream for an unknown document") {

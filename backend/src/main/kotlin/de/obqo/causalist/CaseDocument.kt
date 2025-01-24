@@ -1,7 +1,8 @@
 package de.obqo.causalist
 
-import de.obqo.causalist.s3.S3BucketWrapper
 import dev.forkhandles.result4k.onFailure
+import org.http4k.connect.amazon.s3.S3Bucket
+import org.http4k.connect.amazon.s3.copyObject
 import org.http4k.connect.amazon.s3.deleteObject
 import org.http4k.connect.amazon.s3.getObject
 import org.http4k.connect.amazon.s3.model.BucketKey
@@ -43,7 +44,7 @@ interface CaseDocumentService {
 
 fun caseDocumentService(
     repository: CaseDocumentRepository,
-    s3Bucket: S3BucketWrapper
+    s3Bucket: S3Bucket
 ): CaseDocumentService {
 
     fun CaseDocument.bucketKey() = BucketKey.of("$ownerId/$refId/$id")
@@ -90,4 +91,10 @@ fun caseDocumentService(
                 ?.takeIf { document -> document.refId == refId }
                 ?.let { document -> s3Bucket.getObject(document.bucketKey()).onFailure { it.reason.throwIt() } }
     }
+}
+
+private fun S3Bucket.moveObject(fromKey: BucketKey, toKey: BucketKey, afterCopy: () -> Unit = {}) {
+    copyObject(bucketName, fromKey, toKey).onFailure { it.reason.throwIt() }
+    afterCopy()
+    deleteObject(fromKey).onFailure { it.reason.throwIt() }
 }

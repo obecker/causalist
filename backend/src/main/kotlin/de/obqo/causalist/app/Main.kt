@@ -15,7 +15,6 @@ import de.obqo.causalist.caseService
 import de.obqo.causalist.dynamo.dynamoCaseDocumentRepository
 import de.obqo.causalist.dynamo.dynamoCaseRepository
 import de.obqo.causalist.dynamo.dynamoUserRepository
-import de.obqo.causalist.s3.S3BucketWrapper
 import de.obqo.causalist.userService
 import dev.failsafe.Failsafe
 import dev.failsafe.RetryPolicy
@@ -114,10 +113,8 @@ private fun buildApi(environment: Environment): HttpHandler {
         overrideEndpoint = config.optionalS3Uri,
         forcePathStyle = config.optionalS3Uri != null,
     )
-    val s3BucketWrapper = S3BucketWrapper(config.caseDocumentsBucketName, s3Bucket)
-
     val caseDocumentRepository = dynamoCaseDocumentRepository(dynamoDb, config.caseDocumentsTable)
-    val caseDocumentService = caseDocumentService(caseDocumentRepository, s3BucketWrapper)
+    val caseDocumentService = caseDocumentService(caseDocumentRepository, s3Bucket)
 
     val caseRepository = dynamoCaseRepository(dynamoDb, config.casesTable)
     val caseService = caseService(caseRepository, caseDocumentService)
