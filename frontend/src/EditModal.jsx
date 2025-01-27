@@ -277,6 +277,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
           className={clsx('px-6 overflow-y-auto overflow-x-visible overscroll-contain no-scrollbar',
             fieldsDisabled && 'cursor-wait')}
           style={{ maxHeight: 'calc(100vh - 8rem)' }}
+          autoComplete="off"
         >
           <DialogTitle as="h3" className="text-lg font-semibold leading-6 tracking-tight sm:tracking-normal text-stone-900 sticky top-0 bg-white pb-4 z-50">
             {selectedCase ? `Verfahren ${selectedCase.ref.value} bearbeiten` : 'Neues Verfahren'}

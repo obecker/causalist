@@ -80,7 +80,7 @@ function LoginForm({ successMessage, setSuccessMessage, toggleForm }) {
         </div>
       )}
       <FailureAlert message={loginFailure} className="mt-8" />
-      <form className="mt-8 space-y-6" action="#" method="POST" onSubmit={login}>
+      <form className="mt-8 space-y-6" action="#" method="POST" onSubmit={login} autoComplete="off">
         <FormInput
           name="username"
           label="Nutzername"
