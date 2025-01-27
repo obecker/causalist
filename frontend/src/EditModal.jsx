@@ -269,9 +269,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   return (
     <ModalDialog isOpen={isOpen} onClose={close}>
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
-      <div className={clsx('py-6 w-full min-w-[322px] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl',
-        'transform transition-all overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl')}
-      >
+      <div className="py-6 w-full min-w-[322px] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl transform transition-all overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl">
         <form
           onSubmit={saveCase}
           className={clsx('px-6 overflow-y-auto overflow-x-visible overscroll-contain no-scrollbar',
@@ -297,7 +295,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   onKeyDown={(e) => focusNextOnKey(e, ' ', refRegisterInput)}
                   onPaste={pasteReference}
                   onChange={(e) => setRefEntity(e.target.value.trim())}
-                  className={`mr-1 w-16 text-sm border-0 rounded-l-md focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refEntityFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={`mr-1 w-16 text-sm border-none rounded-l-md focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refEntityFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                 />
                 <input
                   minLength="1"
@@ -308,7 +306,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   ref={refRegisterInput}
                   onKeyDown={(e) => focusNextOnKey(e, ' ', refNoInput)}
                   onChange={(e) => setRefRegister(e.target.value.trim().toUpperCase())}
-                  className={`mr-1 w-12 text-sm border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refRegisterFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={`mr-1 w-12 text-sm border-none focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refRegisterFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                 />
                 <input
                   minLength="1"
@@ -320,7 +318,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   ref={refNoInput}
                   onKeyDown={(e) => focusNextOnKey(e, '/', refYearInput)}
                   onChange={(e) => setRefNo(e.target.value.trim())}
-                  className={`w-16 text-sm border-0 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refNoFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={`w-16 text-sm border-none focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refNoFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                 />
                 <span className="text-sm">/</span>
                 <input
@@ -332,7 +330,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   value={refYear}
                   ref={refYearInput}
                   onChange={(e) => setRefYear(e.target.value.trim())}
-                  className={`w-12 text-sm border-0 rounded-r-md focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refYearFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={`w-12 text-sm border-none rounded-r-md focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refYearFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                 />
               </div>
             </div>
@@ -346,7 +344,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   disabled={fieldsDisabled}
                   checked={caseType === 'SINGLE'}
                   onChange={() => setCaseType('SINGLE')}
-                  className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait checked:bg-teal-700 checked:border-teal-700 ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                 />
                 Einzelrichter
               </label>
@@ -359,7 +357,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   disabled={fieldsDisabled}
                   checked={caseType === 'CHAMBER'}
                   onChange={() => setCaseType('CHAMBER')}
-                  className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={`size-4 mr-2 text-teal-700 border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait checked:bg-teal-700 checked:border-teal-700 ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
                 />
                 Kammersache
               </label>
@@ -397,40 +395,38 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 Status
               </label>
               <Listbox id="status" disabled={fieldsDisabled} value={caseStatus} onChange={setNewStatus}>
-                {({ open }) => {
-                  const buttonClasses = clsx('flex items-center p-2 w-full text-sm bg-stone-50',
-                    'border border-stone-300 rounded-md outline-none shadow-sm',
-                    'focus:ring-teal-700 focus:ring-2 focus:border-teal-700',
-                    open && 'ring-teal-700 ring-2 border-teal-700',
-                    fieldsDisabled && 'cursor-wait');
-                  const optionsClasses = clsx('absolute w-full lg:max-h-72 overflow-y-auto mt-0.5 py-2',
-                    'z-20 bg-stone-50 border rounded-md shadow shadow-stone-400 outline-none');
-                  const optionClasses = clsx('flex items-center px-2 py-1',
-                    'ui-active:!bg-teal-700 ui-active:text-white ui-selected:bg-stone-200');
-                  return (
-                    <div className="relative">
-                      <ListboxButton tabIndex={xlWidth ? 7 : 8} className={buttonClasses}>
-                        <StatusIcon status={caseStatus} className="size-6 me-2 flex-none inline" />
-                        <span className="flex-auto text-left">
-                          {statusLabels[caseStatus]}
-                        </span>
-                        {open
-                          ? <ChevronUpIcon className="size-4 flex-none" />
-                          : <ChevronDownIcon className="size-4 flex-none" />}
-                      </ListboxButton>
-                      <ListboxOptions className={optionsClasses}>
-                        {statusKeys.map((status) => (
-                          <ListboxOption key={status} value={status} className={optionClasses}>
-                            <StatusIcon status={status} className="size-6 me-2 flex-none inline" />
-                            <span className="flex-auto text-sm text-left">
-                              {statusLabels[status]}
-                            </span>
-                          </ListboxOption>
-                        ))}
-                      </ListboxOptions>
-                    </div>
-                  );
-                }}
+                {({ open }) => (
+                  <div className="relative">
+                    <ListboxButton
+                      tabIndex={xlWidth ? 7 : 8}
+                      className={clsx('flex items-center p-2 w-full text-sm bg-stone-50 border border-stone-300 rounded-md outline-hidden shadow-xs focus:ring-teal-700 focus:ring-2 focus:border-teal-700',
+                        open && 'ring-teal-700 ring-2 border-teal-700',
+                        fieldsDisabled && 'cursor-wait')}
+                    >
+                      <StatusIcon status={caseStatus} className="size-6 me-2 flex-none inline" />
+                      <span className="flex-auto text-left">
+                        {statusLabels[caseStatus]}
+                      </span>
+                      {open
+                        ? <ChevronUpIcon className="size-4 flex-none" />
+                        : <ChevronDownIcon className="size-4 flex-none" />}
+                    </ListboxButton>
+                    <ListboxOptions className="absolute w-full lg:max-h-72 overflow-y-auto mt-0.5 py-2 z-20 bg-stone-50 border rounded-md shadow-sm shadow-stone-400 outline-hidden">
+                      {statusKeys.map((status) => (
+                        <ListboxOption
+                          key={status}
+                          value={status}
+                          className="flex items-center px-2 py-1 data-focus:bg-teal-700! data-focus:text-white data-selected:bg-stone-200"
+                        >
+                          <StatusIcon status={status} className="size-6 me-2 flex-none inline" />
+                          <span className="flex-auto text-sm text-left">
+                            {statusLabels[status]}
+                          </span>
+                        </ListboxOption>
+                      ))}
+                    </ListboxOptions>
+                  </div>
+                )}
               </Listbox>
             </div>
             <div className="sm:col-span-6 lg:col-span-2">
@@ -567,7 +563,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
               <button
                 type="button"
                 tabIndex="16"
-                className="flex w-32 sm:w-40 justify-center px-3 py-1.5 text-sm font-semibold leading-6 rounded-md bg-stone-200 text-teal-700 shadow-sm hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus:ring-teal-700 focus:border-teal-700"
+                className="flex w-32 sm:w-40 justify-center px-3 py-1.5 text-sm font-semibold leading-6 rounded-md bg-stone-200 text-teal-700 shadow-xs hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus:ring-teal-700 focus:border-teal-700"
                 onClick={close}
               >
                 Abbrechen
@@ -576,7 +572,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 type="submit"
                 tabIndex="17"
                 disabled={fieldsDisabled || saving}
-                className="flex w-32 sm:w-40 justify-center px-3 py-1.5 text-sm font-semibold leading-6 rounded-md bg-teal-700 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                className="flex w-32 sm:w-40 justify-center px-3 py-1.5 text-sm font-semibold leading-6 rounded-md bg-teal-700 text-white shadow-xs hover:bg-teal-600 disabled:bg-stone-300 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
               >
                 {selectedCase ? 'Speichern' : 'Anlegen'}
               </button>

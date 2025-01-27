@@ -75,7 +75,7 @@ function LoginForm({ successMessage, setSuccessMessage, toggleForm }) {
       </div>
       {successMessage && (
         <div className="flex items-center p-4 mt-8 text-sm text-teal-800 rounded-lg bg-teal-50" role="alert">
-          <CheckCircleIcon className="size-4 me-3 flex-shrink-0 inline" />
+          <CheckCircleIcon className="size-4 me-3 shrink-0 inline" />
           <span className="font-medium">{successMessage}</span>
         </div>
       )}
@@ -239,7 +239,7 @@ function FormInput({
     inputRef.current.focus();
   }
 
-  const inputClasses = clsx('block w-full rounded-md border-0 py-1.5 text-stone-900 shadow-sm',
+  const inputClasses = clsx('block w-full rounded-md border-none py-1.5 text-stone-900 shadow-xs',
     'ring-1 ring-inset ring-stone-300 placeholder:text-stone-400 focus:ring-2 focus:ring-inset focus:ring-teal-700',
     'sm:text-sm sm:leading-6',
     reveal && 'pr-9');
@@ -262,7 +262,7 @@ function FormInput({
           onChange={onChange}
         />
         {reveal && (
-          <div className="absolute bottom-0 top-0 right-0 pr-2.5 py-2 text-stone-400 cursor-pointer" onClick={toggleRevealed}>
+          <div className="absolute bottom-0 top-0 right-0 pr-2.5 py-2 text-stone-400 hover:text-stone-900" onClick={toggleRevealed}>
             {revealed ? <EyeSlashIcon className="size-5" /> : <EyeIcon className="size-5" />}
           </div>
         )}
@@ -274,8 +274,8 @@ function FormInput({
 
 function FormSubmit({ label, disabled }) {
   const buttonClasses = clsx('flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6',
-    'text-white bg-teal-700 hover:bg-teal-600 shadow-sm disabled:bg-stone-300 disabled:cursor-not-allowed',
-    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
+    'text-white bg-teal-700 hover:bg-teal-600 shadow-xs disabled:bg-stone-300 disabled:cursor-not-allowed',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
   return (
     <div>
       <button type="submit" disabled={disabled} className={buttonClasses}>
@@ -290,7 +290,7 @@ function FormToggle({ label, toggle }) {
     <div>
       <button
         type="button"
-        className="block mx-auto text-teal-700 text-sm outline-none hover:underline focus-visible:underline"
+        className="block mx-auto text-teal-700 text-sm outline-hidden hover:underline focus-visible:underline"
         onClick={toggle}
       >
         {label}

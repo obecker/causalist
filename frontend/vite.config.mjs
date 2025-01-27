@@ -1,4 +1,5 @@
 import eslintPlugin from '@nabla/vite-plugin-eslint';
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
@@ -27,6 +28,7 @@ export default defineConfig(() => {
     },
     plugins: [
       react(),
+      tailwindcss(),
       // disable eslint plugin for tests
       // vitest issue: https://github.com/vitest-dev/vitest/issues/2008
       process.env.NODE_ENV !== 'test' && eslintPlugin(),

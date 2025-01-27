@@ -17,14 +17,14 @@ export default function NotFoundPage() {
   }, []);
 
   return (
-    <div className="container mx-auto font-cabin font-semibold">
+    <div className="container mx-auto font-semibold">
       <div className="m-20">
         <div className="flex justify-center items-center gap-4 text-9xl text-teal-700">
           <span>4</span>
           <img src="/logo.svg" alt="logo" className="size-24 animate-spin-slow " />
           <span>4</span>
         </div>
-        <div className="mt-8 text-center text-3xl text-gray-900">
+        <div className="mt-8 text-center text-3xl text-stone-900">
           <p>Der Aufruf dieser Seite ist unzulässig.</p>
           <p className="mt-4">
             Zur weiteren Bearbeitung wird die Sache an

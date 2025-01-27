@@ -67,24 +67,24 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
   const panelClasses = clsx('w-full max-w-lg transform transition-all overflow-hidden rounded-2xl bg-white',
     'p-6 text-left align-middle shadow-xl');
   const fileInputClasses = clsx('shrink-0 w-28 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
-    'leading-6 text-teal-700 bg-stone-200 hover:bg-stone-100 shadow-sm',
-    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
-    'focus:ring-teal-700 focus:border-teal-700 cursor-pointer');
+    'leading-6 text-teal-700 bg-stone-200 hover:bg-stone-100 shadow-xs',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
+    'focus:ring-teal-700 focus:border-teal-700');
   const fileUploadClasses = clsx('shrink-0 w-28 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
-    'leading-6 text-white bg-teal-700 hover:bg-teal-600 shadow-sm disabled:bg-stone-300 disabled:cursor-not-allowed',
-    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
+    'leading-6 text-white bg-teal-700 hover:bg-teal-600 shadow-xs disabled:bg-stone-300 disabled:cursor-not-allowed',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
   const closeButtonClasses = clsx('w-28 mt-2 ml-auto rounded-md px-3 py-1.5 text-center text-sm font-semibold',
-    'leading-6 text-white bg-teal-700 hover:bg-teal-600 shadow-sm',
-    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
+    'leading-6 text-white bg-teal-700 hover:bg-teal-600 shadow-xs',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
 
   return (
     <ModalDialog isOpen={isOpen} onClose={close}>
 
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
       <div className={panelClasses}>
-        <DialogTitle as="h3" className="text-lg font-semibold leading-6 text-stone-900 flex justify-between">
+        <DialogTitle as="h3" className="text-lg font-semibold leading-6 flex justify-between">
           RTF-Datei importieren
-          <button onClick={close} title="Schließen" className="outline-none">
+          <button onClick={close} title="Schließen" className="outline-hidden hover:text-teal-700">
             <XMarkIcon className="inline size-6" />
           </button>
         </DialogTitle>

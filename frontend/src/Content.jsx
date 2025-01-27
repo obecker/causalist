@@ -262,11 +262,11 @@ export default function Content() {
 
           <div className="hidden xl:block flex-1">{/* spacer */}</div>
 
-          <div className="inline-flex rounded-md shadow-sm">
+          <div className="inline-flex rounded-md shadow-xs">
             {/* new case button */}
             <div className="inline-flex">
               <button
-                className="flex w-full items-center rounded-md sm:rounded-r-none px-3 py-2 text-sm font-semibold leading-6 bg-teal-700 text-white border-r border-white hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                className="flex w-full items-center rounded-md sm:rounded-r-none px-3 py-2 text-sm font-semibold leading-6 bg-teal-700 text-white border-r border-white hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                 onClick={openEditModal}
               >
                 <PlusCircleIcon className="size-6 inline" />
@@ -276,7 +276,7 @@ export default function Content() {
             {/* rtf upload */}
             <div className="hidden sm:inline-flex">
               <button
-                className="flex w-full items-center rounded-r-md bg-teal-700 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-teal-600 disabled:bg-stone-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                className="flex w-full items-center rounded-r-md bg-teal-700 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-xs hover:bg-teal-600 disabled:bg-stone-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
                 onClick={() => setImportOpen(true)}
               >
                 <ArrowDownOnSquareIcon className="size-6 inline" />
@@ -295,14 +295,18 @@ export default function Content() {
         <Listbox value={settledOnly} onChange={setSettledOnly}>
           <div className="relative">
             <ListboxButton
-              className="text-lg font-semibold mb-2 focus-visible:outline-none focus-visible:underline hover:underline decoration-teal-700"
+              className="text-lg font-semibold mb-2 focus-visible:outline-hidden focus-visible:underline hover:underline decoration-teal-700"
             >
-              {casesHeader}
-              <ChevronDownIcon className="inline ui-open:hidden size-5 ml-1" />
-              <ChevronUpIcon className="hidden ui-open:inline size-5 ml-1" />
+              {({ open }) => (
+                <>
+                  {casesHeader}
+                  <ChevronDownIcon className={clsx('size-5 ml-1', open ? 'hidden' : 'inline')} />
+                  <ChevronUpIcon className={clsx('size-5 ml-1', open ? 'inline' : 'hidden')} />
+                </>
+              )}
             </ListboxButton>
             <ListboxOptions
-              className="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm"
+              className="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-hidden sm:text-sm"
             >
               <ListboxOption
                 value={false}
@@ -325,7 +329,7 @@ export default function Content() {
         <label className={settledOnly ? 'hidden' : 'flex'}>
           <input
             type="checkbox"
-            className="self-center size-4 mr-2 rounded text-teal-700 bg-stone-50 border-stone-300 focus:ring-teal-700 focus:ring-2"
+            className="self-center size-4 mr-2 rounded-sm text-teal-700 bg-stone-50 border-stone-300 focus:ring-teal-700 focus:ring-2 checked:bg-teal-700 checked:border-teal-700"
             checked={todosOnly}
             onChange={() => setTodosOnly((t) => !t)}
           />
@@ -357,11 +361,6 @@ export default function Content() {
 }
 
 function TypeFilter({ typeQuery, setTypeQuery }) {
-  const buttonClasses = clsx('p-2 w-11 text-sm font-semibold text-stone-900 hover:text-teal-700',
-    'border border-r-0 border-stone-300 last:border-r first:rounded-l-md last:rounded-r-md',
-    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus-visible:z-10',
-    'data-selected:text-white data-selected:bg-teal-700 data-selected:hover:bg-teal-600');
-
   function toggleType(type) {
     setTypeQuery((tq) => {
       const typeSet = new Set(tq);
@@ -387,15 +386,15 @@ function TypeFilter({ typeQuery, setTypeQuery }) {
   }
 
   return (
-    <div className="inline-flex rounded-md shadow-sm" role="group">
+    <div className="inline-flex rounded-md shadow-xs" role="group">
       {
         typeKeys.map((type) => (
           <button
             type="button"
             key={type}
-            data-selected={typeQuery.includes(type)}
+            data-selected={typeQuery.includes(type) || null}
             title={typeLabels[type]}
-            className={buttonClasses}
+            className="p-2 w-11 text-sm font-semibold text-stone-900 hover:text-teal-700 border border-r-0 border-stone-300 last:border-r first:rounded-l-md last:rounded-r-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus-visible:z-10 data-selected:text-white data-selected:bg-teal-700 data-selected:hover:bg-teal-600"
             onClick={() => toggleType(type)}
             onDoubleClick={() => forceType(type)}
           >
@@ -408,12 +407,6 @@ function TypeFilter({ typeQuery, setTypeQuery }) {
 }
 
 function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
-  const buttonClasses = clsx('p-2 w-full text-stone-900 hover:text-teal-700',
-    'border border-r-0 last:border-r border-stone-300 first:rounded-l-md last:rounded-r-md',
-    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus-visible:z-10',
-    'data-selected:text-white data-selected:bg-teal-700 data-selected:hover:bg-teal-600',
-    'disabled:!text-stone-400 disabled:!bg-white disabled:cursor-not-allowed');
-
   function toggleStatus(status) {
     setStatusQuery((sq) => {
       const statusSet = new Set(sq);
@@ -439,16 +432,16 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
   }
 
   return (
-    <div className="inline-flex rounded-md shadow-sm order-first sm:order-none w-full sm:w-auto" role="group">
+    <div className="inline-flex rounded-md shadow-xs order-first sm:order-none w-full sm:w-auto" role="group">
       {
         filterStatusKeys.map((status) => (
           <button
             type="button"
             key={status}
             disabled={settledOnly}
-            data-selected={statusQuery.includes(status)}
+            data-selected={statusQuery.includes(status) || null}
             title={statusLabels[status]}
-            className={buttonClasses}
+            className="p-2 w-full text-stone-900 hover:text-teal-700 border border-r-0 last:border-r border-stone-300 first:rounded-l-md last:rounded-r-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus-visible:z-10 data-selected:text-white data-selected:bg-teal-700 data-selected:hover:bg-teal-600 disabled:text-stone-400! disabled:bg-white! disabled:cursor-not-allowed"
             onClick={() => toggleStatus(status)}
             onDoubleClick={() => forceStatus(status)}
           >
@@ -609,11 +602,11 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
     return null;
   }
 
-  const olClasses = clsx('grid grid-cols-cases md:grid-cols-cases-md lg:grid-cols-cases-lg',
+  const olClasses = clsx('grid grid-cols-(--grid-cases) md:grid-cols-(--grid-cases-md) lg:grid-cols-(--grid-cases-lg)',
     loadingSpinner && 'opacity-25');
   const editButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-l-md leading-5 text-sm font-semibold',
-    'text-white shadow-sm bg-teal-700 hover:bg-teal-600 border-r-white border-r',
-    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
+    'text-white shadow-xs bg-teal-700 hover:bg-teal-600 border-r-white border-r',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
   const menuItemsClasses = 'border border-stone-300 border-b-0 last:border-b first:rounded-t-md last:rounded-b-md';
   const menuItemButtonClasses = 'flex items-center w-full px-3 py-2 leading-5 text-sm font-semibold bg-white hover:bg-stone-100';
   return (
@@ -626,14 +619,14 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
       {cases.map((aCase) => {
         const liClasses = clsx('col-span-full grid grid-cols-subgrid border-y border-y-stone-50',
           'data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900 hover:text-teal-700',
-          aCase.ref && 'hover:border-y-stone-300 cursor-pointer data-open:cursor-auto pt-2.5 pb-1.5', todoBg(aCase),
+          aCase.ref && 'hover:border-y-stone-300 pt-2.5 pb-1.5', todoBg(aCase),
           recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
           aCase.newWeek && 'relative mt-20 first:mt-8 border-t-teal-700');
         const weekMarkerClasses = 'absolute -top-6 right-0 py-1 px-7 text-xs bg-teal-700 text-white rounded-t-lg';
         return (
           <li
             key={aCase.id}
-            data-open={openCaseId === aCase.id}
+            data-open={openCaseId === aCase.id || null}
             className={liClasses}
             onClick={(e) => clickCase(e, aCase.ref && aCase.id)}
             onDoubleClick={(e) => openEditModal(e, aCase.ref && aCase)}
@@ -658,8 +651,8 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                   <StatusIcon status={aCase.status} className="size-6 mx-auto" />
                 </div>
                 <div
-                  data-open={openCaseId === aCase.id}
-                  className="px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:md:mr-4"
+                  data-open={openCaseId === aCase.id || null}
+                  className="px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal md:data-open:mr-4"
                 >
                   <span title={openCaseId === aCase.id ? null : aCase.parties}>{aCase.parties}</span>
                   <div className="md:hidden text-sm">
@@ -678,7 +671,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                 </div>
                 <div
                   title={openCaseId === aCase.id ? null : aCase.area}
-                  data-open={openCaseId === aCase.id}
+                  data-open={openCaseId === aCase.id || null}
                   className="hidden lg:inline px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:mr-4"
                 >
                   {aCase.area}
@@ -717,7 +710,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       </div>
                       <ul
                         className="absolute top-9 left-0 right-0 z-10 hidden data-open:block"
-                        data-open={openDropdown === aCase.id}
+                        data-open={openDropdown === aCase.id || null}
                       >
                         <li className={menuItemsClasses}>
                           <button
@@ -799,21 +792,21 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                                   {doc.filename}
                                 </a>
                                 <XMarkIcon
-                                  className={clsx('size-3 inline ms-2 shrink-0 self-start mt-1 hover:text-teal-700 hover:cursor-pointer',
-                                    selectedDocumentId === doc.id && 'hidden')}
+                                  className={clsx('size-3 ms-2 shrink-0 self-start mt-1 hover:text-teal-700',
+                                    selectedDocumentId === doc.id ? 'hidden' : 'inline')}
                                   title="Löschen"
                                   onClick={(e) => selectDocument(e, doc.id)}
                                   onDoubleClick={ignoreDefaults}
                                 />
-                                <div className={clsx('self-start inline-flex items-center ms-2', selectedDocumentId !== doc.id && 'hidden')}>
+                                <div className={clsx('self-start items-center ms-2', selectedDocumentId !== doc.id ? 'hidden' : 'inline-flex')}>
                                   <ChevronLeftIcon
-                                    className="size-3 cursor-pointer inline"
+                                    className="size-3 hover:text-teal-700 inline"
                                     onClick={(e) => selectDocument(e, null)}
                                     onDoubleClick={ignoreDefaults}
                                   />
                                   <span className="ms-1 font-semibold">Löschen?</span>
                                   <TrashIcon
-                                    className="inline size-3 ms-1 cursor-pointer"
+                                    className="inline size-3 ms-1 hover:text-rose-700"
                                     onClick={(e) => deleteDocument(e, aCase.id, doc.id)}
                                     onDoubleClick={ignoreDefaults}
                                   />
