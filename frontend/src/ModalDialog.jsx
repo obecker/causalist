@@ -4,7 +4,7 @@ import { Fragment } from 'react';
 export default function ModalDialog({ isOpen, onClose, children }) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={onClose}>
+      <Dialog as="div" className="relative z-10 text-stone-900" onClose={onClose}>
         <TransitionChild>
           <div className="fixed inset-0 bg-black/25 transition ease-out duration-300 data-closed:opacity-0" />
         </TransitionChild>

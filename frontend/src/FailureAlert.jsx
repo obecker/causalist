@@ -7,7 +7,7 @@ export default function FailureAlert({ message, className = '' }) {
 
   return message && (
     <div role="alert" className={alertClasses}>
-      <ExclamationCircleIcon className="size-5 me-3 flex-shrink-0 inline" />
+      <ExclamationCircleIcon className="size-5 me-3 shrink-0 inline" />
       <span className="font-medium">{message}</span>
     </div>
   );

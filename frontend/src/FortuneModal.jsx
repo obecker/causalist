@@ -31,7 +31,7 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
 
   return fortuneCase && (
     <ModalDialog isOpen={isOpen} onClose={close}>
-      <DialogPanel className={clsx('p-6 w-full max-w-md sm:max-w-lg md:max-w-xl text-stone-900',
+      <DialogPanel className={clsx('p-6 w-full max-w-md sm:max-w-lg md:max-w-xl',
         'transform transition-all overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl')}
       >
         <DialogTitle
@@ -91,8 +91,8 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
         <div className="mt-4 w-full flex justify-end">
           <button
             className={clsx('flex w-20 justify-center px-3 py-1.5 text-sm font-semibold leading-6 rounded-md',
-              'bg-teal-700 text-white shadow-sm hover:bg-teal-600',
-              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700')}
+              'bg-teal-700 text-white shadow-xs hover:bg-teal-600',
+              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700')}
             onClick={close}
           >
             Super!
@@ -181,7 +181,7 @@ function SpinningWheel({ value, valueStrip, direction, delay, widthClass = 'w-8'
   }
 
   return (
-    <div className={`border border-gray-200 px-1 py-2 ${widthClass} h-10 shadow-inner overflow-hidden relative`}>
+    <div className={`border border-stone-200 px-1 py-2 ${widthClass} h-10 shadow-inner overflow-hidden relative`}>
       <div
         className="flex flex-col transition-transform"
         style={{
@@ -197,8 +197,8 @@ function SpinningWheel({ value, valueStrip, direction, delay, widthClass = 'w-8'
           <div key={index} className={shift === index ? selectedClassName : null}>{v}</div>
         ))}
       </div>
-      <div className="absolute top-0 left-0 right-0 h-3 bg-gradient-to-b from-stone-400/40" />
-      <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-t from-stone-400/40" />
+      <div className="absolute top-0 left-0 right-0 h-3 bg-linear-to-b from-stone-400/40" />
+      <div className="absolute bottom-0 left-0 right-0 h-3 bg-linear-to-t from-stone-400/40" />
     </div>
   );
 }

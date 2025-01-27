@@ -34,19 +34,19 @@ export default function DeleteModal({ isOpen, setIsOpen, selectedCase, forceUpda
   const panelClasses = clsx('w-full max-w-sm transform transition-all overflow-hidden rounded-2xl bg-white',
     'p-6 text-left align-middle shadow-xl');
   const closeButtonClasses = clsx('flex w-32 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
-    'leading-6 bg-stone-200 text-teal-700 shadow-sm hover:bg-stone-100',
-    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
+    'leading-6 bg-stone-200 text-teal-700 shadow-xs hover:bg-stone-100',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
     'focus:ring-teal-700 focus:border-teal-700');
   const deleteButtonClasses = clsx('flex w-32 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
-    'leading-6 bg-rose-700 text-white shadow-sm hover:bg-rose-600',
+    'leading-6 bg-rose-700 text-white shadow-xs hover:bg-rose-600',
     'disabled:bg-stone-300 disabled:cursor-not-allowed',
-    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
 
   return (selectedCase && (
     <ModalDialog isOpen={isOpen} onClose={close}>
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
       <div className={panelClasses}>
-        <DialogTitle as="h3" className="text-lg font-semibold leading-6 text-stone-900 text-center text-pretty">
+        <DialogTitle as="h3" className="text-lg font-semibold leading-6 text-center text-pretty">
           {`Verfahren ${selectedCase.ref.value} aus dem Bestand löschen?`}
         </DialogTitle>
         <div className="w-full mt-4">
