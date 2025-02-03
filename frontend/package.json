@@ -23,7 +23,7 @@
   "devDependencies": {
     "@eslint/js": "^9.19.0",
     "@nabla/vite-plugin-eslint": "^2.0.5",
-    "@stylistic/eslint-plugin": "^2.13.0",
+    "@stylistic/eslint-plugin": "^3.0.1",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/vite": "^4.0.3",
     "@testing-library/jest-dom": "^6.6.3",
