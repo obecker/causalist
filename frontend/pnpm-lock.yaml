@@ -14,9 +14,6 @@ importers:
       '@heroicons/react':
         specifier: ^2.2.0
         version: 2.2.0(react@18.3.1)
-      '@tailwindcss/forms':
-        specifier: ^0.5.10
-        version: 0.5.10(tailwindcss@4.0.0)
       '@uidotdev/usehooks':
         specifier: ^2.4.1
         version: 2.4.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -45,6 +42,9 @@ importers:
       '@stylistic/eslint-plugin':
         specifier: ^2.13.0
         version: 2.13.0(eslint@9.19.0(jiti@2.4.2))(typescript@5.4.5)
+      '@tailwindcss/forms':
+        specifier: ^0.5.10
+        version: 0.5.10(tailwindcss@4.0.0)
       '@tailwindcss/vite':
         specifier: ^4.0.0
         version: 4.0.0(vite@6.0.11(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.4.5))
@@ -90,6 +90,9 @@ importers:
       vite:
         specifier: ^6.0.11
         version: 6.0.11(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.4.5)
+      vite-plugin-tailwindcss-cleaner:
+        specifier: ^1.1.0
+        version: 1.1.0
       vitest:
         specifier: ^3.0.4
         version: 3.0.4(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.1)(yaml@2.4.5)
@@ -2191,6 +2194,9 @@ packages:
     resolution: {integrity: sha512-7JZKEzcYV2Nx3u6rlvN8qdo3QV7Fxyt6hx+CCKz9fbWxdX5IvUOmTWEAxMrWxaiSf7CKGLJQ5rFu8prb/jBjOA==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
+
+  vite-plugin-tailwindcss-cleaner@1.1.0:
+    resolution: {integrity: sha512-SaOwLrYYytBecI4AU533d7oAxchVfPOQH4rsqE4FReDyp70tnIlmjmpNJ5Cro82EkDS8tK/HejdMh22tJ5lxkw==}
 
   vite@6.0.11:
     resolution: {integrity: sha512-4VL9mQPKoHy4+FE0NnRE/kbY51TOfaknxAjt3fJbGJxhIpBZiqVzlZDEesWWsuREXHwNdAoOFZ9MkPEVXczHwg==}
@@ -4641,6 +4647,8 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  vite-plugin-tailwindcss-cleaner@1.1.0: {}
 
   vite@6.0.11(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.4.5):
     dependencies:
