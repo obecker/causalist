@@ -64,33 +64,40 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
     }
   }
 
-  const panelClasses = clsx('w-full max-w-lg transform transition-all overflow-hidden rounded-2xl bg-white',
-    'p-6 text-left align-middle shadow-xl');
-  const fileInputClasses = clsx('shrink-0 w-28 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
-    'leading-6 text-teal-700 bg-stone-200 hover:bg-stone-100 shadow-xs',
+  const panelClasses = clsx(
+    'w-full max-w-lg transform overflow-hidden rounded-2xl bg-white transition-all',
+    'p-6 text-left align-middle shadow-xl',
+  );
+  const fileInputClasses = clsx(
+    'w-28 shrink-0 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
+    'bg-stone-200 leading-6 text-teal-700 shadow-xs hover:bg-stone-100',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
-    'focus:ring-teal-700 focus:border-teal-700');
-  const fileUploadClasses = clsx('shrink-0 w-28 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
-    'leading-6 text-white bg-teal-700 hover:bg-teal-600 shadow-xs disabled:bg-stone-300 disabled:cursor-not-allowed',
-    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
-  const closeButtonClasses = clsx('w-28 mt-2 ml-auto rounded-md px-3 py-1.5 text-center text-sm font-semibold',
-    'leading-6 text-white bg-teal-700 hover:bg-teal-600 shadow-xs',
-    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
+    'focus:border-teal-700 focus:ring-teal-700',
+  );
+  const fileUploadClasses = clsx(
+    'w-28 shrink-0 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
+    'bg-teal-700 leading-6 text-white shadow-xs hover:bg-teal-600 disabled:cursor-not-allowed disabled:bg-stone-300',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
+  );
+  const closeButtonClasses = clsx(
+    'mt-2 ml-auto w-28 rounded-md px-3 py-1.5 text-center text-sm font-semibold',
+    'bg-teal-700 leading-6 text-white shadow-xs hover:bg-teal-600',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
+  );
 
   return (
     <ModalDialog isOpen={isOpen} onClose={close}>
-
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
       <div className={panelClasses}>
-        <DialogTitle as="h3" className="text-lg font-semibold leading-6 flex justify-between">
+        <DialogTitle as="h3" className="flex justify-between text-lg leading-6 font-semibold">
           RTF-Datei importieren
           <button onClick={close} title="Schließen" className="outline-hidden hover:text-teal-700">
             <XMarkIcon className="inline size-6" />
           </button>
         </DialogTitle>
         <FailureAlert message={errorMessage} className="my-4" />
-        <div className="w-full mt-4">
-          <div className="flex align-middle items-start justify-between gap-2">
+        <div className="mt-4 w-full">
+          <div className="flex items-start justify-between gap-2 align-middle">
             <input
               type="file"
               accept=".rtf"
@@ -101,22 +108,26 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
             <label htmlFor="fileinput" className={fileInputClasses}>
               Datei wählen
             </label>
-            <div className="grow w-max py-1.5">{selectedFile?.name}</div>
+            <div className="w-max grow py-1.5">{selectedFile?.name}</div>
             <button disabled={selectedFile === null} onClick={importCases} className={fileUploadClasses}>
               Importieren
             </button>
           </div>
           {result && (
-            <div className="mt-5 pt-5 border-t border-dashed border-t-teal-700 flex flex-col">
-              <div className="font-semibold mb-2">{header(result.importType)}</div>
+            <div className="mt-5 flex flex-col border-t border-dashed border-t-teal-700 pt-5">
+              <div className="mb-2 font-semibold">{header(result.importType)}</div>
               <div>
                 <ImportResultDetails importType={result.importType} casesType={IMPORTED} refs={result.importedCaseRefs} />
                 <ImportResultDetails importType={result.importType} casesType={SETTLED} refs={result.settledCaseRefs} />
                 <ImportResultDetails importType={result.importType} casesType={UPDATED} refs={result.updatedCaseRefs} />
                 <ImportResultDetails importType={result.importType} casesType={IGNORED} refs={result.ignoredCaseRefs} />
                 <ImportResultDetails importType={result.importType} casesType={UNKNOWN} refs={result.unknownCaseRefs} />
-                <ol className="text-rose-700 mt-2">
-                  {result.errors.map((error, idx) => <li key={idx} className="mt-1">{error}</li>)}
+                <ol className="mt-2 text-rose-700">
+                  {result.errors.map((error, idx) => (
+                    <li key={idx} className="mt-1">
+                      {error}
+                    </li>
+                  ))}
                 </ol>
               </div>
               <button onClick={close} className={closeButtonClasses}>
@@ -132,25 +143,25 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
 
 const importResultDetails = {
   NEW_CASES: {
-    IMPORTED: (num) => num === 1 ? '1 Verfahren wurde importiert' : `${num} Verfahren wurden importiert`,
-    UPDATED: (num) => num === 1 ? '1 Verfahren wurde aktualisiert' : `${num} Verfahren wurden aktualisiert`,
-    IGNORED: (num) => num === 1 ? '1 bekanntes Verfahren wurde ignoriert' : `${num} bekannte Verfahren wurden ignoriert`,
+    IMPORTED: (num) => (num === 1 ? '1 Verfahren wurde importiert' : `${num} Verfahren wurden importiert`),
+    UPDATED: (num) => (num === 1 ? '1 Verfahren wurde aktualisiert' : `${num} Verfahren wurden aktualisiert`),
+    IGNORED: (num) => (num === 1 ? '1 bekanntes Verfahren wurde ignoriert' : `${num} bekannte Verfahren wurden ignoriert`),
   },
   SETTLED_CASES: {
-    SETTLED: (num) => num === 1 ? '1 Verfahren wurde erledigt' : `${num} Verfahren wurden erledigt`,
-    UPDATED: (num) => num === 1 ? '1 Erledigung wurde aktualisiert' : `${num} Erledigungen wurden aktualisiert`,
-    IGNORED: (num) => num === 1 ? '1 Erledigung war bereits aktuell' : `${num} Erledigungen waren bereits aktuell`,
-    UNKNOWN: (num) => num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`,
+    SETTLED: (num) => (num === 1 ? '1 Verfahren wurde erledigt' : `${num} Verfahren wurden erledigt`),
+    UPDATED: (num) => (num === 1 ? '1 Erledigung wurde aktualisiert' : `${num} Erledigungen wurden aktualisiert`),
+    IGNORED: (num) => (num === 1 ? '1 Erledigung war bereits aktuell' : `${num} Erledigungen waren bereits aktuell`),
+    UNKNOWN: (num) => (num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`),
   },
   UPDATED_RECEIVED_DATES: {
-    UPDATED: (num) => num === 1 ? '1 Eingangsdatum wurde aktualisiert' : `${num} Eingangsdaten wurden aktualisiert`,
-    IGNORED: (num) => num === 1 ? '1 Eingangsdatum war bereits aktuell' : `${num} Eingangsdaten waren bereits aktuell`,
-    UNKNOWN: (num) => num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`,
+    UPDATED: (num) => (num === 1 ? '1 Eingangsdatum wurde aktualisiert' : `${num} Eingangsdaten wurden aktualisiert`),
+    IGNORED: (num) => (num === 1 ? '1 Eingangsdatum war bereits aktuell' : `${num} Eingangsdaten waren bereits aktuell`),
+    UNKNOWN: (num) => (num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`),
   },
   UPDATED_DUE_DATES: {
-    UPDATED: (num) => num === 1 ? '1 Termin wurde aktualisiert' : `${num} Termine wurden aktualisiert`,
-    IGNORED: (num) => num === 1 ? '1 Termin war bereits aktuell' : `${num} Termine waren bereits aktuell`,
-    UNKNOWN: (num) => num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`,
+    UPDATED: (num) => (num === 1 ? '1 Termin wurde aktualisiert' : `${num} Termine wurden aktualisiert`),
+    IGNORED: (num) => (num === 1 ? '1 Termin war bereits aktuell' : `${num} Termine waren bereits aktuell`),
+    UNKNOWN: (num) => (num === 1 ? '1 Verfahren ist nicht im Bestand' : `${num} Verfahren sind nicht im Bestand`),
   },
 };
 
@@ -161,7 +172,11 @@ function ImportResultDetails({ importType, casesType, refs }) {
   return (importResultText && (
     <div className="w-full">
       <div
-        className={clsx('flex gap-1 align-bottom', refs.length && 'cursor-pointer hover:underline', detailsOpen && 'font-semibold')}
+        className={clsx(
+          'flex gap-1 align-bottom',
+          refs.length && 'cursor-pointer hover:underline',
+          detailsOpen && 'font-semibold',
+        )}
         onClick={() => setDetailsOpen((o) => refs.length && !o)}
       >
         <div>{importResultText}</div>
@@ -171,8 +186,10 @@ function ImportResultDetails({ importType, casesType, refs }) {
         )}
       </div>
       {refs.length > 0 && detailsOpen && (
-        <ul className="w-full grid grid-cols-4 gap-x-1 gap-y-0.5 mb-4">
-          {refs.map((ref, i) => <li key={i}>{ref}</li>)}
+        <ul className="mb-4 grid w-full grid-cols-4 gap-x-1 gap-y-0.5">
+          {refs.map((ref, i) => (
+            <li key={i}>{ref}</li>
+          ))}
         </ul>
       )}
     </div>

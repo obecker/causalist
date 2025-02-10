@@ -19,9 +19,9 @@ export default function NotFoundPage() {
   return (
     <div className="container mx-auto font-semibold">
       <div className="m-20">
-        <div className="flex justify-center items-center gap-4 text-9xl text-teal-700">
+        <div className="flex items-center justify-center gap-4 text-9xl text-teal-700">
           <span>4</span>
-          <img src="/logo.svg" alt="logo" className="size-24 animate-spin-slow " />
+          <img src="/logo.svg" alt="logo" className="size-24 animate-spin-slow" />
           <span>4</span>
         </div>
         <div className="mt-8 text-center text-3xl text-stone-900">
@@ -35,9 +35,9 @@ export default function NotFoundPage() {
           </p>
         </div>
         <div className="flex justify-center">
-          <div className="mt-12 w-2/3 h-4 rounded-full overflow-hidden">
+          <div className="mt-12 h-4 w-2/3 overflow-hidden rounded-full">
             <div
-              className="bg-teal-700 h-full rounded-full transition-transform ease-linear"
+              className="h-full rounded-full bg-teal-700 transition-transform ease-linear"
               style={{
                 transform: `translateX(${translate})`,
                 transitionDuration: `${duration}ms`,

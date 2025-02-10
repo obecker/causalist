@@ -29,14 +29,17 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
     setExplode(false);
   }
 
-  return fortuneCase && (
+  return (fortuneCase && (
     <ModalDialog isOpen={isOpen} onClose={close}>
-      <DialogPanel className={clsx('p-6 w-full max-w-md sm:max-w-lg md:max-w-xl',
-        'transform transition-all overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl')}
+      <DialogPanel
+        className={clsx(
+          'w-full max-w-md p-6 sm:max-w-lg md:max-w-xl',
+          'transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all',
+        )}
       >
         <DialogTitle
           as="h3"
-          className="text-lg sm:text-xl font-semibold flex justify-center gap-2 sm:gap-4"
+          className="flex justify-center gap-2 text-lg font-semibold sm:gap-4 sm:text-xl"
           onClick={() => setExplode(true)}
         >
           <span style={{ opacity: revealDetails ? 1 : 0 }}>🎉🎉🎉</span>
@@ -44,7 +47,7 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
           <span style={{ opacity: revealDetails ? 1 : 0 }}>🎉🎉🎉</span>
         </DialogTitle>
         <div className="flex justify-center">
-          { explode && (
+          {explode && (
             <ConfettiExplosion
               particleCount={200}
               colors={['#e11d48', '#f59e0b', '#059669', '#2563eb', '#9333ea']} // marker colors from index.css
@@ -64,14 +67,14 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
           />
         </div>
         <div
-          className="mt-8 relative max-h-lvh overflow-y-scroll transition-opacity duration-1000"
+          className="relative mt-8 max-h-lvh overflow-y-scroll transition-opacity duration-1000"
           style={{
             maxHeight: 'calc(100vh - 20rem)',
             opacity: revealDetails ? 1 : 0,
           }}
         >
           <div className="flex items-end gap-2">
-            <span className="text-teal-700 text-sm font-bold">{typeMap[fortuneCase.type]}</span>
+            <span className="text-sm font-bold text-teal-700">{typeMap[fortuneCase.type]}</span>
             {fortuneCase.parties}
           </div>
           <div className="mt-2">
@@ -88,11 +91,13 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
             {fortuneCase.memo}
           </div>
         </div>
-        <div className="mt-4 w-full flex justify-end">
+        <div className="mt-4 flex w-full justify-end">
           <button
-            className={clsx('flex w-20 justify-center px-3 py-1.5 text-sm font-semibold leading-6 rounded-md',
+            className={clsx(
+              'flex w-20 justify-center rounded-md px-3 py-1.5 text-sm leading-6 font-semibold',
               'bg-teal-700 text-white shadow-xs hover:bg-teal-600',
-              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700')}
+              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
+            )}
             onClick={close}
           >
             Super!
@@ -100,7 +105,7 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
         </div>
       </DialogPanel>
     </ModalDialog>
-  );
+  ));
 }
 
 function FortuneWheel({ reference, onFinish = () => {} }) {
@@ -125,37 +130,78 @@ function FortuneWheel({ reference, onFinish = () => {} }) {
 
   return (
     <div
-      className="flex justify-center text-center text-xl text-stone-900 font-extrabold"
+      className="flex justify-center text-center text-xl font-extrabold text-stone-900"
       style={{
         lineHeight: `${lineHeight}px`,
       }}
     >
       <DigitWheel digit={Math.trunc(reference.entity / 100) % 10} delay={100} onStart={started} onFinish={finished} />
-      <DigitWheel digit={Math.trunc(reference.entity / 10) % 10} direction="down" delay={200} onStart={started} onFinish={finished} />
+      <DigitWheel
+        digit={Math.trunc(reference.entity / 10) % 10}
+        direction="down"
+        delay={200}
+        onStart={started}
+        onFinish={finished}
+      />
       <DigitWheel digit={reference.entity % 10} delay={300} onStart={started} onFinish={finished} />
       <Space />
       <RegisterWheel register={reference.register} direction="down" delay={400} onStart={started} onFinish={finished} />
       <Space />
       <DigitWheel digit={Math.trunc(reference.number / 100) % 10} delay={500} onStart={started} onFinish={finished} />
-      <DigitWheel digit={Math.trunc(reference.number / 10) % 10} direction="down" delay={600} onStart={started} onFinish={finished} />
+      <DigitWheel
+        digit={Math.trunc(reference.number / 10) % 10}
+        direction="down"
+        delay={600}
+        onStart={started}
+        onFinish={finished}
+      />
       <DigitWheel digit={reference.number % 10} delay={700} onStart={started} onFinish={finished} />
       <Space>/</Space>
-      <DigitWheel digit={Math.trunc(reference.year / 10) % 10} delay={800} direction="down" onStart={started} onFinish={finished} />
+      <DigitWheel
+        digit={Math.trunc(reference.year / 10) % 10}
+        delay={800}
+        direction="down"
+        onStart={started}
+        onFinish={finished}
+      />
       <DigitWheel digit={reference.year % 10} delay={900} onStart={started} onFinish={finished} />
     </div>
   );
 }
 
-const createStrip = (array, repetitions) => [...(array.slice(-1)), ...(Array(repetitions).fill(array).flat()), ...(array.slice(0, 2))];
+const createStrip = (array, repetitions) => [
+  ...array.slice(-1),
+  ...Array(repetitions).fill(array).flat(),
+  ...array.slice(0, 2),
+];
 const digitStrip = createStrip([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 3);
 const registerStrip = createStrip(['O', 'OH', 'S', 'T'], 7);
 
 function DigitWheel({ digit, direction = 'up', delay, onStart, onFinish }) {
-  return <SpinningWheel value={digit} valueStrip={digitStrip} direction={direction} delay={delay} onStart={onStart} onFinish={onFinish} />;
+  return (
+    <SpinningWheel
+      value={digit}
+      valueStrip={digitStrip}
+      direction={direction}
+      delay={delay}
+      onStart={onStart}
+      onFinish={onFinish}
+    />
+  );
 }
 
 function RegisterWheel({ register, direction = 'up', delay, onStart, onFinish }) {
-  return <SpinningWheel value={register} valueStrip={registerStrip} direction={direction} delay={delay} widthClass="w-12" onStart={onStart} onFinish={onFinish} />;
+  return (
+    <SpinningWheel
+      value={register}
+      valueStrip={registerStrip}
+      direction={direction}
+      delay={delay}
+      widthClass="w-12"
+      onStart={onStart}
+      onFinish={onFinish}
+    />
+  );
 }
 
 function SpinningWheel({ value, valueStrip, direction, delay, widthClass = 'w-8', onStart, onFinish }) {
@@ -166,12 +212,10 @@ function SpinningWheel({ value, valueStrip, direction, delay, widthClass = 'w-8'
   const [selectedClassName, setSelectedClassName] = useState('');
 
   useEffect(() => {
-    const timeout = setTimeout(
-      () => {
-        onStart();
-        setShift(targetShift);
-      },
-      delay);
+    const timeout = setTimeout(() => {
+      onStart();
+      setShift(targetShift);
+    }, delay);
     return () => clearTimeout(timeout);
   }, [delay, onStart, targetShift]);
 
@@ -181,7 +225,7 @@ function SpinningWheel({ value, valueStrip, direction, delay, widthClass = 'w-8'
   }
 
   return (
-    <div className={`border border-stone-200 px-1 py-2 ${widthClass} h-10 shadow-inner overflow-hidden relative`}>
+    <div className={`border border-stone-200 px-1 py-2 ${widthClass} relative h-10 overflow-hidden shadow-inner`}>
       <div
         className="flex flex-col transition-transform"
         style={{
@@ -197,8 +241,8 @@ function SpinningWheel({ value, valueStrip, direction, delay, widthClass = 'w-8'
           <div key={index} className={shift === index ? selectedClassName : null}>{v}</div>
         ))}
       </div>
-      <div className="absolute top-0 left-0 right-0 h-3 bg-linear-to-b from-stone-400/40" />
-      <div className="absolute bottom-0 left-0 right-0 h-3 bg-linear-to-t from-stone-400/40" />
+      <div className="absolute top-0 right-0 left-0 h-3 bg-linear-to-b from-stone-400/40" />
+      <div className="absolute right-0 bottom-0 left-0 h-3 bg-linear-to-t from-stone-400/40" />
     </div>
   );
 }

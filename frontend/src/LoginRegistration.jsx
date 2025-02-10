@@ -70,12 +70,12 @@ function LoginForm({ successMessage, setSuccessMessage, toggleForm }) {
   return (
     <>
       <div className="text-center">
-        <h1 className="text-4xl mt-8 text-teal-800 font-kaushanScript">Causalist</h1>
-        <h2 className="text-2xl mt-4 font-semibold">Login</h2>
+        <h1 className="mt-8 font-kaushanScript text-4xl text-teal-800">Causalist</h1>
+        <h2 className="mt-4 text-2xl font-semibold">Login</h2>
       </div>
       {successMessage && (
-        <div className="flex items-center p-4 mt-8 text-sm text-teal-800 rounded-lg bg-teal-50" role="alert">
-          <CheckCircleIcon className="size-4 me-3 shrink-0 inline" />
+        <div className="mt-8 flex items-center rounded-lg bg-teal-50 p-4 text-sm text-teal-800" role="alert">
+          <CheckCircleIcon className="me-3 inline size-4 shrink-0" />
           <span className="font-medium">{successMessage}</span>
         </div>
       )}
@@ -139,7 +139,9 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
   }, [username]);
 
   useEffect(() => {
-    setDisabled(!(passwordValidationLength && passwordValidationCase && passwordValidationNonAlpha && usernameValidation));
+    setDisabled(
+      !(passwordValidationLength && passwordValidationCase && passwordValidationNonAlpha && usernameValidation),
+    );
   }, [passwordValidationCase, passwordValidationLength, passwordValidationNonAlpha, usernameValidation]);
 
   function registration(event) {
@@ -173,8 +175,8 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
   return (
     <>
       <div className="text-center">
-        <h1 className="text-4xl mt-8 text-teal-800 font-kaushanScript">Causalist</h1>
-        <h2 className="text-2xl mt-4 font-semibold">Registrierung</h2>
+        <h1 className="mt-8 font-kaushanScript text-4xl text-teal-800">Causalist</h1>
+        <h2 className="mt-4 text-2xl font-semibold">Registrierung</h2>
       </div>
       <FailureAlert message={registrationFailure} className="mt-8" />
       <form className="mt-8 space-y-6" action="#" method="POST" autoComplete="off" onSubmit={registration}>
@@ -188,7 +190,7 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
           onInput={removeWhitespace}
           onChange={(e) => setUsername(e.target.value)}
         >
-          <div className="text-xs mt-1 flex justify-start">
+          <div className="mt-1 flex justify-start text-xs">
             <ValidationInfo value={username} isValid={usernameValidation} label="min 4 Zeichen" />
           </div>
         </FormInput>
@@ -200,7 +202,7 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
           reveal={true}
           onChange={(e) => setPassword(e.target.value)}
         >
-          <div className="text-xs mt-1 flex justify-start gap-5">
+          <div className="mt-1 flex justify-start gap-5 text-xs">
             <ValidationInfo value={password} isValid={passwordValidationLength} label="min 10 Zeichen" />
             <ValidationInfo value={password} isValid={passwordValidationCase} label="aAbBcC" />
             <ValidationInfo value={password} isValid={passwordValidationNonAlpha} label="123!?#&" />
@@ -239,15 +241,19 @@ function FormInput({
     inputRef.current.focus();
   }
 
-  const inputClasses = clsx('block w-full rounded-md border-none py-1.5 text-stone-900 shadow-xs',
-    'ring-1 ring-inset ring-stone-300 placeholder:text-stone-400 focus:ring-2 focus:ring-inset focus:ring-teal-700',
+  const inputClasses = clsx(
+    'block w-full rounded-md border-none py-1.5 text-stone-900 shadow-xs',
+    'ring-1 ring-stone-300 ring-inset placeholder:text-stone-400 focus:ring-2 focus:ring-teal-700 focus:ring-inset',
     'sm:text-sm sm:leading-6',
-    reveal && 'pr-9');
+    reveal && 'pr-9',
+  );
 
   return (
     <div>
-      <label htmlFor={name} className="block text-sm font-medium leading-6 text-stone-900">{label}</label>
-      <div className="mt-2 relative">
+      <label htmlFor={name} className="block text-sm leading-6 font-medium text-stone-900">
+        {label}
+      </label>
+      <div className="relative mt-2">
         <input
           id={name}
           name={name}
@@ -262,7 +268,10 @@ function FormInput({
           onChange={onChange}
         />
         {reveal && (
-          <div className="absolute bottom-0 top-0 right-0 pr-2.5 py-2 text-stone-400 hover:text-stone-900" onClick={toggleRevealed}>
+          <div
+            className="absolute top-0 right-0 bottom-0 py-2 pr-2.5 text-stone-400 hover:text-stone-900"
+            onClick={toggleRevealed}
+          >
             {revealed ? <EyeSlashIcon className="size-5" /> : <EyeIcon className="size-5" />}
           </div>
         )}
@@ -273,9 +282,11 @@ function FormInput({
 }
 
 function FormSubmit({ label, disabled }) {
-  const buttonClasses = clsx('flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6',
-    'text-white bg-teal-700 hover:bg-teal-600 shadow-xs disabled:bg-stone-300 disabled:cursor-not-allowed',
-    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
+  const buttonClasses = clsx(
+    'flex w-full justify-center rounded-md px-3 py-1.5 text-sm leading-6 font-semibold',
+    'bg-teal-700 text-white shadow-xs hover:bg-teal-600 disabled:cursor-not-allowed disabled:bg-stone-300',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
+  );
   return (
     <div>
       <button type="submit" disabled={disabled} className={buttonClasses}>
@@ -290,7 +301,7 @@ function FormToggle({ label, toggle }) {
     <div>
       <button
         type="button"
-        className="block mx-auto text-teal-700 text-sm outline-hidden hover:underline focus-visible:underline"
+        className="mx-auto block text-sm text-teal-700 outline-hidden hover:underline focus-visible:underline"
         onClick={toggle}
       >
         {label}
@@ -309,7 +320,7 @@ function ValidationInfo({ value, isValid, label }) {
 
   return (
     <span className={`flex items-center ${validationColor()}`}>
-      <ValidationIcon value={value} isValid={isValid} className="size-4 me-1 inline" />
+      <ValidationIcon value={value} isValid={isValid} className="me-1 inline size-4" />
       {label}
     </span>
   );

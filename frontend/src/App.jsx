@@ -9,12 +9,12 @@ export default function App() {
   return (
     <ApiProvider>
       {(apiKey) => (
-        <div className="min-h-screen relative">
+        <div className="relative min-h-screen">
           { host !== 'www.causalist.de' && <StageDevAppearance host={host} /> }
-          <div className="container mx-auto p-3 sm:p-8 pb-12 min-w-[352px] text-stone-900">
+          <div className="container mx-auto min-w-[352px] p-3 pb-12 text-stone-900 sm:p-8">
             {apiKey ? <Content /> : <LoginRegistration />}
           </div>
-          <div className="absolute bottom-4 right-4 text-xs text-stone-400">
+          <div className="absolute right-4 bottom-4 text-xs text-stone-400">
             <a
               className="hover:text-teal-700 hover:underline"
               title="GitHub"
@@ -40,7 +40,7 @@ function StageDevAppearance({ host }) {
 
   return (
     <>
-      <div className="p-1 bg-amber-300 font-semibold text-center sticky top-0 z-50 w-full">
+      <div className="sticky top-0 z-50 w-full bg-amber-300 p-1 text-center font-semibold">
         {stage ? 'Stage' : 'Dev'}
       </div>
     </>

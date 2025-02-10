@@ -120,7 +120,8 @@ export default function Content() {
             todoDate: e.startOfWeek,
             newWeek: true,
           },
-          ...newCases.slice(e.casesIndex)];
+          ...newCases.slice(e.casesIndex),
+        ];
       }
     } else {
       newCases = cases.filter((c) => containsSearch(c, search));
@@ -198,27 +199,37 @@ export default function Content() {
       <EditModal isOpen={isEditOpen} setIsOpen={setEditOpen} selectedCase={selectedCase} forceUpdate={forceUpdate} />
 
       <RtfImportModal isOpen={isImportOpen} setIsOpen={setImportOpen} forceUpdate={forceUpdate} />
-      <FileUploadModal isOpen={isUploadOpen} setIsOpen={setUploadOpen} selectedCase={selectedCase} forceUpdate={() => setReloadDocuments((b) => !b)} />
+      <FileUploadModal
+        isOpen={isUploadOpen}
+        setIsOpen={setUploadOpen}
+        selectedCase={selectedCase}
+        forceUpdate={() => setReloadDocuments((b) => !b)}
+      />
 
-      <DeleteModal isOpen={isDeleteOpen} setIsOpen={setDeleteOpen} selectedCase={selectedCase} forceUpdate={forceUpdate} />
+      <DeleteModal
+        isOpen={isDeleteOpen}
+        setIsOpen={setDeleteOpen}
+        selectedCase={selectedCase}
+        forceUpdate={forceUpdate}
+      />
 
       <FortuneModal isOpen={isFortuneOpen} setIsOpen={setFortuneOpen} cases={cases} />
 
       {/* header */}
-      <div className="mb-8 flex flex-row justify-between items-baseline border-b-2 border-b-stone-400 border-solid">
-        <div className="mb-2 flex flex-row justify-start items-baseline">
-          <img src="/logo.svg" alt="Logo" className="mr-2 my-auto size-5" onClick={() => setFortuneOpen(true)} />
+      <div className="mb-8 flex flex-row items-baseline justify-between border-b-2 border-solid border-b-stone-400">
+        <div className="mb-2 flex flex-row items-baseline justify-start">
+          <img src="/logo.svg" alt="Logo" className="my-auto mr-2 size-5" onClick={() => setFortuneOpen(true)} />
           <span className="font-kaushanScript text-lg">Causalist</span>
         </div>
         { // responsiveness helper (development only)
           process.env.NODE_ENV === 'development' && (
-            <div className="text-white bg-rose-700 font-bold text-sm px-4 py-1 rounded-full">
+            <div className="rounded-full bg-rose-700 px-4 py-1 text-sm font-bold text-white">
               <span className="sm:hidden">xs</span>
               <span className="hidden sm:inline md:hidden">sm</span>
               <span className="hidden md:inline lg:hidden">md</span>
               <span className="hidden lg:inline xl:hidden">lg</span>
               <span className="hidden xl:inline 2xl:hidden">xl</span>
-              <span className="hidden 2xl:inline 3xl:hidden">2xl</span>
+              <span className="hidden 2xl:inline">2xl</span>
             </div>
           )
         }
@@ -231,25 +242,25 @@ export default function Content() {
 
       {/* filter */}
       <div className="mb-8 flex flex-row justify-between">
-        <div className="flex flex-row flex-wrap gap-5 justify-between md:justify-start w-full ">
+        <div className="flex w-full flex-row flex-wrap justify-between gap-5 md:justify-start">
           <TypeFilter typeQuery={typeQuery} setTypeQuery={setTypeQuery} />
 
           <StatusFilter statusQuery={statusQuery} setStatusQuery={setStatusQuery} settledOnly={settledOnly} />
 
           {/* search input */}
           {/* h-[42px] -> same height as status filter button row */}
-          <div className="inline-flex flex-1 sm:order-last md:order-none relative h-[42px]">
+          <div className="relative inline-flex h-[42px] flex-1 sm:order-last md:order-none">
             <input
               type="text"
               placeholder="Suche"
               value={search}
               ref={searchRef}
-              className="block w-full min-w-20 pr-8 bg-stone-50 border border-stone-300 text-stone-900 text-sm rounded-md focus:ring-teal-700 focus:border-teal-700"
+              className="block w-full min-w-20 rounded-md border border-stone-300 bg-stone-50 pr-8 text-sm text-stone-900 focus:border-teal-700 focus:ring-teal-700"
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => e.key === 'Escape' && setSearch('')}
             />
             <div
-              className="absolute bottom-0 top-0 right-0 pr-2.5 py-3 text-stone-600 hover:text-stone-900"
+              className="absolute top-0 right-0 bottom-0 py-3 pr-2.5 text-stone-600 hover:text-stone-900"
               title="Leeren"
               onClick={() => {
                 setSearch('');
@@ -260,27 +271,27 @@ export default function Content() {
             </div>
           </div>
 
-          <div className="hidden xl:block flex-1">{/* spacer */}</div>
+          <div className="hidden flex-1 xl:block">{/* spacer */}</div>
 
           <div className="inline-flex rounded-md shadow-xs">
             {/* new case button */}
             <div className="inline-flex">
               <button
-                className="flex w-full items-center rounded-md sm:rounded-r-none px-3 py-2 text-sm font-semibold leading-6 bg-teal-700 text-white border-r border-white hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                className="flex w-full items-center rounded-md border-r border-white bg-teal-700 px-3 py-2 text-sm leading-6 font-semibold text-white hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:rounded-r-none"
                 onClick={openEditModal}
               >
-                <PlusCircleIcon className="size-6 inline" />
-                <span className="ms-2 lg:inline hidden">Neu</span>
+                <PlusCircleIcon className="inline size-6" />
+                <span className="ms-2 hidden lg:inline">Neu</span>
               </button>
             </div>
             {/* rtf upload */}
             <div className="hidden sm:inline-flex">
               <button
-                className="flex w-full items-center rounded-r-md bg-teal-700 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-xs hover:bg-teal-600 disabled:bg-stone-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                className="flex w-full items-center rounded-r-md bg-teal-700 px-3 py-2 text-sm leading-6 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:bg-stone-300"
                 onClick={() => setImportOpen(true)}
               >
-                <ArrowDownOnSquareIcon className="size-6 inline" />
-                <span className="ms-2 lg:inline hidden">RTF Import</span>
+                <ArrowDownOnSquareIcon className="inline size-6" />
+                <span className="ms-2 hidden lg:inline">RTF Import</span>
               </button>
             </div>
           </div>
@@ -294,31 +305,27 @@ export default function Content() {
       <div className="flex flex-row justify-between align-baseline">
         <Listbox value={settledOnly} onChange={setSettledOnly}>
           <div className="relative">
-            <ListboxButton
-              className="text-lg font-semibold mb-2 focus-visible:outline-hidden focus-visible:underline hover:underline decoration-teal-700"
-            >
+            <ListboxButton className="mb-2 text-lg font-semibold decoration-teal-700 hover:underline focus-visible:underline focus-visible:outline-hidden">
               {({ open }) => (
                 <>
                   {casesHeader}
-                  <ChevronDownIcon className={clsx('size-5 ml-1', open ? 'hidden' : 'inline')} />
-                  <ChevronUpIcon className={clsx('size-5 ml-1', open ? 'inline' : 'hidden')} />
+                  <ChevronDownIcon className={clsx('ml-1 size-5', open ? 'hidden' : 'inline')} />
+                  <ChevronUpIcon className={clsx('ml-1 size-5', open ? 'inline' : 'hidden')} />
                 </>
               )}
             </ListboxButton>
-            <ListboxOptions
-              className="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-hidden sm:text-sm"
-            >
+            <ListboxOptions className="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg ring-black/5 focus:outline-hidden sm:text-sm">
               <ListboxOption
                 value={false}
                 className={({ focus }) =>
-                  clsx('relative cursor-default select-none py-2 px-4', focus ? 'bg-stone-100 text-teal-700' : 'text-stone-900')}
+                  clsx('relative cursor-default px-4 py-2 select-none', focus ? 'bg-stone-100 text-teal-700' : 'text-stone-900')}
               >
                 Laufende Verfahren
               </ListboxOption>
               <ListboxOption
                 value={true}
                 className={({ focus }) =>
-                  clsx('relative cursor-default select-none py-2 px-4', focus ? 'bg-stone-100 text-teal-700' : 'text-stone-900')}
+                  clsx('relative cursor-default px-4 py-2 select-none', focus ? 'bg-stone-100 text-teal-700' : 'text-stone-900')}
               >
                 Erledigte Verfahren
               </ListboxOption>
@@ -329,7 +336,7 @@ export default function Content() {
         <label className={settledOnly ? 'hidden' : 'flex'}>
           <input
             type="checkbox"
-            className="self-center size-4 mr-2 rounded-sm text-teal-700 bg-stone-50 border-stone-300 focus:ring-teal-700 focus:ring-2 checked:bg-teal-700 checked:border-teal-700"
+            className="mr-2 size-4 self-center rounded-sm border-stone-300 bg-stone-50 text-teal-700 checked:border-teal-700 checked:bg-teal-700 focus:ring-2 focus:ring-teal-700"
             checked={todosOnly}
             onChange={() => setTodosOnly((t) => !t)}
           />
@@ -340,7 +347,7 @@ export default function Content() {
       {/* loading spinner */}
       {loadingSpinner && (
         <div className="relative">
-          <ArrowPathIcon className="absolute top-1 w-full mx-auto size-8 animate-spin" />
+          <ArrowPathIcon className="absolute top-1 mx-auto size-8 w-full animate-spin" />
         </div>
       )}
 
@@ -394,7 +401,7 @@ function TypeFilter({ typeQuery, setTypeQuery }) {
             key={type}
             data-selected={typeQuery.includes(type) || null}
             title={typeLabels[type]}
-            className="p-2 w-11 text-sm font-semibold text-stone-900 hover:text-teal-700 border border-r-0 border-stone-300 last:border-r first:rounded-l-md last:rounded-r-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus-visible:z-10 data-selected:text-white data-selected:bg-teal-700 data-selected:hover:bg-teal-600"
+            className="w-11 border border-r-0 border-stone-300 p-2 text-sm font-semibold text-stone-900 first:rounded-l-md last:rounded-r-md last:border-r hover:text-teal-700 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 data-selected:bg-teal-700 data-selected:text-white data-selected:hover:bg-teal-600"
             onClick={() => toggleType(type)}
             onDoubleClick={() => forceType(type)}
           >
@@ -432,7 +439,7 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
   }
 
   return (
-    <div className="inline-flex rounded-md shadow-xs order-first sm:order-none w-full sm:w-auto" role="group">
+    <div className="order-first inline-flex w-full rounded-md shadow-xs sm:order-none sm:w-auto" role="group">
       {
         filterStatusKeys.map((status) => (
           <button
@@ -441,11 +448,11 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
             disabled={settledOnly}
             data-selected={statusQuery.includes(status) || null}
             title={statusLabels[status]}
-            className="p-2 w-full text-stone-900 hover:text-teal-700 border border-r-0 last:border-r border-stone-300 first:rounded-l-md last:rounded-r-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 focus-visible:z-10 data-selected:text-white data-selected:bg-teal-700 data-selected:hover:bg-teal-600 disabled:text-stone-400! disabled:bg-white! disabled:cursor-not-allowed"
+            className="w-full border border-r-0 border-stone-300 p-2 text-stone-900 first:rounded-l-md last:rounded-r-md last:border-r hover:text-teal-700 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed disabled:bg-white! disabled:text-stone-400! data-selected:bg-teal-700 data-selected:text-white data-selected:hover:bg-teal-600"
             onClick={() => toggleStatus(status)}
             onDoubleClick={() => forceStatus(status)}
           >
-            <StatusIcon status={status} className="size-6 mx-auto" />
+            <StatusIcon status={status} className="mx-auto size-6" />
           </button>
         ))
       }
@@ -453,7 +460,17 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly }) {
   );
 }
 
-function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, openUploadModal, openDeleteModal, reloadDocuments, setReloadDocuments, forceUpdate }) {
+function CasesList({
+  cases,
+  loadingSpinner,
+  recentlyUpdatedId,
+  openEditModal,
+  openUploadModal,
+  openDeleteModal,
+  reloadDocuments,
+  setReloadDocuments,
+  forceUpdate,
+}) {
   const api = useContext(ApiContext);
 
   const [openCaseId, setOpenCaseId] = useState(null);
@@ -472,7 +489,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
 
   useEffect(() => {
     if (singleClickedCaseId && clickedCaseId && singleClickedCaseId === clickedCaseId) {
-      setOpenCaseId((o) => o === clickedCaseId ? null : clickedCaseId);
+      setOpenCaseId((o) => (o === clickedCaseId ? null : clickedCaseId));
       setOpenDropdown(null);
       setClickedCaseId(null);
       setDocuments([]);
@@ -510,7 +527,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
 
   function toggleDropdown(event, id) {
     event.stopPropagation();
-    setOpenDropdown((o) => o === id ? null : id);
+    setOpenDropdown((o) => (o === id ? null : id));
   }
 
   function openUpload(event, aCase) {
@@ -602,26 +619,33 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
     return null;
   }
 
-  const olClasses = clsx('grid grid-cols-(--grid-cases) md:grid-cols-(--grid-cases-md) lg:grid-cols-(--grid-cases-lg)',
-    loadingSpinner && 'opacity-25');
-  const editButtonClasses = clsx('flex items-center w-full px-3 py-2 rounded-l-md leading-5 text-sm font-semibold',
-    'text-white shadow-xs bg-teal-700 hover:bg-teal-600 border-r-white border-r',
-    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700');
+  const olClasses = clsx(
+    'grid grid-cols-(--grid-cases) md:grid-cols-(--grid-cases-md) lg:grid-cols-(--grid-cases-lg)',
+    loadingSpinner && 'opacity-25',
+  );
+  const editButtonClasses = clsx(
+    'flex w-full items-center rounded-l-md px-3 py-2 text-sm leading-5 font-semibold',
+    'border-r border-r-white bg-teal-700 text-white shadow-xs hover:bg-teal-600',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
+  );
   const menuItemsClasses = 'border border-stone-300 border-b-0 last:border-b first:rounded-t-md last:rounded-b-md';
   const menuItemButtonClasses = 'flex items-center w-full px-3 py-2 leading-5 text-sm font-semibold bg-white hover:bg-stone-100';
   return (
     <ol className={olClasses}>
       {cases.length === 0 && (
-        <li className="col-span-full text-stone-600 py-2 border-y border-y-stone-50">
+        <li className="col-span-full border-y border-y-stone-50 py-2 text-stone-600">
           Du hast keine Verfahren für die aktuellen Filter- und Suchkriterien.
         </li>
       )}
       {cases.map((aCase) => {
-        const liClasses = clsx('col-span-full grid grid-cols-subgrid border-y border-y-stone-50',
-          'data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900 hover:text-teal-700',
-          aCase.ref && 'hover:border-y-stone-300 pt-2.5 pb-1.5', todoBg(aCase),
+        const liClasses = clsx(
+          'col-span-full grid grid-cols-subgrid border-y border-y-stone-50',
+          'hover:text-teal-700 data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900',
+          aCase.ref && 'pt-2.5 pb-1.5 hover:border-y-stone-300',
+          todoBg(aCase),
           recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
-          aCase.newWeek && 'relative mt-20 first:mt-8 border-t-teal-700');
+          aCase.newWeek && 'relative mt-20 border-t-teal-700 first:mt-8',
+        );
         const weekMarkerClasses = 'absolute -top-6 right-0 py-1 px-7 text-xs bg-teal-700 text-white rounded-t-lg';
         return (
           <li
@@ -639,24 +663,27 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
             )}
             {aCase.ref && ( // a case without ref is a placeholder for an empty week
               <>
-                <div className="flex justify-end w-full items-baseline">
-                  <span className={`ml-2 size-3 rounded-full marker ${aCase.markerColor || 'none'}`}></span>
-                  <span className="grow flex-none text-right">{aCase.ref.value}</span>
-                  <span className="basis-4 flex-none text-left font-bold text-teal-600 text-xs ml-1 relative">
+                <div className="flex w-full items-baseline justify-end">
+                  <span className={`marker ml-2 size-3 rounded-full ${aCase.markerColor || 'none'}`}></span>
+                  <span className="flex-none grow text-right">{aCase.ref.value}</span>
+                  <span className="relative ml-1 flex-none basis-4 text-left text-xs font-bold text-teal-600">
                     {typeMap[aCase.type]}
-                    {aCase.hasDocuments && <PaperClipIcon className="text-stone-400 size-3.5 absolute left-0 -top-3" />}
+                    {aCase.hasDocuments && <PaperClipIcon className="absolute -top-3 left-0 size-3.5 text-stone-400" />}
                   </span>
                 </div>
                 <div title={statusLabels[aCase.status]}>
-                  <StatusIcon status={aCase.status} className="size-6 mx-auto" />
+                  <StatusIcon status={aCase.status} className="mx-auto size-6" />
                 </div>
                 <div
                   data-open={openCaseId === aCase.id || null}
-                  className="px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal md:data-open:mr-4"
+                  className="overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:whitespace-normal md:data-open:mr-4"
                 >
                   <span title={openCaseId === aCase.id ? null : aCase.parties}>{aCase.parties}</span>
-                  <div className="md:hidden text-sm">
-                    <span title={aCase.todoDate && 'Vorfrist'} className={!isSettled(aCase) && aCase.todoDate ? 'pr-4' : 'hidden'}>
+                  <div className="text-sm md:hidden">
+                    <span
+                      title={aCase.todoDate && 'Vorfrist'}
+                      className={!isSettled(aCase) && aCase.todoDate ? 'pr-4' : 'hidden'}
+                    >
                       {formattedDate(aCase.todoDate)}
                     </span>
                     <span
@@ -672,32 +699,32 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                 <div
                   title={openCaseId === aCase.id ? null : aCase.area}
                   data-open={openCaseId === aCase.id || null}
-                  className="hidden lg:inline px-2 whitespace-nowrap overflow-hidden text-ellipsis data-open:whitespace-normal data-open:mr-4"
+                  className="hidden overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:mr-4 data-open:whitespace-normal lg:inline"
                 >
                   {aCase.area}
                 </div>
-                <div title={!isSettled(aCase) && aCase.todoDate ? 'Vorfrist' : null} className="hidden lg:inline text-right pr-2">
+                <div
+                  title={!isSettled(aCase) && aCase.todoDate ? 'Vorfrist' : null}
+                  className="hidden pr-2 text-right lg:inline"
+                >
                   {!isSettled(aCase) && formattedDate(aCase.todoDate)}
                 </div>
                 <div
-                  title={isSettled(aCase) ? (aCase.settledOn && 'Erledigt am') : (aCase.dueDate && 'nächster Termin')}
-                  className="hidden md:inline empty:hidden font-semibold text-right pr-2"
+                  title={isSettled(aCase) ? aCase.settledOn && 'Erledigt am' : aCase.dueDate && 'nächster Termin'}
+                  className="hidden pr-2 text-right font-semibold empty:hidden md:inline"
                 >
                   {formattedDate(isSettled(aCase) ? aCase.settledOn : aCase.dueDate)}
                 </div>
-                <Transition
-                  show={openCaseId === aCase.id}
-                  appear
-                >
-                  <div className="col-span-full grid grid-cols-subgrid gap-y-4 pt-4 origin-top transition-all ease-out data-enter:duration-150 data-leave:duration-100 data-closed:opacity-0">
-                    <div className="col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5 relative">
-                      <div className="flex justify-between items-center">
+                <Transition show={openCaseId === aCase.id} appear>
+                  <div className="col-span-full grid origin-top grid-cols-subgrid gap-y-4 pt-4 transition-all ease-out data-closed:opacity-0 data-enter:duration-150 data-leave:duration-100">
+                    <div className="relative col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5">
+                      <div className="flex items-center justify-between">
                         <button className={editButtonClasses} onClick={(e) => openEditModal(e, aCase)}>
-                          <PencilIcon className="size-4 me-2 inline" />
+                          <PencilIcon className="me-2 inline size-4" />
                           Bearbeiten
                         </button>
                         <button
-                          className="p-2.5 rounded-r-md text-white bg-teal-700 hover:bg-teal-600"
+                          className="rounded-r-md bg-teal-700 p-2.5 text-white hover:bg-teal-600"
                           onClick={(e) => toggleDropdown(e, aCase.id)}
                           onDoubleClick={ignoreDefaults}
                         >
@@ -709,7 +736,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                         </button>
                       </div>
                       <ul
-                        className="absolute top-9 left-0 right-0 z-10 hidden data-open:block"
+                        className="absolute top-9 right-0 left-0 z-10 hidden data-open:block"
                         data-open={openDropdown === aCase.id || null}
                       >
                         <li className={menuItemsClasses}>
@@ -718,7 +745,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                             onClick={(e) => openUpload(e, aCase)}
                             onDoubleClick={ignoreDefaults}
                           >
-                            <PaperClipIcon className="size-4 me-2 inline" />
+                            <PaperClipIcon className="me-2 inline size-4" />
                             Hochladen
                           </button>
                         </li>
@@ -729,7 +756,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                             onClick={(e) => settleCase(e, aCase)}
                             onDoubleClick={ignoreDefaults}
                           >
-                            <SettledIcon className="size-4 me-2 inline" />
+                            <SettledIcon className="me-2 inline size-4" />
                             Erledigen
                           </button>
                         </li>
@@ -739,19 +766,19 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                             onClick={(e) => openDelete(e, aCase)}
                             onDoubleClick={ignoreDefaults}
                           >
-                            <TrashIcon className="size-4 me-2 inline" />
+                            <TrashIcon className="me-2 inline size-4" />
                             Löschen
                           </button>
                         </li>
                       </ul>
                     </div>
                     {aCase.area && (
-                      <div className="col-start-3 px-2 lg:hidden md:mr-4">
+                      <div className="col-start-3 px-2 md:mr-4 lg:hidden">
                         {aCase.area}
                       </div>
                     )}
                     {aCase.todoDate && (
-                      <div title="Vorfrist" className="hidden md:max-lg:block col-start-4 pr-2 text-right">
+                      <div title="Vorfrist" className="col-start-4 hidden pr-2 text-right md:max-lg:block">
                         {formattedDate(aCase.todoDate)}
                       </div>
                     )}
@@ -769,11 +796,8 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       )}
                     </div>
                     {aCase.memo && (
-                      <div className="col-start-3 col-end-5 px-2 italic whitespace-pre-wrap">
-                        <AutoLink
-                          text={aCase.memo}
-                          linkClassName="text-teal-700 hover:text-teal-800 hover:underline"
-                        />
+                      <div className="col-start-3 col-end-5 px-2 whitespace-pre-wrap italic">
+                        <AutoLink text={aCase.memo} linkClassName="text-teal-700 hover:text-teal-800 hover:underline" />
                       </div>
                     )}
                     {documents.length > 0 && (
@@ -782,7 +806,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                           {
                             documents.map((doc) => (
                               <li key={doc.id} className="flex items-center">
-                                <PaperClipIcon className="size-3.5 inline me-1 shrink-0 self-start mt-1" />
+                                <PaperClipIcon className="me-1 mt-1 inline size-3.5 shrink-0 self-start" />
                                 <a
                                   href="#"
                                   className="text-teal-700 hover:text-teal-800 hover:underline"
@@ -792,21 +816,28 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                                   {doc.filename}
                                 </a>
                                 <XMarkIcon
-                                  className={clsx('size-3 ms-2 shrink-0 self-start mt-1 hover:text-teal-700',
-                                    selectedDocumentId === doc.id ? 'hidden' : 'inline')}
+                                  className={clsx(
+                                    'ms-2 mt-1 size-3 shrink-0 self-start hover:text-teal-700',
+                                    selectedDocumentId === doc.id ? 'hidden' : 'inline',
+                                  )}
                                   title="Löschen"
                                   onClick={(e) => selectDocument(e, doc.id)}
                                   onDoubleClick={ignoreDefaults}
                                 />
-                                <div className={clsx('self-start items-center ms-2', selectedDocumentId !== doc.id ? 'hidden' : 'inline-flex')}>
+                                <div
+                                  className={clsx(
+                                    'ms-2 items-center self-start',
+                                    selectedDocumentId !== doc.id ? 'hidden' : 'inline-flex',
+                                  )}
+                                >
                                   <ChevronLeftIcon
-                                    className="size-3 hover:text-teal-700 inline"
+                                    className="inline size-3 hover:text-teal-700"
                                     onClick={(e) => selectDocument(e, null)}
                                     onDoubleClick={ignoreDefaults}
                                   />
                                   <span className="ms-1 font-semibold">Löschen?</span>
                                   <TrashIcon
-                                    className="inline size-3 ms-1 hover:text-rose-700"
+                                    className="ms-1 inline size-3 hover:text-rose-700"
                                     onClick={(e) => deleteDocument(e, aCase.id, doc.id)}
                                     onDoubleClick={ignoreDefaults}
                                   />
@@ -818,15 +849,9 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
                       </div>
                     )}
                     <FailureAlert message={errorMessage} className="col-start-3 md:col-end-5 lg:col-end-7" />
-                    <div
-                      className="col-start-3 md:col-end-5 lg:col-end-7 text-xs flex flex-col sm:flex-row justify-between px-2 gap-2"
-                    >
-                      <div>
-                        {`Eingegangen am ${formattedDate(aCase.receivedOn)}`}
-                      </div>
-                      <div>
-                        {`Geändert ${formattedDateTime(aCase.updatedAt)}`}
-                      </div>
+                    <div className="col-start-3 flex flex-col justify-between gap-2 px-2 text-xs sm:flex-row md:col-end-5 lg:col-end-7">
+                      <div>{`Eingegangen am ${formattedDate(aCase.receivedOn)}`}</div>
+                      <div>{`Geändert ${formattedDateTime(aCase.updatedAt)}`}</div>
                     </div>
                   </div>
                 </Transition>
@@ -834,8 +859,7 @@ function CasesList({ cases, loadingSpinner, recentlyUpdatedId, openEditModal, op
             )}
           </li>
         );
-      },
-      )}
+      })}
     </ol>
   );
 }
