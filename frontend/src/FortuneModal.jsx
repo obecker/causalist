@@ -1,4 +1,5 @@
 import { DialogPanel, DialogTitle } from '@headlessui/react';
+import clsx from 'clsx/lite';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ConfettiExplosion from 'react-confetti-explosion';
 
@@ -126,34 +127,16 @@ function FortuneWheel({ reference, onFinish = () => {} }) {
       }}
     >
       <DigitWheel digit={Math.trunc(reference.entity / 100) % 10} delay={100} onStart={started} onFinish={finished} />
-      <DigitWheel
-        digit={Math.trunc(reference.entity / 10) % 10}
-        direction="down"
-        delay={200}
-        onStart={started}
-        onFinish={finished}
-      />
+      <DigitWheel digit={Math.trunc(reference.entity / 10) % 10} direction="down" delay={200} onStart={started} onFinish={finished} />
       <DigitWheel digit={reference.entity % 10} delay={300} onStart={started} onFinish={finished} />
       <Space />
       <RegisterWheel register={reference.register} direction="down" delay={400} onStart={started} onFinish={finished} />
       <Space />
       <DigitWheel digit={Math.trunc(reference.number / 100) % 10} delay={500} onStart={started} onFinish={finished} />
-      <DigitWheel
-        digit={Math.trunc(reference.number / 10) % 10}
-        direction="down"
-        delay={600}
-        onStart={started}
-        onFinish={finished}
-      />
+      <DigitWheel digit={Math.trunc(reference.number / 10) % 10} direction="down" delay={600} onStart={started} onFinish={finished} />
       <DigitWheel digit={reference.number % 10} delay={700} onStart={started} onFinish={finished} />
       <Space>/</Space>
-      <DigitWheel
-        digit={Math.trunc(reference.year / 10) % 10}
-        delay={800}
-        direction="down"
-        onStart={started}
-        onFinish={finished}
-      />
+      <DigitWheel digit={Math.trunc(reference.year / 10) % 10} delay={800} direction="down" onStart={started} onFinish={finished} />
       <DigitWheel digit={reference.year % 10} delay={900} onStart={started} onFinish={finished} />
     </div>
   );
@@ -215,7 +198,7 @@ function SpinningWheel({ value, valueStrip, direction, delay, widthClass = 'w-8'
   }
 
   return (
-    <div className={`border border-stone-200 px-1 py-2 ${widthClass} relative h-10 overflow-hidden shadow-inner`}>
+    <div className={clsx('relative h-10 overflow-hidden border border-stone-200 px-1 py-2 shadow-inner', widthClass)}>
       <div
         className="flex flex-col transition-transform"
         style={{

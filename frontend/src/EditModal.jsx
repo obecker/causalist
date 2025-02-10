@@ -300,7 +300,10 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   onKeyDown={(e) => focusNextOnKey(e, ' ', refRegisterInput)}
                   onPaste={pasteReference}
                   onChange={(e) => setRefEntity(e.target.value.trim())}
-                  className={`mr-1 w-16 rounded-l-md border-none text-sm focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refEntityFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={clsx(
+                    'mr-1 w-16 rounded-l-md border-none text-sm focus:ring-2 focus:ring-teal-700 disabled:cursor-wait',
+                    refEntityFailure ? 'bg-rose-100' : 'bg-stone-50',
+                  )}
                 />
                 <input
                   minLength="1"
@@ -311,7 +314,10 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   ref={refRegisterInput}
                   onKeyDown={(e) => focusNextOnKey(e, ' ', refNoInput)}
                   onChange={(e) => setRefRegister(e.target.value.trim().toUpperCase())}
-                  className={`mr-1 w-12 border-none text-sm focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refRegisterFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={clsx(
+                    'mr-1 w-12 border-none text-sm focus:ring-2 focus:ring-teal-700 disabled:cursor-wait',
+                    refRegisterFailure ? 'bg-rose-100' : 'bg-stone-50',
+                  )}
                 />
                 <input
                   minLength="1"
@@ -323,7 +329,10 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   ref={refNoInput}
                   onKeyDown={(e) => focusNextOnKey(e, '/', refYearInput)}
                   onChange={(e) => setRefNo(e.target.value.trim())}
-                  className={`w-16 border-none text-sm focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refNoFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={clsx(
+                    'w-16 border-none text-sm focus:ring-2 focus:ring-teal-700 disabled:cursor-wait',
+                    refNoFailure ? 'bg-rose-100' : 'bg-stone-50',
+                  )}
                 />
                 <span className="text-sm">/</span>
                 <input
@@ -335,7 +344,10 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   value={refYear}
                   ref={refYearInput}
                   onChange={(e) => setRefYear(e.target.value.trim())}
-                  className={`w-12 rounded-r-md border-none text-sm focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${refYearFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={clsx(
+                    'w-12 rounded-r-md border-none text-sm focus:ring-2 focus:ring-teal-700 disabled:cursor-wait',
+                    refYearFailure ? 'bg-rose-100' : 'bg-stone-50',
+                  )}
                 />
               </div>
             </div>
@@ -349,7 +361,10 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   disabled={fieldsDisabled}
                   checked={caseType === 'SINGLE'}
                   onChange={() => setCaseType('SINGLE')}
-                  className={`mr-2 size-4 border-stone-300 text-teal-700 checked:border-teal-700 checked:bg-teal-700 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={clsx(
+                    'mr-2 size-4 border-stone-300 text-teal-700 checked:border-teal-700 checked:bg-teal-700 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait',
+                    caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50',
+                  )}
                 />
                 Einzelrichter
               </label>
@@ -362,7 +377,10 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                   disabled={fieldsDisabled}
                   checked={caseType === 'CHAMBER'}
                   onChange={() => setCaseType('CHAMBER')}
-                  className={`mr-2 size-4 border-stone-300 text-teal-700 checked:border-teal-700 checked:bg-teal-700 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                  className={clsx(
+                    'mr-2 size-4 border-stone-300 text-teal-700 checked:border-teal-700 checked:bg-teal-700 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait',
+                    caseTypeFailure ? 'bg-rose-100' : 'bg-stone-50',
+                  )}
                 />
                 Kammersache
               </label>
@@ -381,7 +399,10 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                       disabled={fieldsDisabled}
                       checked={color === caseMarkerColor}
                       onChange={() => setCaseMarkerColor(color)}
-                      className={`marker size-4 self-center ${color || 'none'} border-stone-300 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait`}
+                      className={clsx(
+                        'marker size-4 self-center border-stone-300 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait',
+                        color || 'none',
+                      )}
                     />
                   ))
                 }
@@ -513,7 +534,10 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 onChange={(e) => setCaseReceivedOn(e.target.value)}
                 onFocus={(e) => (e.target.defaultValue = '')}
                 onKeyDown={(e) => dateEdit(e, caseReceivedOn, setCaseReceivedOn)}
-                className={`block w-full rounded-md border border-stone-300 p-2.5 text-sm focus:border-teal-700 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${caseReceivedOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                className={clsx(
+                  'block w-full rounded-md border border-stone-300 p-2.5 text-sm focus:border-teal-700 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait',
+                  caseReceivedOnFailure ? 'bg-rose-100' : 'bg-stone-50',
+                )}
               />
             </div>
             <div className="sm:col-span-3 lg:col-span-1">
@@ -530,7 +554,10 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 onChange={(e) => setCaseSettledOn(e.target.value)}
                 onFocus={(e) => (e.target.defaultValue = '')}
                 onKeyDown={(e) => dateEdit(e, caseSettledOn, setCaseSettledOn)}
-                className={`block w-full rounded-md border border-stone-300 p-2.5 text-sm focus:border-teal-700 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait ${caseSettledOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
+                className={clsx(
+                  'block w-full rounded-md border border-stone-300 p-2.5 text-sm focus:border-teal-700 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait',
+                  caseSettledOnFailure ? 'bg-rose-100' : 'bg-stone-50',
+                )}
               />
             </div>
             <div className="sm:col-span-6 lg:col-span-2">

@@ -314,7 +314,7 @@ function ValidationInfo({ value, isValid, label }) {
   }
 
   return (
-    <span className={`flex items-center ${validationColor()}`}>
+    <span className={clsx('flex items-center', validationColor())}>
       <ValidationIcon value={value} isValid={isValid} className="me-1 inline size-4" />
       {label}
     </span>
