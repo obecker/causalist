@@ -50,7 +50,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   const [errorOnSave, setErrorOnSave] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const xlWidth = useMediaQuery('(min-width: 1280px)');
+  const lgWidth = useMediaQuery('(min-width: 1024px)');
 
   // see index.css for corresponding CSS colors
   const markerColors = ['', 'gray', 'red', 'yellow', 'green', 'blue', 'purple'];
@@ -272,17 +272,17 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
       <div className="py-6 w-full min-w-[322px] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl transform transition-all overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl">
         <form
           onSubmit={saveCase}
-          className={clsx('px-6 overflow-y-auto overflow-x-visible overscroll-contain no-scrollbar',
+          className={clsx('overflow-y-auto overflow-x-visible overscroll-contain no-scrollbar',
             fieldsDisabled && 'cursor-wait')}
           style={{ maxHeight: 'calc(100vh - 8rem)' }}
           autoComplete="off"
         >
-          <DialogTitle as="h3" className="text-lg font-semibold leading-6 tracking-tight sm:tracking-normal text-stone-900 sticky top-0 bg-white pb-4 z-50">
+          <DialogTitle as="h3" className="px-6 text-lg font-semibold leading-6 tracking-tight sm:tracking-normal text-stone-900 sticky top-0 bg-white pb-4 z-50">
             {selectedCase ? `Verfahren ${selectedCase.ref.value} bearbeiten` : 'Neues Verfahren'}
           </DialogTitle>
-          <FailureAlert message={errorOnLoad} className="w-full mb-4" />
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-6 lg:grid-cols-4 w-full pb-1">
-            <div className="sm:col-span-4 md:col-span-3 lg:col-span-2 xl:col-span-1">
+          <FailureAlert message={errorOnLoad} className="mb-4 mx-6" />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-6 lg:grid-cols-4 w-full px-6 py-1">
+            <div className="sm:col-span-4 md:col-span-3 lg:col-span-2">
               <label className="block mb-2 text-sm font-medium">Aktenzeichen</label>
               <div className="block w-fit rounded-md border border-stone-300">
                 <input
@@ -334,8 +334,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 />
               </div>
             </div>
-            <div className="sm:col-span-2 md:col-span-3 lg:col-span-2 xl:col-span-1 sm:pt-2">
-              <label className="flex items-center text-sm font-medium mb-4">
+            <div className="flex sm:block sm:col-span-2 md:col-span-3 lg:col-span-1">
+              <label className="basis-1/2 flex items-center text-sm font-medium sm:mb-4">
                 <input
                   type="radio"
                   name="type"
@@ -348,7 +348,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 />
                 Einzelrichter
               </label>
-              <label className="flex items-center text-sm font-medium">
+              <label className="basis-1/2 flex items-center text-sm font-medium">
                 <input
                   type="radio"
                   name="type"
@@ -362,6 +362,26 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 Kammersache
               </label>
             </div>
+            <div className="col-span-full flex gap-5 lg:block lg:col-span-1">
+              <label className="block text-sm font-medium lg:mb-4">Markierung</label>
+              <div className="flex gap-3 h-5">
+                {
+                  markerColors.map((color) => (
+                    <input
+                      key={color}
+                      type="radio"
+                      name="markerColor"
+                      value={color}
+                      tabIndex="6"
+                      disabled={fieldsDisabled}
+                      checked={color === caseMarkerColor}
+                      onChange={() => setCaseMarkerColor(color)}
+                      className={`size-4 self-center marker ${color || 'none'} border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait`}
+                    />
+                  ))
+                }
+              </div>
+            </div>
             <div className="sm:col-span-6 lg:col-span-2">
               <label htmlFor="parties" className="block mb-2 text-sm font-medium">
                 Parteien
@@ -370,27 +390,27 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 id="parties"
                 name="parties"
                 value={caseParties}
-                tabIndex="6"
+                tabIndex="7"
                 disabled={fieldsDisabled}
                 onChange={(e) => setCaseParties(e.target.value)}
                 className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
               />
             </div>
-            <div className="sm:col-span-6 lg:col-span-2">
+            <div className="sm:col-span-6 lg:col-span-4">
               <label htmlFor="area" className="block mb-2 text-sm font-medium">
                 Rechtsgebiet
               </label>
               <input
                 id="area"
                 name="area"
-                tabIndex={xlWidth ? 8 : 7}
+                tabIndex={lgWidth ? 9 : 8}
                 disabled={fieldsDisabled}
                 value={caseArea}
                 onChange={(e) => setCaseArea(e.target.value)}
                 className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
               />
             </div>
-            <div className="sm:col-span-6 lg:col-span-4 xl:col-span-2 xl:col-start-1 xl:row-start-2">
+            <div className="sm:col-span-6 lg:col-span-2 lg:col-start-3 lg:row-start-2">
               <label htmlFor="status" className="block mb-2 text-sm font-medium">
                 Status
               </label>
@@ -398,7 +418,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 {({ open }) => (
                   <div className="relative">
                     <ListboxButton
-                      tabIndex={xlWidth ? 7 : 8}
+                      tabIndex={lgWidth ? 8 : 9}
                       className={clsx('flex items-center p-2 w-full text-sm bg-stone-50 border border-stone-300 rounded-md outline-hidden shadow-xs focus:ring-teal-700 focus:ring-2 focus:border-teal-700',
                         open && 'ring-teal-700 ring-2 border-teal-700',
                         fieldsDisabled && 'cursor-wait')}
@@ -429,54 +449,47 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 )}
               </Listbox>
             </div>
-            <div className="sm:col-span-6 lg:col-span-2">
-              <label htmlFor="statusNote" className="block mb-2 text-sm font-medium">
-                Status-Notiz
+            <div className="sm:col-span-3 lg:col-span-1">
+              <label htmlFor="todoDate" className="block mb-2 text-sm font-medium">
+                Vorfrist am
               </label>
-              <textarea
-                id="statusNote"
-                name="statusNote"
-                rows="3"
-                tabIndex="9"
-                disabled={fieldsDisabled}
-                value={caseStatusNote}
-                onChange={(e) => setCaseStatusNote(e.target.value)}
-                className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
-              />
-            </div>
-            <div className="sm:col-span-6 lg:col-span-2">
-              <label htmlFor="caseMemo" className="block mb-2 text-sm font-medium">
-                Anmerkung
-              </label>
-              <textarea
-                id="caseMemo"
-                name="caseMemo"
-                rows="3"
+              <input
+                id="todoDate"
+                name="todoDate"
+                type="date"
                 tabIndex="10"
                 disabled={fieldsDisabled}
-                value={caseMemo}
-                onChange={(e) => setCaseMemo(e.target.value)}
-                className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+                value={caseTodoDate}
+                onChange={(e) => changeTodoDate(e.target.value)}
+                onFocus={(e) => e.target.defaultValue = ''}
+                onKeyDown={(e) => dateEdit(e, caseTodoDate, changeTodoDate)}
+                className="text-sm border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait bg-stone-50"
               />
             </div>
-            <div className="col-span-full flex gap-5">
-              <label className="text-sm font-medium">Markierung</label>
-              <div className="flex gap-3">
-                {
-                  markerColors.map((color) => (
-                    <input
-                      key={color}
-                      type="radio"
-                      name="markerColor"
-                      value={color}
-                      tabIndex="11"
-                      disabled={fieldsDisabled}
-                      checked={color === caseMarkerColor}
-                      onChange={() => setCaseMarkerColor(color)}
-                      className={`size-4 self-center marker ${color || 'none'} border-stone-300 focus:ring-teal-700 focus:ring-2 disabled:cursor-wait`}
-                    />
-                  ))
-                }
+            <div className="sm:col-span-3 lg:col-span-1">
+              <label htmlFor="dueDate" className="block mb-2 text-sm font-medium">
+                nächster Termin am
+              </label>
+              <div className="relative">
+                <input
+                  id="dueDate"
+                  name="dueDate"
+                  type="date"
+                  tabIndex="11"
+                  disabled={fieldsDisabled}
+                  value={caseDueDate}
+                  onChange={(e) => changeDueDate(e.target.value)}
+                  onFocus={(e) => e.target.defaultValue = ''}
+                  onKeyDown={(e) => dateEdit(e, caseDueDate, changeDueDate)}
+                  className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+                />
+                <div
+                  className="absolute bottom-0 top-0 right-9 px-1 py-3 text-stone-600 hover:text-stone-900"
+                  title="Leeren"
+                  onClick={clearDueDate}
+                >
+                  <XMarkIcon className="size-5" />
+                </div>
               </div>
             </div>
             <div className="sm:col-span-3 lg:col-span-1">
@@ -513,53 +526,40 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                 className={`text-sm border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait ${caseSettledOnFailure ? 'bg-rose-100' : 'bg-stone-50'}`}
               />
             </div>
-            <div className="sm:col-span-3 lg:col-span-1">
-              <label htmlFor="todoDate" className="block mb-2 text-sm font-medium">
-                Vorfrist am
+            <div className="sm:col-span-6 lg:col-span-2">
+              <label htmlFor="statusNote" className="block mb-2 text-sm font-medium">
+                Status-Notiz
               </label>
-              <input
-                id="todoDate"
-                name="todoDate"
-                type="date"
+              <textarea
+                id="statusNote"
+                name="statusNote"
+                rows="3"
                 tabIndex="14"
                 disabled={fieldsDisabled}
-                value={caseTodoDate}
-                onChange={(e) => changeTodoDate(e.target.value)}
-                onFocus={(e) => e.target.defaultValue = ''}
-                onKeyDown={(e) => dateEdit(e, caseTodoDate, changeTodoDate)}
-                className="text-sm border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait bg-stone-50"
+                value={caseStatusNote}
+                onChange={(e) => setCaseStatusNote(e.target.value)}
+                className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
               />
             </div>
-            <div className="sm:col-span-3 lg:col-span-1">
-              <label htmlFor="dueDate" className="block mb-2 text-sm font-medium">
-                nächster Termin am
+            <div className="sm:col-span-6 lg:col-span-2">
+              <label htmlFor="caseMemo" className="block mb-2 text-sm font-medium">
+                Anmerkung
               </label>
-              <div className="relative">
-                <input
-                  id="dueDate"
-                  name="dueDate"
-                  type="date"
-                  tabIndex="15"
-                  disabled={fieldsDisabled}
-                  value={caseDueDate}
-                  onChange={(e) => changeDueDate(e.target.value)}
-                  onFocus={(e) => e.target.defaultValue = ''}
-                  onKeyDown={(e) => dateEdit(e, caseDueDate, changeDueDate)}
-                  className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
-                />
-                <div
-                  className="absolute bottom-0 top-0 right-9 px-1 py-3 text-stone-600 hover:text-stone-900"
-                  title="Leeren"
-                  onClick={clearDueDate}
-                >
-                  <XMarkIcon className="size-5" />
-                </div>
-              </div>
+              <textarea
+                id="caseMemo"
+                name="caseMemo"
+                rows="3"
+                tabIndex="15"
+                disabled={fieldsDisabled}
+                value={caseMemo}
+                onChange={(e) => setCaseMemo(e.target.value)}
+                className="text-sm bg-stone-50 border border-stone-300 rounded-md focus:ring-teal-700 focus:ring-2 focus:border-teal-700 block w-full p-2.5 disabled:cursor-wait"
+              />
             </div>
           </div>
           <div className="sticky bottom-0 bg-white pt-6 pb-1">
-            <FailureAlert message={errorOnSave} className="col-span-full mb-6" />
-            <div className="col-span-full flex justify-center gap-6">
+            <FailureAlert message={errorOnSave} className="mb-6 mx-6" />
+            <div className="col-span-full flex justify-center gap-6 px-6">
               <button
                 type="button"
                 tabIndex="16"
