@@ -81,7 +81,9 @@ describe('AutoLink', () => {
 
   it('will not parse urls with wrong protocol', () => {
     // when
-    const { container } = render(<AutoLink text="hhttp://github.com or shttps://developer.mozilla.org/ or ftp://ftp.example.org" />);
+    const { container } = render(
+      <AutoLink text="hhttp://github.com or shttps://developer.mozilla.org/ or ftp://ftp.example.org" />,
+    );
 
     // then
     expect(container).toMatchInlineSnapshot(`

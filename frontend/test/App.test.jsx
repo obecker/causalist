@@ -31,8 +31,8 @@ describe('App', () => {
   it('renders the contents page and performs a cases request when logged in', async () => {
     // given
     window.sessionStorage.setItem('apiKey', '"my-api-key"');
-    axios.get.mockResolvedValue(
-      () => Promise.resolve({
+    axios.get.mockResolvedValue(() =>
+      Promise.resolve({
         status: 200,
         data: { cases: [] },
       }),
