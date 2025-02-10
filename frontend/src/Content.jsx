@@ -639,230 +639,227 @@ function CasesList({
           Du hast keine Verfahren für die aktuellen Filter- und Suchkriterien.
         </li>
       )}
-      {cases.map((aCase) => {
-        const weekMarkerClasses = 'absolute -top-6 right-0 py-1 px-7 text-xs bg-teal-700 text-white rounded-t-lg';
-        return (
-          <li
-            key={aCase.id}
-            data-open={openCaseId === aCase.id || null}
-            className={clsx(
-              'col-span-full grid grid-cols-subgrid border-y border-y-stone-50 hover:text-teal-700 data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900',
-              aCase.ref && 'pt-2.5 pb-1.5 hover:border-y-stone-300',
-              todoBg(aCase),
-              recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
-              aCase.newWeek && 'relative mt-20 border-t-teal-700 first:mt-8',
-            )}
-            onClick={(e) => clickCase(e, aCase.ref && aCase.id)}
-            onDoubleClick={(e) => openEditModal(e, aCase.ref && aCase)}
-            onMouseDown={(e) => e.detail === 2 && e.preventDefault()} // no text selection on double click
-          >
-            {aCase.newWeek && (
-              <div className={weekMarkerClasses}>
-                {`KW ${aCase.todoWeekOfYear} vom ${formattedDate(startOfWeek(aCase.todoDate))}`}
+      {cases.map((aCase) => (
+        <li
+          key={aCase.id}
+          data-open={openCaseId === aCase.id || null}
+          className={clsx(
+            'col-span-full grid grid-cols-subgrid border-y border-y-stone-50 hover:text-teal-700 data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900',
+            aCase.ref && 'pt-2.5 pb-1.5 hover:border-y-stone-300',
+            todoBg(aCase),
+            recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
+            aCase.newWeek && 'relative mt-20 border-t-teal-700 first:mt-8',
+          )}
+          onClick={(e) => clickCase(e, aCase.ref && aCase.id)}
+          onDoubleClick={(e) => openEditModal(e, aCase.ref && aCase)}
+          onMouseDown={(e) => e.detail === 2 && e.preventDefault()} // no text selection on double click
+        >
+          {aCase.newWeek && (
+            <div className="absolute -top-6 right-0 rounded-t-lg bg-teal-700 px-7 py-1 text-xs text-white">
+              {`KW ${aCase.todoWeekOfYear} vom ${formattedDate(startOfWeek(aCase.todoDate))}`}
+            </div>
+          )}
+          {aCase.ref && ( // a case without ref is a placeholder for an empty week
+            <>
+              <div className="flex w-full items-baseline justify-end">
+                <span className={`marker ml-2 size-3 rounded-full ${aCase.markerColor || 'none'}`}></span>
+                <span className="flex-none grow text-right">{aCase.ref.value}</span>
+                <span className="relative ml-1 flex-none basis-4 text-left text-xs font-bold text-teal-600">
+                  {typeMap[aCase.type]}
+                  {aCase.hasDocuments && <PaperClipIcon className="absolute -top-3 left-0 size-3.5 text-stone-400" />}
+                </span>
               </div>
-            )}
-            {aCase.ref && ( // a case without ref is a placeholder for an empty week
-              <>
-                <div className="flex w-full items-baseline justify-end">
-                  <span className={`marker ml-2 size-3 rounded-full ${aCase.markerColor || 'none'}`}></span>
-                  <span className="flex-none grow text-right">{aCase.ref.value}</span>
-                  <span className="relative ml-1 flex-none basis-4 text-left text-xs font-bold text-teal-600">
-                    {typeMap[aCase.type]}
-                    {aCase.hasDocuments && <PaperClipIcon className="absolute -top-3 left-0 size-3.5 text-stone-400" />}
+              <div title={statusLabels[aCase.status]}>
+                <StatusIcon status={aCase.status} className="mx-auto size-6" />
+              </div>
+              <div
+                data-open={openCaseId === aCase.id || null}
+                className="overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:whitespace-normal md:data-open:mr-4"
+              >
+                <span title={openCaseId === aCase.id ? null : aCase.parties}>{aCase.parties}</span>
+                <div className="text-sm md:hidden">
+                  <span
+                    title={aCase.todoDate && 'Vorfrist'}
+                    className={!isSettled(aCase) && aCase.todoDate ? 'pr-4' : 'hidden'}
+                  >
+                    {formattedDate(aCase.todoDate)}
+                  </span>
+                  <span
+                    title={isSettled(aCase)
+                      ? (aCase.settledOn && 'Erledigt am')
+                      : (aCase.dueDate && 'nächster Termin')}
+                    className="font-semibold empty:hidden"
+                  >
+                    {formattedDate(isSettled(aCase) ? aCase.settledOn : aCase.dueDate)}
                   </span>
                 </div>
-                <div title={statusLabels[aCase.status]}>
-                  <StatusIcon status={aCase.status} className="mx-auto size-6" />
-                </div>
-                <div
-                  data-open={openCaseId === aCase.id || null}
-                  className="overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:whitespace-normal md:data-open:mr-4"
-                >
-                  <span title={openCaseId === aCase.id ? null : aCase.parties}>{aCase.parties}</span>
-                  <div className="text-sm md:hidden">
-                    <span
-                      title={aCase.todoDate && 'Vorfrist'}
-                      className={!isSettled(aCase) && aCase.todoDate ? 'pr-4' : 'hidden'}
+              </div>
+              <div
+                title={openCaseId === aCase.id ? null : aCase.area}
+                data-open={openCaseId === aCase.id || null}
+                className="hidden overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:mr-4 data-open:whitespace-normal lg:inline"
+              >
+                {aCase.area}
+              </div>
+              <div
+                title={!isSettled(aCase) && aCase.todoDate ? 'Vorfrist' : null}
+                className="hidden pr-2 text-right lg:inline"
+              >
+                {!isSettled(aCase) && formattedDate(aCase.todoDate)}
+              </div>
+              <div
+                title={isSettled(aCase) ? aCase.settledOn && 'Erledigt am' : aCase.dueDate && 'nächster Termin'}
+                className="hidden pr-2 text-right font-semibold empty:hidden md:inline"
+              >
+                {formattedDate(isSettled(aCase) ? aCase.settledOn : aCase.dueDate)}
+              </div>
+              <Transition show={openCaseId === aCase.id} appear>
+                <div className="col-span-full grid origin-top grid-cols-subgrid gap-y-4 pt-4 transition-all ease-out data-closed:opacity-0 data-enter:duration-150 data-leave:duration-100">
+                  <div className="relative col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5">
+                    <div className="flex items-center justify-between">
+                      <button
+                        className="flex w-full items-center rounded-l-md border-r border-r-white bg-teal-700 px-3 py-2 text-sm leading-5 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                        onClick={(e) => openEditModal(e, aCase)}
+                      >
+                        <PencilIcon className="me-2 inline size-4" />
+                        Bearbeiten
+                      </button>
+                      <button
+                        className="rounded-r-md bg-teal-700 p-2.5 text-white hover:bg-teal-600"
+                        onClick={(e) => toggleDropdown(e, aCase.id)}
+                        onDoubleClick={ignoreDefaults}
+                      >
+                        {
+                          openDropdown === aCase.id
+                            ? <ChevronUpIcon className="size-4" />
+                            : <ChevronDownIcon className="size-4" />
+                        }
+                      </button>
+                    </div>
+                    <ul
+                      className="absolute top-9 right-0 left-0 z-10 hidden data-open:block"
+                      data-open={openDropdown === aCase.id || null}
                     >
-                      {formattedDate(aCase.todoDate)}
-                    </span>
-                    <span
-                      title={isSettled(aCase)
-                        ? (aCase.settledOn && 'Erledigt am')
-                        : (aCase.dueDate && 'nächster Termin')}
-                      className="font-semibold empty:hidden"
-                    >
-                      {formattedDate(isSettled(aCase) ? aCase.settledOn : aCase.dueDate)}
-                    </span>
-                  </div>
-                </div>
-                <div
-                  title={openCaseId === aCase.id ? null : aCase.area}
-                  data-open={openCaseId === aCase.id || null}
-                  className="hidden overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:mr-4 data-open:whitespace-normal lg:inline"
-                >
-                  {aCase.area}
-                </div>
-                <div
-                  title={!isSettled(aCase) && aCase.todoDate ? 'Vorfrist' : null}
-                  className="hidden pr-2 text-right lg:inline"
-                >
-                  {!isSettled(aCase) && formattedDate(aCase.todoDate)}
-                </div>
-                <div
-                  title={isSettled(aCase) ? aCase.settledOn && 'Erledigt am' : aCase.dueDate && 'nächster Termin'}
-                  className="hidden pr-2 text-right font-semibold empty:hidden md:inline"
-                >
-                  {formattedDate(isSettled(aCase) ? aCase.settledOn : aCase.dueDate)}
-                </div>
-                <Transition show={openCaseId === aCase.id} appear>
-                  <div className="col-span-full grid origin-top grid-cols-subgrid gap-y-4 pt-4 transition-all ease-out data-closed:opacity-0 data-enter:duration-150 data-leave:duration-100">
-                    <div className="relative col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5">
-                      <div className="flex items-center justify-between">
+                      <li className={menuItemsClasses}>
                         <button
-                          className="flex w-full items-center rounded-l-md border-r border-r-white bg-teal-700 px-3 py-2 text-sm leading-5 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-                          onClick={(e) => openEditModal(e, aCase)}
-                        >
-                          <PencilIcon className="me-2 inline size-4" />
-                          Bearbeiten
-                        </button>
-                        <button
-                          className="rounded-r-md bg-teal-700 p-2.5 text-white hover:bg-teal-600"
-                          onClick={(e) => toggleDropdown(e, aCase.id)}
+                          className={clsx(menuItemButtonClasses, 'rounded-t-md')}
+                          onClick={(e) => openUpload(e, aCase)}
                           onDoubleClick={ignoreDefaults}
                         >
-                          {
-                            openDropdown === aCase.id
-                              ? <ChevronUpIcon className="size-4" />
-                              : <ChevronDownIcon className="size-4" />
-                          }
+                          <PaperClipIcon className="me-2 inline size-4" />
+                          Hochladen
                         </button>
-                      </div>
-                      <ul
-                        className="absolute top-9 right-0 left-0 z-10 hidden data-open:block"
-                        data-open={openDropdown === aCase.id || null}
-                      >
-                        <li className={menuItemsClasses}>
-                          <button
-                            className={clsx(menuItemButtonClasses, 'rounded-t-md')}
-                            onClick={(e) => openUpload(e, aCase)}
-                            onDoubleClick={ignoreDefaults}
-                          >
-                            <PaperClipIcon className="me-2 inline size-4" />
-                            Hochladen
-                          </button>
-                        </li>
-                        <li className={menuItemsClasses}>
-                          <button
-                            className={clsx(menuItemButtonClasses, 'disabled:text-stone-400')}
-                            disabled={isSettled(aCase)}
-                            onClick={(e) => settleCase(e, aCase)}
-                            onDoubleClick={ignoreDefaults}
-                          >
-                            <SettledIcon className="me-2 inline size-4" />
-                            Erledigen
-                          </button>
-                        </li>
-                        <li className={menuItemsClasses}>
-                          <button
-                            className={clsx(menuItemButtonClasses, 'rounded-b-md text-rose-700')}
-                            onClick={(e) => openDelete(e, aCase)}
-                            onDoubleClick={ignoreDefaults}
-                          >
-                            <TrashIcon className="me-2 inline size-4" />
-                            Löschen
-                          </button>
-                        </li>
-                      </ul>
+                      </li>
+                      <li className={menuItemsClasses}>
+                        <button
+                          className={clsx(menuItemButtonClasses, 'disabled:text-stone-400')}
+                          disabled={isSettled(aCase)}
+                          onClick={(e) => settleCase(e, aCase)}
+                          onDoubleClick={ignoreDefaults}
+                        >
+                          <SettledIcon className="me-2 inline size-4" />
+                          Erledigen
+                        </button>
+                      </li>
+                      <li className={menuItemsClasses}>
+                        <button
+                          className={clsx(menuItemButtonClasses, 'rounded-b-md text-rose-700')}
+                          onClick={(e) => openDelete(e, aCase)}
+                          onDoubleClick={ignoreDefaults}
+                        >
+                          <TrashIcon className="me-2 inline size-4" />
+                          Löschen
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                  {aCase.area && (
+                    <div className="col-start-3 px-2 md:mr-4 lg:hidden">
+                      {aCase.area}
                     </div>
-                    {aCase.area && (
-                      <div className="col-start-3 px-2 md:mr-4 lg:hidden">
-                        {aCase.area}
-                      </div>
-                    )}
-                    {aCase.todoDate && (
-                      <div title="Vorfrist" className="col-start-4 hidden pr-2 text-right md:max-lg:block">
-                        {formattedDate(aCase.todoDate)}
-                      </div>
-                    )}
-                    <div className="col-start-3 col-end-5 px-2">
-                      <b>Status:</b>
-                      {' ' + statusLabels[aCase.status]}
-                      {aCase.statusNote && (
-                        <span>
-                          {' – '}
-                          <AutoLink
-                            text={aCase.statusNote}
-                            linkClassName="text-teal-700 hover:text-teal-800 hover:underline"
-                          />
-                        </span>
-                      )}
+                  )}
+                  {aCase.todoDate && (
+                    <div title="Vorfrist" className="col-start-4 hidden pr-2 text-right md:max-lg:block">
+                      {formattedDate(aCase.todoDate)}
                     </div>
-                    {aCase.memo && (
-                      <div className="col-start-3 col-end-5 px-2 whitespace-pre-wrap italic">
-                        <AutoLink text={aCase.memo} linkClassName="text-teal-700 hover:text-teal-800 hover:underline" />
-                      </div>
+                  )}
+                  <div className="col-start-3 col-end-5 px-2">
+                    <b>Status:</b>
+                    {' ' + statusLabels[aCase.status]}
+                    {aCase.statusNote && (
+                      <span>
+                        {' – '}
+                        <AutoLink
+                          text={aCase.statusNote}
+                          linkClassName="text-teal-700 hover:text-teal-800 hover:underline"
+                        />
+                      </span>
                     )}
-                    {documents.length > 0 && (
-                      <div className="col-start-3 col-end-5 px-2 text-sm">
-                        <ol>
-                          {
-                            documents.map((doc) => (
-                              <li key={doc.id} className="flex items-center">
-                                <PaperClipIcon className="me-1 mt-1 inline size-3.5 shrink-0 self-start" />
-                                <a
-                                  href="#"
-                                  className="text-teal-700 hover:text-teal-800 hover:underline"
-                                  onClick={(e) => downloadDocument(e, aCase.id, doc.id, doc.filename)}
-                                  onDoubleClick={ignoreDefaults}
-                                >
-                                  {doc.filename}
-                                </a>
-                                <XMarkIcon
-                                  className={clsx(
-                                    'ms-2 mt-1 size-3 shrink-0 self-start hover:text-teal-700',
-                                    selectedDocumentId === doc.id ? 'hidden' : 'inline',
-                                  )}
-                                  title="Löschen"
-                                  onClick={(e) => selectDocument(e, doc.id)}
+                  </div>
+                  {aCase.memo && (
+                    <div className="col-start-3 col-end-5 px-2 whitespace-pre-wrap italic">
+                      <AutoLink text={aCase.memo} linkClassName="text-teal-700 hover:text-teal-800 hover:underline" />
+                    </div>
+                  )}
+                  {documents.length > 0 && (
+                    <div className="col-start-3 col-end-5 px-2 text-sm">
+                      <ol>
+                        {
+                          documents.map((doc) => (
+                            <li key={doc.id} className="flex items-center">
+                              <PaperClipIcon className="me-1 mt-1 inline size-3.5 shrink-0 self-start" />
+                              <a
+                                href="#"
+                                className="text-teal-700 hover:text-teal-800 hover:underline"
+                                onClick={(e) => downloadDocument(e, aCase.id, doc.id, doc.filename)}
+                                onDoubleClick={ignoreDefaults}
+                              >
+                                {doc.filename}
+                              </a>
+                              <XMarkIcon
+                                className={clsx(
+                                  'ms-2 mt-1 size-3 shrink-0 self-start hover:text-teal-700',
+                                  selectedDocumentId === doc.id ? 'hidden' : 'inline',
+                                )}
+                                title="Löschen"
+                                onClick={(e) => selectDocument(e, doc.id)}
+                                onDoubleClick={ignoreDefaults}
+                              />
+                              <div
+                                className={clsx(
+                                  'ms-2 items-center self-start',
+                                  selectedDocumentId !== doc.id ? 'hidden' : 'inline-flex',
+                                )}
+                              >
+                                <ChevronLeftIcon
+                                  className="inline size-3 hover:text-teal-700"
+                                  onClick={(e) => selectDocument(e, null)}
                                   onDoubleClick={ignoreDefaults}
                                 />
-                                <div
-                                  className={clsx(
-                                    'ms-2 items-center self-start',
-                                    selectedDocumentId !== doc.id ? 'hidden' : 'inline-flex',
-                                  )}
-                                >
-                                  <ChevronLeftIcon
-                                    className="inline size-3 hover:text-teal-700"
-                                    onClick={(e) => selectDocument(e, null)}
-                                    onDoubleClick={ignoreDefaults}
-                                  />
-                                  <span className="ms-1 font-semibold">Löschen?</span>
-                                  <TrashIcon
-                                    className="ms-1 inline size-3 hover:text-rose-700"
-                                    onClick={(e) => deleteDocument(e, aCase.id, doc.id)}
-                                    onDoubleClick={ignoreDefaults}
-                                  />
-                                </div>
-                              </li>
-                            ))
-                          }
-                        </ol>
-                      </div>
-                    )}
-                    <FailureAlert message={errorMessage} className="col-start-3 md:col-end-5 lg:col-end-7" />
-                    <div className="col-start-3 flex flex-col justify-between gap-2 px-2 text-xs sm:flex-row md:col-end-5 lg:col-end-7">
-                      <div>{`Eingegangen am ${formattedDate(aCase.receivedOn)}`}</div>
-                      <div>{`Geändert ${formattedDateTime(aCase.updatedAt)}`}</div>
+                                <span className="ms-1 font-semibold">Löschen?</span>
+                                <TrashIcon
+                                  className="ms-1 inline size-3 hover:text-rose-700"
+                                  onClick={(e) => deleteDocument(e, aCase.id, doc.id)}
+                                  onDoubleClick={ignoreDefaults}
+                                />
+                              </div>
+                            </li>
+                          ))
+                        }
+                      </ol>
                     </div>
+                  )}
+                  <FailureAlert message={errorMessage} className="col-start-3 md:col-end-5 lg:col-end-7" />
+                  <div className="col-start-3 flex flex-col justify-between gap-2 px-2 text-xs sm:flex-row md:col-end-5 lg:col-end-7">
+                    <div>{`Eingegangen am ${formattedDate(aCase.receivedOn)}`}</div>
+                    <div>{`Geändert ${formattedDateTime(aCase.updatedAt)}`}</div>
                   </div>
-                </Transition>
-              </>
-            )}
-          </li>
-        );
-      })}
+                </div>
+              </Transition>
+            </>
+          )}
+        </li>
+      ))}
     </ol>
   );
 }
