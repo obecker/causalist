@@ -318,14 +318,20 @@ export default function Content() {
               <ListboxOption
                 value={false}
                 className={({ focus }) =>
-                  clsx('relative cursor-default px-4 py-2 select-none', focus ? 'bg-stone-100 text-teal-700' : 'text-stone-900')}
+                  clsx(
+                    'relative cursor-default px-4 py-2 select-none',
+                    focus ? 'bg-stone-100 text-teal-700' : 'text-stone-900',
+                  )}
               >
                 Laufende Verfahren
               </ListboxOption>
               <ListboxOption
                 value={true}
                 className={({ focus }) =>
-                  clsx('relative cursor-default px-4 py-2 select-none', focus ? 'bg-stone-100 text-teal-700' : 'text-stone-900')}
+                  clsx(
+                    'relative cursor-default px-4 py-2 select-none',
+                    focus ? 'bg-stone-100 text-teal-700' : 'text-stone-900',
+                  )}
               >
                 Erledigte Verfahren
               </ListboxOption>
@@ -619,39 +625,33 @@ function CasesList({
     return null;
   }
 
-  const olClasses = clsx(
-    'grid grid-cols-(--grid-cases) md:grid-cols-(--grid-cases-md) lg:grid-cols-(--grid-cases-lg)',
-    loadingSpinner && 'opacity-25',
-  );
-  const editButtonClasses = clsx(
-    'flex w-full items-center rounded-l-md px-3 py-2 text-sm leading-5 font-semibold',
-    'border-r border-r-white bg-teal-700 text-white shadow-xs hover:bg-teal-600',
-    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
-  );
   const menuItemsClasses = 'border border-stone-300 border-b-0 last:border-b first:rounded-t-md last:rounded-b-md';
   const menuItemButtonClasses = 'flex items-center w-full px-3 py-2 leading-5 text-sm font-semibold bg-white hover:bg-stone-100';
   return (
-    <ol className={olClasses}>
+    <ol
+      className={clsx(
+        'grid grid-cols-(--grid-cases) md:grid-cols-(--grid-cases-md) lg:grid-cols-(--grid-cases-lg)',
+        loadingSpinner && 'opacity-25',
+      )}
+    >
       {cases.length === 0 && (
         <li className="col-span-full border-y border-y-stone-50 py-2 text-stone-600">
           Du hast keine Verfahren für die aktuellen Filter- und Suchkriterien.
         </li>
       )}
       {cases.map((aCase) => {
-        const liClasses = clsx(
-          'col-span-full grid grid-cols-subgrid border-y border-y-stone-50',
-          'hover:text-teal-700 data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900',
-          aCase.ref && 'pt-2.5 pb-1.5 hover:border-y-stone-300',
-          todoBg(aCase),
-          recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
-          aCase.newWeek && 'relative mt-20 border-t-teal-700 first:mt-8',
-        );
         const weekMarkerClasses = 'absolute -top-6 right-0 py-1 px-7 text-xs bg-teal-700 text-white rounded-t-lg';
         return (
           <li
             key={aCase.id}
             data-open={openCaseId === aCase.id || null}
-            className={liClasses}
+            className={clsx(
+              'col-span-full grid grid-cols-subgrid border-y border-y-stone-50 hover:text-teal-700 data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900',
+              aCase.ref && 'pt-2.5 pb-1.5 hover:border-y-stone-300',
+              todoBg(aCase),
+              recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
+              aCase.newWeek && 'relative mt-20 border-t-teal-700 first:mt-8',
+            )}
             onClick={(e) => clickCase(e, aCase.ref && aCase.id)}
             onDoubleClick={(e) => openEditModal(e, aCase.ref && aCase)}
             onMouseDown={(e) => e.detail === 2 && e.preventDefault()} // no text selection on double click
@@ -719,7 +719,10 @@ function CasesList({
                   <div className="col-span-full grid origin-top grid-cols-subgrid gap-y-4 pt-4 transition-all ease-out data-closed:opacity-0 data-enter:duration-150 data-leave:duration-100">
                     <div className="relative col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5">
                       <div className="flex items-center justify-between">
-                        <button className={editButtonClasses} onClick={(e) => openEditModal(e, aCase)}>
+                        <button
+                          className="flex w-full items-center rounded-l-md border-r border-r-white bg-teal-700 px-3 py-2 text-sm leading-5 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                          onClick={(e) => openEditModal(e, aCase)}
+                        >
                           <PencilIcon className="me-2 inline size-4" />
                           Bearbeiten
                         </button>

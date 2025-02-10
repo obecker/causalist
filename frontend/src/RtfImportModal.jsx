@@ -64,31 +64,12 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
     }
   }
 
-  const panelClasses = clsx(
-    'w-full max-w-lg transform overflow-hidden rounded-2xl bg-white transition-all',
-    'p-6 text-left align-middle shadow-xl',
-  );
-  const fileInputClasses = clsx(
-    'w-28 shrink-0 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
-    'bg-stone-200 leading-6 text-teal-700 shadow-xs hover:bg-stone-100',
-    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
-    'focus:border-teal-700 focus:ring-teal-700',
-  );
-  const fileUploadClasses = clsx(
-    'w-28 shrink-0 justify-center rounded-md px-3 py-1.5 text-sm font-semibold',
-    'bg-teal-700 leading-6 text-white shadow-xs hover:bg-teal-600 disabled:cursor-not-allowed disabled:bg-stone-300',
-    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
-  );
-  const closeButtonClasses = clsx(
-    'mt-2 ml-auto w-28 rounded-md px-3 py-1.5 text-center text-sm font-semibold',
-    'bg-teal-700 leading-6 text-white shadow-xs hover:bg-teal-600',
-    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
-  );
-
   return (
     <ModalDialog isOpen={isOpen} onClose={close}>
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
-      <div className={panelClasses}>
+      <div
+        className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
+      >
         <DialogTitle as="h3" className="flex justify-between text-lg leading-6 font-semibold">
           RTF-Datei importieren
           <button onClick={close} title="Schließen" className="outline-hidden hover:text-teal-700">
@@ -105,11 +86,18 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
               id="fileinput"
               onChange={(e) => setSelectedFile(e.target.files[0])}
             />
-            <label htmlFor="fileinput" className={fileInputClasses}>
+            <label
+              htmlFor="fileinput"
+              className="w-28 shrink-0 justify-center rounded-md bg-stone-200 px-3 py-1.5 text-sm leading-6 font-semibold text-teal-700 shadow-xs hover:bg-stone-100 focus:border-teal-700 focus:ring-teal-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+            >
               Datei wählen
             </label>
             <div className="w-max grow py-1.5">{selectedFile?.name}</div>
-            <button disabled={selectedFile === null} onClick={importCases} className={fileUploadClasses}>
+            <button
+              disabled={selectedFile === null}
+              onClick={importCases}
+              className="w-28 shrink-0 justify-center rounded-md bg-teal-700 px-3 py-1.5 text-sm leading-6 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed disabled:bg-stone-300"
+            >
               Importieren
             </button>
           </div>
@@ -130,7 +118,10 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
                   ))}
                 </ol>
               </div>
-              <button onClick={close} className={closeButtonClasses}>
+              <button
+                onClick={close}
+                className="mt-2 ml-auto w-28 rounded-md bg-teal-700 px-3 py-1.5 text-center text-sm leading-6 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+              >
                 Schließen
               </button>
             </div>

@@ -241,13 +241,6 @@ function FormInput({
     inputRef.current.focus();
   }
 
-  const inputClasses = clsx(
-    'block w-full rounded-md border-none py-1.5 text-stone-900 shadow-xs',
-    'ring-1 ring-stone-300 ring-inset placeholder:text-stone-400 focus:ring-2 focus:ring-teal-700 focus:ring-inset',
-    'sm:text-sm sm:leading-6',
-    reveal && 'pr-9',
-  );
-
   return (
     <div>
       <label htmlFor={name} className="block text-sm leading-6 font-medium text-stone-900">
@@ -259,7 +252,10 @@ function FormInput({
           name={name}
           inputMode={inputMode}
           ref={inputRef}
-          className={inputClasses}
+          className={clsx(
+            'block w-full rounded-md border-none py-1.5 text-stone-900 ring-1 shadow-xs ring-stone-300 ring-inset placeholder:text-stone-400 focus:ring-2 focus:ring-teal-700 focus:ring-inset sm:text-sm sm:leading-6',
+            reveal && 'pr-9',
+          )}
           type={revealed ? 'text' : type}
           required="required"
           minLength={3}
@@ -282,14 +278,13 @@ function FormInput({
 }
 
 function FormSubmit({ label, disabled }) {
-  const buttonClasses = clsx(
-    'flex w-full justify-center rounded-md px-3 py-1.5 text-sm leading-6 font-semibold',
-    'bg-teal-700 text-white shadow-xs hover:bg-teal-600 disabled:cursor-not-allowed disabled:bg-stone-300',
-    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
-  );
   return (
     <div>
-      <button type="submit" disabled={disabled} className={buttonClasses}>
+      <button
+        type="submit"
+        disabled={disabled}
+        className="flex w-full justify-center rounded-md bg-teal-700 px-3 py-1.5 text-sm leading-6 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed disabled:bg-stone-300"
+      >
         {label}
       </button>
     </div>

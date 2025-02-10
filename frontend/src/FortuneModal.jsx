@@ -1,5 +1,4 @@
 import { DialogPanel, DialogTitle } from '@headlessui/react';
-import clsx from 'clsx';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ConfettiExplosion from 'react-confetti-explosion';
 
@@ -32,10 +31,7 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
   return (fortuneCase && (
     <ModalDialog isOpen={isOpen} onClose={close}>
       <DialogPanel
-        className={clsx(
-          'w-full max-w-md p-6 sm:max-w-lg md:max-w-xl',
-          'transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all',
-        )}
+        className="w-full max-w-md p-6 sm:max-w-lg md:max-w-xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all"
       >
         <DialogTitle
           as="h3"
@@ -93,11 +89,7 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
         </div>
         <div className="mt-4 flex w-full justify-end">
           <button
-            className={clsx(
-              'flex w-20 justify-center rounded-md px-3 py-1.5 text-sm leading-6 font-semibold',
-              'bg-teal-700 text-white shadow-xs hover:bg-teal-600',
-              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700',
-            )}
+            className="flex w-20 justify-center rounded-md px-3 py-1.5 text-sm leading-6 font-semibold bg-teal-700 text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
             onClick={close}
           >
             Super!
