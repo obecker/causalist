@@ -30,9 +30,7 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
 
   return (fortuneCase && (
     <ModalDialog isOpen={isOpen} onClose={close}>
-      <DialogPanel
-        className="w-full max-w-md p-6 sm:max-w-lg md:max-w-xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all"
-      >
+      <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all sm:max-w-lg md:max-w-xl">
         <DialogTitle
           as="h3"
           className="flex justify-center gap-2 text-lg font-semibold sm:gap-4 sm:text-xl"
@@ -89,7 +87,7 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
         </div>
         <div className="mt-4 flex w-full justify-end">
           <button
-            className="flex w-20 justify-center rounded-md px-3 py-1.5 text-sm leading-6 font-semibold bg-teal-700 text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+            className="flex w-20 justify-center rounded-md bg-teal-700 px-3 py-1.5 text-sm leading-6 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
             onClick={close}
           >
             Super!

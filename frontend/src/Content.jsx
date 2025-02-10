@@ -625,8 +625,8 @@ function CasesList({
     return null;
   }
 
-  const menuItemsClasses = 'border border-stone-300 border-b-0 last:border-b first:rounded-t-md last:rounded-b-md';
-  const menuItemButtonClasses = 'flex items-center w-full px-3 py-2 leading-5 text-sm font-semibold bg-white hover:bg-stone-100';
+  const menuItemsClasses = 'border border-b-0 border-stone-300 first:rounded-t-md last:rounded-b-md last:border-b';
+  const menuItemButtonClasses = 'flex w-full items-center bg-white px-3 py-2 text-sm leading-5 font-semibold hover:bg-stone-100';
   return (
     <ol
       className={clsx(

@@ -5,7 +5,7 @@ export default function FailureAlert({ message, className = '' }) {
   const alertClasses = clsx(
     message ? 'flex' : 'hidden',
     className,
-    'items-center bg-rose-50 p-4 text-sm text-rose-800 rounded-lg',
+    'items-center rounded-lg bg-rose-50 p-4 text-sm text-rose-800',
   );
 
   return (message && (

@@ -67,9 +67,7 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
   return (
     <ModalDialog isOpen={isOpen} onClose={close}>
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
-      <div
-        className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"
-      >
+      <div className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
         <DialogTitle as="h3" className="flex justify-between text-lg leading-6 font-semibold">
           RTF-Datei importieren
           <button onClick={close} title="Schließen" className="outline-hidden hover:text-teal-700">
