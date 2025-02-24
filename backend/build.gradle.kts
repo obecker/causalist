@@ -23,8 +23,8 @@ dependencies {
 
     implementation(platform(libs.http4k.bom))
     implementation("org.http4k:http4k-core")
-    implementation("org.http4k:http4k-contract")
-    implementation("org.http4k:http4k-failsafe")
+    implementation("org.http4k:http4k-api-openapi")
+    implementation("org.http4k:http4k-ops-failsafe")
     implementation("org.http4k:http4k-multipart")
     implementation("org.http4k:http4k-format-moshi") {
         exclude("org.jetbrains.kotlin", "kotlin-reflect")
@@ -58,7 +58,7 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
     compilerOptions {
         allWarningsAsErrors.set(true)
     }

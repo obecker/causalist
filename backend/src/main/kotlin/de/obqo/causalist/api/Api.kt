@@ -20,7 +20,6 @@ import org.http4k.contract.meta
 import org.http4k.contract.openapi.ApiInfo
 import org.http4k.contract.openapi.v3.OpenApi3
 import org.http4k.contract.openapi.v3.OpenApi3ApiRenderer
-import org.http4k.contract.security.BearerAuthSecurity
 import org.http4k.contract.ui.swaggerUiLite
 import org.http4k.core.Body
 import org.http4k.core.ContentType
@@ -30,7 +29,6 @@ import org.http4k.core.Method.DELETE
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Method.PUT
-import org.http4k.core.RequestContexts
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.CREATED
@@ -50,7 +48,7 @@ import org.http4k.lens.MultipartFormField
 import org.http4k.lens.MultipartFormFile
 import org.http4k.lens.Path
 import org.http4k.lens.Query
-import org.http4k.lens.RequestContextKey
+import org.http4k.lens.RequestKey
 import org.http4k.lens.StringBiDiMappings.enum
 import org.http4k.lens.Validator
 import org.http4k.lens.binary
@@ -62,6 +60,7 @@ import org.http4k.lens.string
 import org.http4k.lens.uuid
 import org.http4k.routing.bind
 import org.http4k.routing.routes
+import org.http4k.security.BearerAuthSecurity
 import se.ansman.kotshi.KotshiJsonAdapterFactory
 import java.time.Instant
 import java.time.LocalDate
@@ -197,8 +196,7 @@ fun httpApi(
     caseService: CaseService,
     caseDocumentService: CaseDocumentService
 ): HttpHandler {
-    val contexts = RequestContexts()
-    val userContextKey = RequestContextKey.required<UserContext>(contexts)
+    val userContextKey = RequestKey.required<UserContext>("userContext")
 
     val registrationRoute = "/register" bind POST to authentication.registrationHandler
     val loginRoute = "/login" bind POST to authentication.loginHandler
@@ -378,14 +376,11 @@ fun httpApi(
         }
     }
 
-    return ServerFilters.InitialiseRequestContext(contexts)
-//        .then(logRequest)
-        .then(ServerFilters.CatchAll { t ->
-            logger.error(t) { "Caught ${t.message}" }
-            if (t !is Exception) {
-                throw t
-            }
-            Response(INTERNAL_SERVER_ERROR)
-        })
-        .then(routes("/api" bind routes(registrationRoute, loginRoute, api, openapi)))
+    return ServerFilters.CatchAll { t ->
+        logger.error(t) { "Caught ${t.message}" }
+        if (t !is Exception) {
+            throw t
+        }
+        Response(INTERNAL_SERVER_ERROR)
+    }.then(routes("/api" bind routes(registrationRoute, loginRoute, api, openapi)))
 }

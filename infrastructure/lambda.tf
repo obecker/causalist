@@ -23,7 +23,7 @@ resource "aws_lambda_function" "backend" {
   role             = aws_iam_role.backend.arn
   filename         = data.local_file.lambda_handler_lib.filename
   handler          = "de.obqo.causalist.app.ApiLambdaHandler"
-  runtime          = "java17"
+  runtime          = "java21"
   memory_size      = 2048
   timeout          = 30
   source_code_hash = data.local_file.lambda_handler_lib.content_base64sha256
