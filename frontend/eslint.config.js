@@ -7,21 +7,12 @@ import pluginSimpleImportSort from 'eslint-plugin-simple-import-sort';
 import pluginVitestGlobals from 'eslint-plugin-vitest-globals';
 import globals from 'globals';
 
-const pluginReactHooksRecommended = {
-  plugins: {
-    'react-hooks': pluginReactHooks,
-  },
-  rules: {
-    ...pluginReactHooks.configs.recommended.rules,
-  },
-};
-
 // noinspection JSUnusedGlobalSymbols
 export default [
   js.configs.recommended,
   pluginReact.configs.flat.recommended,
   pluginReactRefresh.configs.recommended,
-  pluginReactHooksRecommended,
+  pluginReactHooks.configs['recommended-latest'],
   stylistic.configs.customize({
     semi: true,
     braceStyle: '1tbs',
