@@ -3,6 +3,7 @@ import clsx from 'clsx/lite';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ConfettiExplosion from 'react-confetti-explosion';
 
+import AutoLink from './AutoLink.jsx';
 import ModalDialog from './ModalDialog';
 import { statusLabels } from './status';
 import StatusIcon from './StatusIcon';
@@ -10,7 +11,7 @@ import { typeMap } from './type';
 
 const lineHeight = 22;
 
-export function FortuneModal({ isOpen, setIsOpen, cases }) {
+export function FortuneModal({ isOpen, setIsOpen, cases, setSelectedCase, setEditOpen }) {
   const [fortuneCase, setFortuneCase] = useState(null);
   const [revealDetails, setRevealDetails] = useState(false);
   const [explode, setExplode] = useState(false);
@@ -27,6 +28,12 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
     setIsOpen(false);
     setRevealDetails(false);
     setExplode(false);
+  }
+
+  function edit() {
+    setSelectedCase(fortuneCase);
+    setEditOpen(true);
+    close();
   }
 
   return (fortuneCase && (
@@ -62,9 +69,9 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
           />
         </div>
         <div
-          className="relative mt-8 max-h-lvh overflow-y-scroll transition-opacity duration-1000"
+          className="relative mt-8 max-h-lvh overflow-y-scroll transition-all duration-1000"
           style={{
-            maxHeight: 'calc(100vh - 20rem)',
+            maxHeight: revealDetails ? 'calc(100vh - 20rem)' : '0',
             opacity: revealDetails ? 1 : 0,
           }}
         >
@@ -80,18 +87,26 @@ export function FortuneModal({ isOpen, setIsOpen, cases }) {
             {statusLabels[fortuneCase.status]}
           </div>
           <div className="mt-2">
-            {fortuneCase.statusNote}
+            <AutoLink text={fortuneCase.statusNote} linkClassName="text-teal-700 hover:text-teal-800 hover:underline" />
           </div>
-          <div className="mt-2">
-            {fortuneCase.memo}
+          <div className="mt-2 whitespace-pre-wrap italic">
+            <AutoLink text={fortuneCase.memo} linkClassName="text-teal-700 hover:text-teal-800 hover:underline" />
           </div>
         </div>
-        <div className="mt-4 flex w-full justify-end">
+        <div className={clsx('mt-4 w-full justify-end gap-4', revealDetails ? 'flex' : 'hidden')}>
           <button
-            className="flex w-20 justify-center rounded-md bg-teal-700 px-3 py-1.5 text-sm leading-6 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+            className="flex flex-col w-44 justify-center items-center gap-x-2 rounded-md bg-stone-200 px-3 py-1.5 text-sm leading-6 font-semibold text-teal-700 shadow-xs hover:bg-stone-100 focus:border-teal-700 focus:ring-teal-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:flex-row"
             onClick={close}
           >
-            Super!
+            <span>Nichts zu tun!</span>
+            <span className="text-base">🥳</span>
+          </button>
+          <button
+            className="flex flex-col w-44 justify-center items-center gap-x-2 rounded-md bg-teal-700 px-3 py-1.5 text-sm leading-6 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:flex-row"
+            onClick={edit}
+          >
+            <span>Akte bearbeiten</span>
+            <span className="text-base">👩🏻‍⚖️</span>
           </button>
         </div>
       </DialogPanel>

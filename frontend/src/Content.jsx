@@ -213,7 +213,7 @@ export default function Content() {
         forceUpdate={forceUpdate}
       />
 
-      <FortuneModal isOpen={isFortuneOpen} setIsOpen={setFortuneOpen} cases={cases} />
+      <FortuneModal isOpen={isFortuneOpen} setIsOpen={setFortuneOpen} cases={cases} setSelectedCase={setSelectedCase} setEditOpen={setEditOpen} />
 
       {/* header */}
       <div className="mb-8 flex flex-row items-baseline justify-between border-b-2 border-solid border-b-stone-400">
