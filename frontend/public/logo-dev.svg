@@ -3,12 +3,12 @@
 
     <defs>
         <linearGradient id="b1" x1="30%" y1="0%" x2="70%" y2="100%">
-            <stop offset="0%" stop-color="#db2777"/>
-            <stop offset="100%" stop-color="#9d174d"/>
+            <stop offset="0%" stop-color="oklch(0.592 0.249 0.584)"/> <!-- pink-600 -->
+            <stop offset="100%" stop-color="oklch(0.459 0.187 3.815)"/> <!-- pink-800 -->
         </linearGradient>
         <linearGradient id="b2" x1="30%" y1="0%" x2="70%" y2="100%">
-            <stop offset="0%" stop-color="#fafaf9"/>
-            <stop offset="100%" stop-color="#e7e5e4"/>
+            <stop offset="0%" stop-color="oklch(0.985 0.001 106.423)"/> <!-- stone-50 -->
+            <stop offset="100%" stop-color="oklch(0.923 0.003 48.717)"/> <!-- stone-200 -->
         </linearGradient>
     </defs>
 

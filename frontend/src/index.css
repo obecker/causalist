@@ -64,7 +64,7 @@ input.marker:checked {
 }
 
 @theme {
-    --animate-spin-slow: spin 8s linear infinite;
+    --animate-spin-slow: spin 9s linear infinite;
     --animate-updated: updated 1s cubic-bezier(0.4, 0, 1, 1) 500ms;
     --font-sans: Cabin, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-kaushanScript: KaushanScript;
