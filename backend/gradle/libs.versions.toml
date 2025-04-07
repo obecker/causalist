@@ -15,7 +15,7 @@ mockk = "io.mockk:mockk:1.13.17"
 
 [plugins]
 decycle = { id = "de.obqo.decycle", version = "1.2.3" }
-dependency-check = { id = "org.owasp.dependencycheck", version = "12.1.0" }
+dependency-check = { id = "org.owasp.dependencycheck", version = "12.1.1" }
 kover = { id = "org.jetbrains.kotlinx.kover", version = "0.9.1" }
 ksp = { id = "com.google.devtools.ksp", version = "2.1.20-1.0.32" }
 shadow = { id = "com.gradleup.shadow", version = "8.3.6" }
