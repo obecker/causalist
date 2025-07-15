@@ -4,19 +4,31 @@ import de.obqo.causalist.Status
 import de.obqo.causalist.Type
 import de.obqo.causalist.aCase
 import de.obqo.causalist.mutableReference
+import de.obqo.causalist.withArea
+import de.obqo.causalist.withDueDate
+import de.obqo.causalist.withDueTime
+import de.obqo.causalist.withHasDocuments
+import de.obqo.causalist.withMarkerColor
+import de.obqo.causalist.withMemo
 import de.obqo.causalist.withOwnerId
+import de.obqo.causalist.withParties
 import de.obqo.causalist.withRef
 import de.obqo.causalist.withRefId
 import de.obqo.causalist.withSettledOn
 import de.obqo.causalist.withStatus
+import de.obqo.causalist.withStatusNote
+import de.obqo.causalist.withTodoDate
 import de.obqo.causalist.withType
+import de.obqo.causalist.withUpdatedAt
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.sequences.shouldBeEmpty
 import io.kotest.matchers.sequences.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import org.http4k.connect.amazon.dynamodb.FakeDynamoDb
 import org.http4k.connect.amazon.dynamodb.model.TableName
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.UUID
 
 class DynamoCaseRepositoryTest : DescribeSpec({
@@ -40,6 +52,9 @@ class DynamoCaseRepositoryTest : DescribeSpec({
             val reference = mutableReference()
             val case11 = aCase().withOwnerId(ownerId1).withRef(reference.next()).withStatus(Status.UNKNOWN)
             val case12 = aCase().withOwnerId(ownerId1).withRef(reference.next()).withStatus(Status.SESSION)
+                .withParties("A vs B").withArea("area").withStatusNote("session note").withMemo("area memo")
+                .withMarkerColor("red").withDueDate(LocalDate.of(2023, 10, 1)).withDueTime(LocalTime.of(10, 0))
+                .withTodoDate(LocalDate.of(2023, 9, 15)).withHasDocuments(true).withUpdatedAt(Instant.now())
             val case21 = aCase().withOwnerId(ownerId2).withRef(reference.next()).withStatus(Status.SETTLED)
 
             // when

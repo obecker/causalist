@@ -35,6 +35,7 @@ export default defineConfig(() => {
     ],
     server: {
       host: true, // make the server accessible in the local network
+      allowedHosts: true, // allow connections from any host
       port: 3000,
       strictPort: true,
       proxy: {

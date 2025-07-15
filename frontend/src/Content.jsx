@@ -82,11 +82,25 @@ export default function Content() {
       return;
     }
 
+    function safeLocaleCompare(a, b) {
+      return (a || '').localeCompare((b || ''));
+    }
+
+    function compareByDates(c1, c2) {
+      return (
+        c1.todoDate.localeCompare(c2.todoDate)
+        || safeLocaleCompare(c1.dueDate, c2.dueDate)
+        || safeLocaleCompare(c1.dueTime, c2.dueTime)
+        || c1.status.localeCompare(c2.status)
+        || c1.id.localeCompare(c2.id)
+      );
+    }
+
     let newCases;
     if (todosOnly && !settledOnly) {
       newCases = cases.filter((c) => c.todoDate)
         .filter((c) => containsSearch(c, search))
-        .sort((c1, c2) => c1.todoDate.localeCompare(c2.todoDate))
+        .sort((c1, c2) => compareByDates(c1, c2))
         .map((c) => Object.assign({}, c));
       let recentWeek = null;
       let recentTodo = null;
@@ -115,7 +129,7 @@ export default function Content() {
         newCases = [
           ...newCases.slice(0, e.casesIndex),
           {
-            id: `week${e.weekOfYear}`, // required field (used as react key)
+            id: `week${e.startOfWeek}`, // required field (used as react key)
             todoWeekOfYear: e.weekOfYear,
             todoDate: e.startOfWeek,
             newWeek: true,
@@ -213,7 +227,13 @@ export default function Content() {
         forceUpdate={forceUpdate}
       />
 
-      <FortuneModal isOpen={isFortuneOpen} setIsOpen={setFortuneOpen} cases={cases} setSelectedCase={setSelectedCase} setEditOpen={setEditOpen} />
+      <FortuneModal
+        isOpen={isFortuneOpen}
+        setIsOpen={setFortuneOpen}
+        cases={cases}
+        setSelectedCase={setSelectedCase}
+        setEditOpen={setEditOpen}
+      />
 
       {/* header */}
       <div className="mb-8 flex flex-row items-baseline justify-between border-b-2 border-solid border-b-stone-400">
@@ -305,7 +325,9 @@ export default function Content() {
       <div className="flex flex-row justify-between align-baseline">
         <Listbox value={settledOnly} onChange={setSettledOnly}>
           <div className="relative">
-            <ListboxButton className="mb-2 text-lg font-semibold decoration-teal-700 hover:underline focus-visible:underline focus-visible:outline-hidden">
+            <ListboxButton
+              className="mb-2 text-lg font-semibold decoration-teal-700 hover:underline focus-visible:underline focus-visible:outline-hidden"
+            >
               {({ open }) => (
                 <>
                   {casesHeader}
@@ -314,7 +336,9 @@ export default function Content() {
                 </>
               )}
             </ListboxButton>
-            <ListboxOptions className="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg ring-black/5 focus:outline-hidden sm:text-sm">
+            <ListboxOptions
+              className="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg ring-black/5 focus:outline-hidden sm:text-sm"
+            >
               <ListboxOption
                 value={false}
                 className={({ focus }) =>
@@ -368,6 +392,7 @@ export default function Content() {
         reloadDocuments={reloadDocuments}
         setReloadDocuments={setReloadDocuments}
         forceUpdate={forceUpdate}
+        todosOnly={todosOnly}
       />
     </>
   );
@@ -476,6 +501,7 @@ function CasesList({
   reloadDocuments,
   setReloadDocuments,
   forceUpdate,
+  todosOnly,
 }) {
   const api = useContext(ApiContext);
 
@@ -587,13 +613,17 @@ function CasesList({
     }).catch((error) => setErrorMessage(error.userMessage));
   }
 
-  function formattedDate(date) {
-    return date && new Date(date).toLocaleDateString();
+  function formattedDate(date, prefix = '') {
+    return date && (prefix + new Date(date).toLocaleDateString());
   }
 
   function formattedDateTime(date) {
     let d = date && new Date(date);
     return d && (d.toLocaleDateString() + ' ' + d.toLocaleTimeString());
+  }
+
+  function formattedTime(time, prefix = '') {
+    return time && (prefix + new Date(`1970-01-01T${time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   }
 
   function todoBg(aCase) {
@@ -630,7 +660,7 @@ function CasesList({
   return (
     <ol
       className={clsx(
-        'grid grid-cols-(--grid-cases) md:grid-cols-(--grid-cases-md) lg:grid-cols-(--grid-cases-lg)',
+        'grid grid-cols-(--grid-cases) md:grid-cols-(--grid-cases-md) lg:grid-cols-(--grid-cases-lg) xl:grid-cols-(--grid-cases-xl)',
         loadingSpinner && 'opacity-25',
       )}
     >
@@ -679,20 +709,21 @@ function CasesList({
                 <span title={openCaseId === aCase.id ? null : aCase.parties}>{aCase.parties}</span>
                 <div className="text-sm md:hidden">
                   <span
-                    title={aCase.todoDate && 'Vorfrist'}
-                    className={!isSettled(aCase) && aCase.todoDate ? 'pr-4' : 'hidden'}
-                  >
-                    {formattedDate(aCase.todoDate)}
-                  </span>
-                  <span
                     title={isSettled(aCase)
                       ? (aCase.settledOn && 'Erledigt am')
                       : (aCase.dueDate && 'nächster Termin')}
-                    className="font-semibold empty:hidden"
+                    className="font-semibold empty:hidden pe-4"
                   >
                     {formattedDate(isSettled(aCase) ? aCase.settledOn : aCase.dueDate)}
+                    {formattedTime(!isSettled(aCase) && aCase.dueTime, ', ')}
+                  </span>
+                  <span className={!isSettled(aCase) && aCase.todoDate ? 'hidden sm:inline' : 'hidden'}>
+                    {formattedDate(aCase.todoDate, 'Vorfrist: ')}
                   </span>
                 </div>
+                {(todosOnly || openCaseId === aCase.id) && (
+                  <div className="text-sm sm:hidden">{formattedDate(aCase.todoDate, 'Vorfrist: ')}</div>
+                )}
               </div>
               <div
                 title={openCaseId === aCase.id ? null : aCase.area}
@@ -703,7 +734,7 @@ function CasesList({
               </div>
               <div
                 title={!isSettled(aCase) && aCase.todoDate ? 'Vorfrist' : null}
-                className="hidden pr-2 text-right lg:inline"
+                className="hidden pr-2 text-right xl:inline"
               >
                 {!isSettled(aCase) && formattedDate(aCase.todoDate)}
               </div>
@@ -712,9 +743,14 @@ function CasesList({
                 className="hidden pr-2 text-right font-semibold empty:hidden md:inline"
               >
                 {formattedDate(isSettled(aCase) ? aCase.settledOn : aCase.dueDate)}
+                <span className="hidden md:inline">{formattedTime(!isSettled(aCase) && aCase.dueTime, ', ')}</span>
+                {(todosOnly || openCaseId === aCase.id)
+                  && <div className="font-normal text-sm xl:hidden">{formattedDate(aCase.todoDate, 'Vorfrist: ')}</div>}
               </div>
               <Transition show={openCaseId === aCase.id} appear>
-                <div className="col-span-full grid origin-top grid-cols-subgrid gap-y-4 pt-4 transition-all ease-out data-closed:opacity-0 data-enter:duration-150 data-leave:duration-100">
+                <div
+                  className="col-span-full grid origin-top grid-cols-subgrid gap-y-3 pt-3 transition-all ease-out data-closed:opacity-0 data-enter:duration-150 data-leave:duration-100"
+                >
                   <div className="relative col-start-1 col-end-3 row-start-1 row-end-3 mx-2.5">
                     <div className="flex items-center justify-between">
                       <button
@@ -850,7 +886,9 @@ function CasesList({
                     </div>
                   )}
                   <FailureAlert message={errorMessage} className="col-start-3 md:col-end-5 lg:col-end-7" />
-                  <div className="col-start-3 flex flex-col justify-between gap-2 px-2 text-xs sm:flex-row md:col-end-5 lg:col-end-7">
+                  <div
+                    className="col-start-3 flex flex-col justify-between gap-2 px-2 text-xs sm:flex-row md:col-end-5 lg:col-end-7"
+                  >
                     <div>{`Eingegangen am ${formattedDate(aCase.receivedOn)}`}</div>
                     <div>{`Geändert ${formattedDateTime(aCase.updatedAt)}`}</div>
                   </div>

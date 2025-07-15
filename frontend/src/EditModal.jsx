@@ -27,7 +27,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   const [caseMarkerColor, setCaseMarkerColor] = useState('');
   const [caseReceivedOn, setCaseReceivedOn] = useState('');
   const [caseSettledOn, setCaseSettledOn] = useState('');
-  const [caseDueDate, setCaseDueDate] = useState('');
+  const [caseDueDateTime, setCaseDueDateTime] = useState('');
   const [caseTodoDate, setCaseTodoDate] = useState('');
   const [previousDueDate, setPreviousDueDate] = useState('');
   const [previousTodoDate, setPreviousTodoDate] = useState('');
@@ -70,7 +70,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
       setCaseMarkerColor('');
       setCaseReceivedOn('');
       setCaseSettledOn('');
-      setCaseDueDate('');
+      setCaseDueDateTime('');
       setCaseTodoDate('');
       setPreviousDueDate('');
       setPreviousTodoDate('');
@@ -95,7 +95,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
           setCaseMarkerColor(caseResource.markerColor ?? '');
           setCaseReceivedOn(caseResource.receivedOn);
           setCaseSettledOn(caseResource.settledOn ?? '');
-          setCaseDueDate(caseResource.dueDate ?? '');
+          setCaseDueDateTime(caseResource.dueDate ? `${caseResource.dueDate}T${caseResource.dueTime ?? '00:00'}` : '');
           setCaseTodoDate(caseResource.todoDate ?? '');
           setPreviousDueDate(caseResource.dueDate ?? '');
           setPreviousTodoDate(caseResource.todoDate ?? '');
@@ -147,8 +147,9 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     setTodoDateEdited(true);
   }
 
-  function changeDueDate(newDate) {
-    setCaseDueDate(newDate);
+  function changeDueDate(newDateTime) {
+    setCaseDueDateTime(newDateTime);
+    const [newDate] = newDateTime ? newDateTime.split('T') : [''];
     if (!todoDateEdited) {
       if (previousDueDate && previousTodoDate) {
         const days = daysDiff(previousDueDate, newDate);
@@ -161,22 +162,24 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   }
 
   function clearDueDate() {
-    setCaseDueDate('');
+    setCaseDueDateTime('');
     setCaseTodoDate('');
     setPreviousDueDate('');
     setPreviousTodoDate('');
     setTodoDateEdited(false);
   }
 
-  function dateEdit(event, date, setDate) {
+  function dateEdit(event, dateTime, setDateTime) {
+    const [date, time] = dateTime.split('T');
+    const timeSuffix = time ? `T${time}` : '';
     switch (event.key) {
       case 'ArrowUp':
         event.preventDefault();
-        date && setDate(addDays(date, 1));
+        date && setDateTime(addDays(date, 1) + timeSuffix);
         break;
       case 'ArrowDown':
         event.preventDefault();
-        date && setDate(addDays(date, -1));
+        date && setDateTime(addDays(date, -1) + timeSuffix);
         break;
     }
   }
@@ -212,6 +215,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
     let caseTypeFailed = caseType !== 'SINGLE' && caseType !== 'CHAMBER';
     let caseReceivedOnFailed = caseReceivedOn === '';
     let caseSettledOnFailed = caseStatus === 'SETTLED' && caseSettledOn === '';
+    let [caseDueDate, caseDueTime] = caseDueDateTime ? caseDueDateTime.split('T') : ['', ''];
     let todoDate = caseTodoDate || caseDueDate;
     setCaseTodoDate(todoDate);
 
@@ -243,6 +247,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
         receivedOn: nullIfEmpty(caseReceivedOn),
         settledOn: nullIfEmpty(caseSettledOn),
         dueDate: nullIfEmpty(caseDueDate),
+        dueTime: nullIfEmpty(caseDueTime),
         todoDate: nullIfEmpty(todoDate),
       };
 
@@ -269,7 +274,9 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   return (
     <ModalDialog isOpen={isOpen} onClose={close}>
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
-      <div className="w-full max-w-md min-w-[322px] transform overflow-hidden rounded-2xl bg-white py-6 text-left align-middle shadow-xl transition-all sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl">
+      <div
+        className="w-full max-w-md min-w-[322px] transform overflow-hidden rounded-2xl bg-white py-6 text-left align-middle shadow-xl transition-all sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl"
+      >
         <form
           onSubmit={saveCase}
           className={clsx(
@@ -459,7 +466,9 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
                         ? <ChevronUpIcon className="size-4 flex-none" />
                         : <ChevronDownIcon className="size-4 flex-none" />}
                     </ListboxButton>
-                    <ListboxOptions className="absolute z-20 mt-0.5 w-full overflow-y-auto rounded-md border bg-stone-50 py-2 shadow-sm shadow-stone-400 outline-hidden lg:max-h-72">
+                    <ListboxOptions
+                      className="absolute z-20 mt-0.5 w-full overflow-y-auto rounded-md border bg-stone-50 py-2 shadow-sm shadow-stone-400 outline-hidden lg:max-h-72"
+                    >
                       {statusKeys.map((status) => (
                         <ListboxOption
                           key={status}
@@ -495,29 +504,25 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
               />
             </div>
             <div className="sm:col-span-3 lg:col-span-1">
-              <label htmlFor="dueDate" className="mb-2 block text-sm font-medium">
-                nächster Termin am
-              </label>
+              <div className="flex justify-between">
+                <label htmlFor="dueDate" className="mb-2 text-sm font-medium">
+                  nächster Termin am
+                </label>
+                <XMarkIcon className="size-5 hover:text-teal-700" onClick={clearDueDate} />
+              </div>
               <div className="relative">
                 <input
                   id="dueDate"
                   name="dueDate"
-                  type="date"
+                  type="datetime-local"
                   tabIndex="11"
                   disabled={fieldsDisabled}
-                  value={caseDueDate}
+                  value={caseDueDateTime}
                   onChange={(e) => changeDueDate(e.target.value)}
                   onFocus={(e) => (e.target.defaultValue = '')}
-                  onKeyDown={(e) => dateEdit(e, caseDueDate, changeDueDate)}
+                  onKeyDown={(e) => dateEdit(e, caseDueDateTime, changeDueDate)}
                   className="block w-full rounded-md border border-stone-300 bg-stone-50 p-2.5 text-sm focus:border-teal-700 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait"
                 />
-                <div
-                  className="absolute top-0 right-9 bottom-0 px-1 py-3 text-stone-600 hover:text-stone-900"
-                  title="Leeren"
-                  onClick={clearDueDate}
-                >
-                  <XMarkIcon className="size-5" />
-                </div>
               </div>
             </div>
             <div className="sm:col-span-3 lg:col-span-1">

@@ -2,6 +2,7 @@ package de.obqo.causalist
 
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.UUID
 
 fun aReference() = Reference.parseValue("123 O 1/23")
@@ -27,6 +28,7 @@ fun aCase() = Case(
     receivedOn = LocalDate.now(),
     settledOn = null,
     dueDate = null,
+    dueTime = null,
     todoDate = null,
     hasDocuments = false
 )
@@ -45,6 +47,7 @@ fun Case.withMarkerColor(color: String) = copy(markerColor = color)
 fun Case.withReceivedOn(receivedOn: LocalDate) = copy(receivedOn = receivedOn)
 fun Case.withSettledOn(settledOn: LocalDate) = copy(settledOn = settledOn)
 fun Case.withDueDate(dueDate: LocalDate) = copy(dueDate = dueDate)
+fun Case.withDueTime(dueTime: LocalTime) = copy(dueTime = dueTime)
 fun Case.withTodoDate(todoDate: LocalDate) = copy(todoDate = todoDate)
 fun Case.withHasDocuments(hasDocuments: Boolean) = copy(hasDocuments = hasDocuments)
 fun Case.withUpdatedAt(instant: Instant) = copy(updatedAt = instant)

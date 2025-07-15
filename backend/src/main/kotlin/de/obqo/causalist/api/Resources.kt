@@ -14,6 +14,7 @@ import de.obqo.causalist.Type
 import se.ansman.kotshi.JsonSerializable
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.temporal.IsoFields
 import java.util.UUID
 import javax.crypto.SecretKey
@@ -41,6 +42,7 @@ data class CaseResource(
     val receivedOn: LocalDate,
     val settledOn: LocalDate?,
     val dueDate: LocalDate?,
+    val dueTime: LocalTime?,
     val todoDate: LocalDate?,
     val todoWeekOfYear: Int? = todoDate?.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR),
     val hasDocuments: Boolean? = null,
@@ -84,6 +86,7 @@ fun Case.toResource(encryptionKey: SecretKey) = CaseResource(
     receivedOn = receivedOn,
     settledOn = settledOn,
     dueDate = dueDate,
+    dueTime = dueTime,
     todoDate = todoDate,
     hasDocuments = hasDocuments,
     updatedAt = updatedAt
@@ -102,6 +105,7 @@ fun CaseResource.toEntity(ownerId: UUID, encryptionKey: SecretKey) = Case(
     receivedOn = receivedOn,
     settledOn = settledOn,
     dueDate = dueDate,
+    dueTime = dueTime,
     todoDate = todoDate,
     hasDocuments = false // will not be set from the API
     // updatedAt will be automatically set

@@ -9,6 +9,7 @@ import dev.forkhandles.values.between
 import dev.forkhandles.values.regex
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.UUID
 
 enum class Type {
@@ -40,27 +41,27 @@ open class ZeroPaddedIntValueFactory<DOMAIN : Value<Int>>(
 
 // Spruchkörper
 class RefEntity private constructor(value: Int) : IntValue(value) {
-    fun idPart() = RefEntity.show(this)
+    fun idPart() = show(this)
 
     companion object : ZeroPaddedIntValueFactory<RefEntity>(::RefEntity, 1, 5)
 }
 
 // Registerzeichen
 class RefRegister private constructor(value: String) : StringValue(value) {
-    fun idPart() = RefRegister.show(this)
+    fun idPart() = show(this)
 
     companion object : StringValueFactory<RefRegister>(::RefRegister, "O|OH|S|T".regex)
 }
 
 class RefNumber private constructor(value: Int) : IntValue(value) {
-    fun idPart() = RefNumber.show(this)
+    fun idPart() = show(this)
 
     companion object : ZeroPaddedIntValueFactory<RefNumber>(::RefNumber, 1, 5)
 }
 
 class RefYear private constructor(value: Int) : IntValue(value) {
-    fun idPart() = RefYear.show(this)
-    fun show() = RefYear.show(this)
+    fun idPart() = show(this)
+    fun show() = show(this)
 
     companion object : ZeroPaddedIntValueFactory<RefYear>(::RefYear, 0, 2)
 }
@@ -119,8 +120,9 @@ data class Case(
     val receivedOn: LocalDate,
     val settledOn: LocalDate?,
     val dueDate: LocalDate?,
+    val dueTime: LocalTime?,
     val todoDate: LocalDate?,
-    val hasDocuments: Boolean, // denormalized value, will be true if there are any attached CaseDocuments
+    val hasDocuments: Boolean, // denormalized value: will be true if there are any attached CaseDocuments
     val updatedAt: Instant = Instant.now()
 )
 

@@ -68,9 +68,10 @@ input.marker:checked {
     --animate-updated: updated 1s cubic-bezier(0.4, 0, 1, 1) 500ms;
     --font-sans: Cabin, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-kaushanScript: KaushanScript;
-    --grid-cases: 8.9rem 2.75rem 1fr;
-    --grid-cases-md: 8.9rem 2.75rem 1fr 6rem;
-    --grid-cases-lg: 8.9rem 2.75rem 3fr 2fr 6rem 6rem;
+    --grid-cases: 8.9rem 2.5rem 1fr;
+    --grid-cases-md: 8.9rem 2.75rem 1fr 8.5rem;
+    --grid-cases-lg: 8.9rem 2.75rem 3fr 2fr 8.5rem;
+    --grid-cases-xl: 8.9rem 2.75rem 3fr 2fr 6rem 9rem;
 
     @keyframes updated {
         0%, 100% {}

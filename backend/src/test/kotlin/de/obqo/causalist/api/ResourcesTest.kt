@@ -8,6 +8,7 @@ import de.obqo.causalist.Type
 import de.obqo.causalist.aCase
 import de.obqo.causalist.withArea
 import de.obqo.causalist.withDueDate
+import de.obqo.causalist.withDueTime
 import de.obqo.causalist.withHasDocuments
 import de.obqo.causalist.withMarkerColor
 import de.obqo.causalist.withMemo
@@ -22,6 +23,7 @@ import de.obqo.causalist.withUpdatedAt
 import io.kotest.core.spec.style.DescribeSpec
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 
 class ResourcesTest : DescribeSpec({
 
@@ -60,6 +62,7 @@ class ResourcesTest : DescribeSpec({
                 .withMarkerColor("blue")
                 .withReceivedOn(LocalDate.of(2023, 12, 10))
                 .withDueDate(LocalDate.of(2024, 2, 5))
+                .withDueTime(LocalTime.of(17, 30))
                 .withTodoDate(LocalDate.of(2024, 1, 29))
                 .withHasDocuments(true)
                 .withUpdatedAt(Instant.parse("2024-01-18T13:08:39.123Z"))
@@ -88,6 +91,7 @@ class ResourcesTest : DescribeSpec({
                     "markerColor": "blue",
                     "receivedOn": "2023-12-10",
                     "dueDate": "2024-02-05",
+                    "dueTime": "17:30:00",
                     "todoDate": "2024-01-29",
                     "todoWeekOfYear": 5,
                     "hasDocuments": true,

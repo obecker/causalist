@@ -32,6 +32,7 @@ private val markerColorAttr = Attribute.string().optional("markerColor", ignoreN
 private val receivedOnAttr = Attribute.localDate().required("receivedOn")
 private val settledOnAttr = Attribute.localDate().optional("settledOn", ignoreNull = true)
 private val dueDateAttr = Attribute.localDate().optional("dueDate", ignoreNull = true)
+private val dueTimeAttr = Attribute.localTime().optional("dueTime", ignoreNull = true)
 private val todoDateAttr = Attribute.localDate().optional("todoDate", ignoreNull = true)
 private val hasDocumentsAttr = Attribute.boolean().defaulted("hasDocuments", false)
 private val updatedAtAttr = Attribute.instant().required("updatedAt")
@@ -54,6 +55,7 @@ private val caseLens = BiDiLens<Item, Case>(
             receivedOn = receivedOnAttr(item),
             settledOn = settledOnAttr(item),
             dueDate = dueDateAttr(item),
+            dueTime = dueTimeAttr(item),
             todoDate = todoDateAttr(item),
             hasDocuments = hasDocumentsAttr(item),
             updatedAt = updatedAtAttr(item)
@@ -75,6 +77,7 @@ private val caseLens = BiDiLens<Item, Case>(
             receivedOnAttr of case.receivedOn,
             settledOnAttr of case.settledOn, // SettledIndex sort key
             dueDateAttr of case.dueDate,
+            dueTimeAttr of case.dueTime,
             todoDateAttr of case.todoDate,
             hasDocumentsAttr of case.hasDocuments,
             updatedAtAttr of case.updatedAt

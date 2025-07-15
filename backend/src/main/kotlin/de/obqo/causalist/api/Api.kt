@@ -104,7 +104,7 @@ object Spec {
     private val referenceSample = reference.toResource()
     private val getCaseSample = CaseResource(
         reference.toId(), referenceSample, Type.SINGLE.name, "", "", "", Status.SESSION.name, "",
-        "red", LocalDate.now(), null, LocalDate.now().plusDays(7), null, null, false, Instant.now()
+        "red", LocalDate.now(), null, LocalDate.now().plusDays(7), null, null, null, false, Instant.now()
     )
     private val postCaseSample = getCaseSample.copy(id = null, updatedAt = null)
     private val casesSample = CasesResource(listOf(getCaseSample))

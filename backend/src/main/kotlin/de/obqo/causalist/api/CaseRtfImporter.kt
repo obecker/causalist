@@ -17,6 +17,7 @@ import se.ansman.kotshi.JsonSerializable
 import java.io.InputStream
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -32,6 +33,7 @@ class CellsLens<FINAL>(private val getFn: (Cells) -> FINAL) {
 
     companion object {
         private val localDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+        private val localTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
         private fun base(): Spec<String> = Spec(Get { index, target -> target[index] })
         private fun nullIfEmpty() = base().map { it.ifEmpty { null } }
@@ -50,6 +52,14 @@ class CellsLens<FINAL>(private val getFn: (Cells) -> FINAL) {
                 LocalDate.parse(str, localDateFormatter)
             }.getOrElse {
                 throw CellsLensException("Unerkanntes Datum: $str")
+            }
+        }
+
+        fun localTime() = nullIfEmpty().map { str ->
+            runCatching {
+                LocalTime.parse(str, localTimeFormatter)
+            }.getOrElse {
+                throw CellsLensException("Unerkannte Uhrzeit: $str")
             }
         }
 
@@ -158,6 +168,7 @@ abstract class AbstractStrategy(
         receivedOn: LocalDate = LocalDate.now(),
         settledOn: LocalDate? = null,
         dueDate: LocalDate? = null,
+        dueTime: LocalTime? = null,
     ) = CaseResource(
         ref = ref,
         type = type,
@@ -170,6 +181,7 @@ abstract class AbstractStrategy(
         receivedOn = receivedOn,
         settledOn = settledOn,
         dueDate = dueDate,
+        dueTime = dueTime,
         todoDate = null
     )
 }
@@ -322,7 +334,8 @@ class UpdateDueDatesImporter : AbstractStrategy(ImportType.UPDATED_DUE_DATES, ta
 
     private val refLens = CellsLens.reference().required(1)
     private val statusLens = CellsLens.dueDateStatus().required(3)
-    private val dueLens = CellsLens.localDate().required(4)
+    private val dueDateLens = CellsLens.localDate().required(4)
+    private val dueTimeLens = CellsLens.localTime().required(5)
 
     override fun processCells(
         cells: Cells,
@@ -334,7 +347,8 @@ class UpdateDueDatesImporter : AbstractStrategy(ImportType.UPDATED_DUE_DATES, ta
         val caseResource = case(
             ref = refLens(cells),
             status = statusLens(cells).name,
-            dueDate = dueLens(cells),
+            dueDate = dueDateLens(cells),
+            dueTime = dueTimeLens(cells),
         )
 
         val importedCase = caseResource.toEntity(currentUserId, secretKey)
@@ -348,7 +362,9 @@ class UpdateDueDatesImporter : AbstractStrategy(ImportType.UPDATED_DUE_DATES, ta
                 else -> null // will not happen
             }
 
-            if (persistedCase.dueDate != importedCase.dueDate || persistedCase.status != importedCase.status) {
+            if (persistedCase.dueDate != importedCase.dueDate ||
+                persistedCase.dueTime != importedCase.dueTime ||
+                persistedCase.status != importedCase.status) {
                 // prevent updates of todoDate when dueDate and status haven't changed
                 val todoDate = preparationDays?.let { importedCase.dueDate?.minus(it, ChronoUnit.DAYS) }
                     ?.let {
@@ -362,6 +378,7 @@ class UpdateDueDatesImporter : AbstractStrategy(ImportType.UPDATED_DUE_DATES, ta
                     persistedCase.copy(
                         status = importedCase.status,
                         dueDate = importedCase.dueDate,
+                        dueTime = importedCase.dueTime,
                         todoDate = todoDate
                     )
                 )

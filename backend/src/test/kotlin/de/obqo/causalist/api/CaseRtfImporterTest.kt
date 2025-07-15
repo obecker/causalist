@@ -11,6 +11,7 @@ import de.obqo.causalist.aCase
 import de.obqo.causalist.caseService
 import de.obqo.causalist.fakeCaseRepository
 import de.obqo.causalist.withDueDate
+import de.obqo.causalist.withDueTime
 import de.obqo.causalist.withOwnerId
 import de.obqo.causalist.withParties
 import de.obqo.causalist.withReceivedOn
@@ -30,6 +31,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.UUID
 
 class CaseRtfImporterTest : DescribeSpec({
@@ -257,6 +259,7 @@ class CaseRtfImporterTest : DescribeSpec({
                 aCase().withOwnerId(userId).withRef(refNotUpdated).withType(SINGLE)
                     .withStatus(Status.DECISION)
                     .withDueDate(LocalDate.of(2024, 1, 19))
+                    .withDueTime(LocalTime.of(13, 50))
                     .withTodoDate(LocalDate.of(2024, 1, 15))
             )
 
@@ -276,32 +279,38 @@ class CaseRtfImporterTest : DescribeSpec({
             importResult.unknownCaseRefs.shouldContainExactly("123 O 1/23")
             importResult.errors.shouldContainExactly(
                 "Unerkanntes Aktenzeichen: 123 Z 46/20",
-                "Unerkanntes Datum: 2024-01-12"
+                "Unerkanntes Datum: 2024-01-12",
+                "Unerkannte Uhrzeit: 8 Uhr",
             )
 
             caseService.get(userId, refChamber1.toId()).shouldNotBeNull().apply {
                 status shouldBe Status.SESSION
                 dueDate shouldBe LocalDate.of(2024, 1, 9)
+                dueTime shouldBe LocalTime.of(9, 30)
                 todoDate shouldBe LocalDate.of(2024, 1, 2)
             }
             caseService.get(userId, refSingle1.toId()).shouldNotBeNull().apply {
                 status shouldBe Status.SESSION
                 dueDate shouldBe LocalDate.of(2024, 1, 10)
+                dueTime shouldBe LocalTime.of(11, 0)
                 todoDate shouldBe LocalDate.of(2024, 1, 9)
             }
             caseService.get(userId, refChamber2.toId()).shouldNotBeNull().apply {
                 status shouldBe Status.DECISION
                 dueDate shouldBe LocalDate.of(2024, 1, 12)
+                dueTime shouldBe LocalTime.of(9, 50)
                 todoDate shouldBe LocalDate.of(2024, 1, 5)
             }
             caseService.get(userId, refSingle2.toId()).shouldNotBeNull().apply {
                 status shouldBe Status.DECISION
                 dueDate shouldBe LocalDate.of(2024, 1, 15)
+                dueTime shouldBe LocalTime.of(15, 15)
                 todoDate shouldBe LocalDate.of(2024, 1, 12) // moved to Friday
             }
             caseService.get(userId, refNotUpdated.toId()).shouldNotBeNull().apply {
                 status shouldBe Status.DECISION
                 dueDate shouldBe LocalDate.of(2024, 1, 19)
+                dueTime shouldBe LocalTime.of(13, 50)
                 todoDate shouldBe LocalDate.of(2024, 1, 15) // unchanged
             }
 
