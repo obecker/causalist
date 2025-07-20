@@ -26,7 +26,15 @@ import RtfImportModal from './RtfImportModal';
 import { statusKeys, statusLabels } from './status';
 import StatusIcon from './StatusIcon';
 import { typeKeys, typeLabels, typeMap } from './type';
-import { single, startOfWeek, today } from './utils';
+import {
+  formattedDate,
+  formattedDateTime,
+  formattedTime,
+  formattedYearMonth,
+  single,
+  startOfWeek,
+  today,
+} from './utils';
 
 const filterStatusKeys = statusKeys.filter((value) => value !== 'SETTLED');
 
@@ -105,10 +113,11 @@ export default function Content() {
       let recentWeek = null;
       let recentTodo = null;
       let emptyWeeks = [];
+      const label = (weekOfYear, date) => `KW ${weekOfYear} vom ${formattedDate(date)}`;
       for (let i = 0; i < newCases.length; i++) {
         let c = newCases[i];
         if (c.todoWeekOfYear && c.todoWeekOfYear !== recentWeek) {
-          c.newWeek = true;
+          c.separatorLabel = label(c.todoWeekOfYear, startOfWeek(c.todoDate));
           if (recentWeek && recentTodo) {
             // determine missing (empty) weeks
             for (let j = 1; j < c.todoWeekOfYear - recentWeek; j++) {
@@ -123,19 +132,66 @@ export default function Content() {
           recentTodo = c.todoDate;
         }
       }
-      // add placeholder entries for empty weeks into cases list
+      // add placeholder entries for empty weeks into the case list
       for (let i = emptyWeeks.length - 1; i >= 0; i--) {
         const e = emptyWeeks[i];
         newCases = [
           ...newCases.slice(0, e.casesIndex),
           {
-            id: `week${e.startOfWeek}`, // required field (used as react key)
-            todoWeekOfYear: e.weekOfYear,
-            todoDate: e.startOfWeek,
-            newWeek: true,
+            id: `week-${e.startOfWeek}`, // required field (used as react key)
+            separatorLabel: label(e.weekOfYear, e.startOfWeek),
           },
           ...newCases.slice(e.casesIndex),
         ];
+      }
+    } else if (settledOnly) {
+      newCases = cases.map((c) => Object.assign({}, c));
+      let recentMonth = null;
+      let emptyMonths = [];
+      for (let i = 0; i < newCases.length; i++) {
+        let c = newCases[i];
+        const settledOn = new Date(c.settledOn);
+        const currentMonth = settledOn.getFullYear() * 12 + settledOn.getMonth();
+        const dateFromCurrentMonth = (month) => `${Math.floor(month / 12)}-${(month % 12).toString().padStart(2, '0')}-01`;
+        if (currentMonth !== recentMonth) {
+          c.separatorLabel = formattedYearMonth(settledOn);
+          if (recentMonth) {
+            // determine missing (empty) months
+            for (let j = recentMonth - currentMonth; j > 1; j--) {
+              emptyMonths.push({
+                casesIndex: i,
+                settledOn: dateFromCurrentMonth(currentMonth + j),
+                settledMonth: currentMonth + j,
+              });
+            }
+          }
+          recentMonth = currentMonth;
+        }
+      }
+      // add placeholder entries for empty months into the case list
+      for (let i = emptyMonths.length - 1; i >= 0; i--) {
+        const e = emptyMonths[i];
+        newCases = [
+          ...newCases.slice(0, e.casesIndex),
+          {
+            id: `month-${e.settledMonth}`, // required field (used as react key)
+            settledOn: e.settledOn,
+            separatorLabel: formattedYearMonth(new Date(e.settledOn)),
+          },
+          ...newCases.slice(e.casesIndex),
+        ];
+      }
+      // count the number of cases per month
+      let settledPerMonth = 0;
+      for (let i = newCases.length - 1; i >= 0; i--) {
+        let c = newCases[i];
+        if (c.separatorLabel) {
+          c.ref && settledPerMonth++;
+          c.separatorLabel = `${c.separatorLabel}: ${settledPerMonth} Erledigung${settledPerMonth !== 1 ? 'en' : ''}`;
+          settledPerMonth = 0;
+        } else {
+          settledPerMonth++;
+        }
       }
     } else {
       newCases = cases.filter((c) => containsSearch(c, search));
@@ -205,7 +261,8 @@ export default function Content() {
     setDeleteOpen(true);
   }
 
-  const casesHeader = `${filteredCases?.length ?? ''} ${settledOnly ? 'Erledigte' : 'Laufende'}${filteredCases?.length === 1 ? 's' : ''} Verfahren`;
+  const numberOfCases = filteredCases?.filter((c) => c.ref)?.length; // filter out placeholders
+  const casesHeader = `${numberOfCases ?? ''} ${settledOnly ? 'Erledigte' : 'Laufende'}${numberOfCases === 1 ? 's' : ''} Verfahren`;
 
   return (
     <>
@@ -613,19 +670,6 @@ function CasesList({
     }).catch((error) => setErrorMessage(error.userMessage));
   }
 
-  function formattedDate(date, prefix = '') {
-    return date && (prefix + new Date(date).toLocaleDateString());
-  }
-
-  function formattedDateTime(date) {
-    let d = date && new Date(date);
-    return d && (d.toLocaleDateString() + ' ' + d.toLocaleTimeString());
-  }
-
-  function formattedTime(time, prefix = '') {
-    return time && (prefix + new Date(`1970-01-01T${time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-  }
-
   function todoBg(aCase) {
     if (isSettled(aCase)) {
       return '';
@@ -678,18 +722,18 @@ function CasesList({
             aCase.ref && 'pt-2.5 pb-1.5 hover:border-y-stone-300',
             todoBg(aCase),
             recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
-            aCase.newWeek && 'relative mt-20 border-t-teal-700 first:mt-8',
+            aCase.separatorLabel && 'relative mt-20 border-t-teal-700 first:mt-8',
           )}
           onClick={(e) => clickCase(e, aCase.ref && aCase.id)}
           onDoubleClick={(e) => openEditModal(e, aCase.ref && aCase)}
           onMouseDown={(e) => e.detail === 2 && e.preventDefault()} // no text selection on double click
         >
-          {aCase.newWeek && (
+          {aCase.separatorLabel && (
             <div className="absolute -top-6 right-0 rounded-t-lg bg-teal-700 px-7 py-1 text-xs text-white">
-              {`KW ${aCase.todoWeekOfYear} vom ${formattedDate(startOfWeek(aCase.todoDate))}`}
+              {aCase.separatorLabel}
             </div>
           )}
-          {aCase.ref && ( // a case without ref is a placeholder for an empty week
+          {aCase.ref && ( // a case without ref is a placeholder for an empty entry
             <>
               <div className="flex w-full items-baseline justify-end">
                 <span className={clsx('marker ml-2 size-3 rounded-full', aCase.markerColor || 'none')}></span>
@@ -721,7 +765,7 @@ function CasesList({
                     {formattedDate(aCase.todoDate, 'Vorfrist: ')}
                   </span>
                 </div>
-                {(todosOnly || openCaseId === aCase.id) && (
+                {((todosOnly && !isSettled(aCase)) || openCaseId === aCase.id) && (
                   <div className="text-sm sm:hidden">{formattedDate(aCase.todoDate, 'Vorfrist: ')}</div>
                 )}
               </div>
@@ -744,7 +788,7 @@ function CasesList({
               >
                 {formattedDate(isSettled(aCase) ? aCase.settledOn : aCase.dueDate)}
                 <span className="hidden md:inline">{formattedTime(!isSettled(aCase) && aCase.dueTime, ', ')}</span>
-                {(todosOnly || openCaseId === aCase.id)
+                {((todosOnly && !isSettled(aCase)) || openCaseId === aCase.id)
                   && <div className="font-normal text-sm xl:hidden">{formattedDate(aCase.todoDate, 'Vorfrist: ')}</div>}
               </div>
               <Transition show={openCaseId === aCase.id} appear>

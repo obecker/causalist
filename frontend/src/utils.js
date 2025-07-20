@@ -35,6 +35,29 @@ export function addDays(dateString, days) {
   return dateToString(date);
 }
 
+export function formattedDate(date, prefix = '') {
+  return date && (prefix + new Date(date).toLocaleDateString());
+}
+
+export function formattedDateTime(dateTime) {
+  let date = dateTime && new Date(dateTime);
+  return date && (date.toLocaleDateString() + ' ' + date.toLocaleTimeString());
+}
+
+export function formattedTime(time, prefix = '') {
+  return time && (prefix + new Date(`1970-01-01T${time}`).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  }));
+}
+
+export function formattedYearMonth(date) {
+  return date.toLocaleDateString([], {
+    year: 'numeric',
+    month: 'long',
+  });
+}
+
 export function single(array) {
   if (!Array.isArray(array) || array.length !== 1) {
     return null;
