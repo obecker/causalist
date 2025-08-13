@@ -1,7 +1,7 @@
 import com.adarshr.gradle.testlogger.theme.ThemeType
 
 plugins {
-    kotlin("jvm") version "2.1.21"
+    kotlin("jvm") version "2.2.0"
     alias(libs.plugins.ksp)
     alias(libs.plugins.shadow)
     alias(libs.plugins.test.logger)
