@@ -31,12 +31,15 @@ import {
   formattedDateTime,
   formattedTime,
   formattedYearMonth,
+  partition,
   single,
   startOfWeek,
   today,
 } from './utils';
 
 const filterStatusKeys = statusKeys.filter((value) => value !== 'SETTLED');
+
+const refSearchPattern = /^\d+\/\d{2}$/;
 
 function ignoreDefaults(event) {
   event.preventDefault();
@@ -49,6 +52,8 @@ export default function Content() {
   const [cases, setCases] = useState(null);
   const [filteredCases, setFilteredCases] = useState(null);
   const [search, setSearch] = useState('');
+  const [refSearchItems, setRefSearchItems] = useState([]);
+  const [nonRefSearchItems, setNonRefSearchItems] = useState([]);
   const [statusQuery, setStatusQuery] = useState([]);
   const [typeQuery, setTypeQuery] = useState([]);
   const [isEditOpen, setEditOpen] = useState(false);
@@ -90,6 +95,18 @@ export default function Content() {
       return;
     }
 
+    function containsSearch(aCase) {
+      const props = ['parties', 'area', 'caseMemo', 'statusNote'];
+      return nonRefSearchItems.every((s) => {
+        for (const prop of props) {
+          if (aCase[prop] && aCase[prop].toLowerCase().indexOf(s) !== -1) {
+            return true;
+          }
+        }
+        return refSearchItems.length === 0 && aCase.ref.value.toLowerCase().indexOf(s) !== -1;
+      }) && refSearchItems.every((s) => aCase.ref.value.toLowerCase().indexOf(' ' + s) !== -1);
+    }
+
     function safeLocaleCompare(a, b) {
       return (a || '').localeCompare((b || ''));
     }
@@ -107,7 +124,7 @@ export default function Content() {
     let newCases;
     if (todosOnly && !settledOnly) {
       newCases = cases.filter((c) => c.todoDate)
-        .filter((c) => containsSearch(c, search))
+        .filter((c) => containsSearch(c))
         .sort((c1, c2) => compareByDates(c1, c2))
         .map((c) => Object.assign({}, c));
       let recentWeek = null;
@@ -145,7 +162,9 @@ export default function Content() {
         ];
       }
     } else if (settledOnly) {
-      newCases = cases.map((c) => Object.assign({}, c));
+      newCases = cases
+        .filter((c) => containsSearch(c))
+        .map((c) => Object.assign({}, c));
       let recentMonth = null;
       let emptyMonths = [];
       for (let i = 0; i < newCases.length; i++) {
@@ -194,7 +213,7 @@ export default function Content() {
         }
       }
     } else {
-      newCases = cases.filter((c) => containsSearch(c, search));
+      newCases = cases.filter((c) => containsSearch(c));
     }
     setFilteredCases(newCases.map((c) => {
       if (c.id === recentlyUpdatedId) {
@@ -202,7 +221,7 @@ export default function Content() {
       }
       return c;
     }));
-  }, [cases, todosOnly, settledOnly, search, recentlyUpdatedId]);
+  }, [cases, todosOnly, settledOnly, recentlyUpdatedId, refSearchItems, nonRefSearchItems]);
 
   // pull to refresh on mobile devices (tested on iOS only)
   useEffect(() => {
@@ -219,21 +238,13 @@ export default function Content() {
     };
   }, []);
 
-  function containsSearch(aCase, search) {
+  function setSearchItems(search) {
+    setSearch(search);
     search = search.trim().toLowerCase();
-    if (search === '') {
-      return true;
-    }
     const searchItems = search.split(' ').filter((s) => s !== '');
-    const props = ['parties', 'area', 'caseMemo', 'statusNote'];
-    return searchItems.every((s) => {
-      for (const prop of props) {
-        if (aCase[prop] && aCase[prop].toLowerCase().indexOf(s) !== -1) {
-          return true;
-        }
-      }
-      return aCase.ref.value.toLowerCase().indexOf(s) !== -1;
-    });
+    const [refItems, nonRefItems] = partition(searchItems, (s) => refSearchPattern.test(s));
+    setRefSearchItems(refItems);
+    setNonRefSearchItems(nonRefItems);
   }
 
   function forceUpdate(updated) {
@@ -333,14 +344,14 @@ export default function Content() {
               value={search}
               ref={searchRef}
               className="block w-full min-w-20 rounded-md border border-stone-300 bg-stone-50 pr-8 text-sm text-stone-900 focus:border-teal-700 focus:ring-teal-700"
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => e.key === 'Escape' && setSearch('')}
+              onChange={(e) => setSearchItems(e.target.value)}
+              onKeyDown={(e) => e.key === 'Escape' && setSearchItems('')}
             />
             <div
               className="absolute top-0 right-0 bottom-0 py-3 pr-2.5 text-stone-600 hover:text-stone-900"
               title="Leeren"
               onClick={() => {
-                setSearch('');
+                setSearchItems('');
                 searchRef.current.focus();
               }}
             >
@@ -607,11 +618,9 @@ function CasesList({
   }, [api, cases, openCaseId, reloadDocuments]);
 
   function clickCase(event, id) {
-    setClickedCaseId((c) => {
-      // on double-click (c === id): reset clickedCaseId
-      // on text selection: don't set clickedCaseId
-      return (c === id || window.getSelection()?.type === 'Range') ? null : id;
-    });
+    // on double-click (c === id): reset clickedCaseId
+    // on text selection: don't set clickedCaseId
+    setClickedCaseId((c) => (c === id || window.getSelection()?.type === 'Range') ? null : id);
   }
 
   function toggleDropdown(event, id) {
