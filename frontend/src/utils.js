@@ -64,16 +64,3 @@ export function single(array) {
   }
   return array[0];
 }
-
-export function partition(array, predicate) {
-  const trueArray = [];
-  const falseArray = [];
-  for (const item of array) {
-    if (predicate(item)) {
-      trueArray.push(item);
-    } else {
-      falseArray.push(item);
-    }
-  }
-  return [trueArray, falseArray];
-}

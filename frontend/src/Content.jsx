@@ -31,7 +31,6 @@ import {
   formattedDateTime,
   formattedTime,
   formattedYearMonth,
-  partition,
   single,
   startOfWeek,
   today,
@@ -52,8 +51,7 @@ export default function Content() {
   const [cases, setCases] = useState(null);
   const [filteredCases, setFilteredCases] = useState(null);
   const [search, setSearch] = useState('');
-  const [refSearchItems, setRefSearchItems] = useState([]);
-  const [nonRefSearchItems, setNonRefSearchItems] = useState([]);
+  const [searchItems, setSearchItems] = useState([]);
   const [statusQuery, setStatusQuery] = useState([]);
   const [typeQuery, setTypeQuery] = useState([]);
   const [isEditOpen, setEditOpen] = useState(false);
@@ -97,14 +95,14 @@ export default function Content() {
 
     function containsSearch(aCase) {
       const props = ['parties', 'area', 'caseMemo', 'statusNote'];
-      return nonRefSearchItems.every((s) => {
+      return searchItems.every((s) => {
         for (const prop of props) {
           if (aCase[prop] && aCase[prop].toLowerCase().indexOf(s) !== -1) {
             return true;
           }
         }
-        return refSearchItems.length === 0 && aCase.ref.value.toLowerCase().indexOf(s) !== -1;
-      }) && refSearchItems.every((s) => aCase.ref.value.toLowerCase().indexOf(' ' + s) !== -1);
+        return aCase.ref.value.toLowerCase().indexOf(s) !== -1;
+      });
     }
 
     function safeLocaleCompare(a, b) {
@@ -221,7 +219,7 @@ export default function Content() {
       }
       return c;
     }));
-  }, [cases, todosOnly, settledOnly, recentlyUpdatedId, refSearchItems, nonRefSearchItems]);
+  }, [cases, todosOnly, settledOnly, recentlyUpdatedId, searchItems]);
 
   // pull to refresh on mobile devices (tested on iOS only)
   useEffect(() => {
@@ -238,13 +236,13 @@ export default function Content() {
     };
   }, []);
 
-  function setSearchItems(search) {
+  function updateSearchItems(search) {
     setSearch(search);
-    search = search.trim().toLowerCase();
-    const searchItems = search.split(' ').filter((s) => s !== '');
-    const [refItems, nonRefItems] = partition(searchItems, (s) => refSearchPattern.test(s));
-    setRefSearchItems(refItems);
-    setNonRefSearchItems(nonRefItems);
+    setSearchItems(
+      search.trim().toLowerCase().split(' ')
+        .filter((s) => s !== '')
+        .map((s) => refSearchPattern.test(s) ? ' ' + s : s))
+    ;
   }
 
   function forceUpdate(updated) {
@@ -344,14 +342,14 @@ export default function Content() {
               value={search}
               ref={searchRef}
               className="block w-full min-w-20 rounded-md border border-stone-300 bg-stone-50 pr-8 text-sm text-stone-900 focus:border-teal-700 focus:ring-teal-700"
-              onChange={(e) => setSearchItems(e.target.value)}
-              onKeyDown={(e) => e.key === 'Escape' && setSearchItems('')}
+              onChange={(e) => updateSearchItems(e.target.value)}
+              onKeyDown={(e) => e.key === 'Escape' && updateSearchItems('')}
             />
             <div
               className="absolute top-0 right-0 bottom-0 py-3 pr-2.5 text-stone-600 hover:text-stone-900"
               title="Leeren"
               onClick={() => {
-                setSearchItems('');
+                updateSearchItems('');
                 searchRef.current.focus();
               }}
             >
