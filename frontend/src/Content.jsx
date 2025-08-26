@@ -238,11 +238,10 @@ export default function Content() {
 
   function updateSearchItems(search) {
     setSearch(search);
-    setSearchItems(
-      search.trim().toLowerCase().split(' ')
-        .filter((s) => s !== '')
-        .map((s) => refSearchPattern.test(s) ? ' ' + s : s))
-    ;
+    setSearchItems(search.trim().toLowerCase()
+      .split(' ')
+      .filter((s) => s !== '')
+      .map((s) => refSearchPattern.test(s) ? ' ' + s : s));
   }
 
   function forceUpdate(updated) {
