@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.shadow)
     alias(libs.plugins.test.logger)
+    alias(libs.plugins.kotest)
     alias(libs.plugins.kover)
     alias(libs.plugins.decycle)
     alias(libs.plugins.dependency.check)
@@ -46,9 +47,8 @@ dependencies {
     implementation(libs.crac)
 
     testImplementation(platform(libs.kotest.bom))
-    testImplementation("io.kotest:kotest-framework-api-jvm")
     testImplementation("io.kotest:kotest-assertions-core-jvm")
-    testImplementation("io.kotest:kotest-framework-datatest")
+    testImplementation("io.kotest:kotest-framework-engine")
     testImplementation("org.http4k:http4k-testing-kotest")
     testImplementation("org.http4k:http4k-connect-amazon-dynamodb-fake")
     testImplementation("org.http4k:http4k-connect-amazon-s3-fake")
