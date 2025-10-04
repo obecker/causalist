@@ -1,5 +1,6 @@
 import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
+import { defineConfig } from 'eslint/config';
 import pluginReact from 'eslint-plugin-react';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import pluginReactRefresh from 'eslint-plugin-react-refresh';
@@ -8,11 +9,11 @@ import pluginVitestGlobals from 'eslint-plugin-vitest-globals';
 import globals from 'globals';
 
 // noinspection JSUnusedGlobalSymbols
-export default [
+export default defineConfig([
   js.configs.recommended,
   pluginReact.configs.flat.recommended,
+  pluginReactHooks.configs.recommended,
   pluginReactRefresh.configs.recommended,
-  pluginReactHooks.configs['recommended-latest'],
   stylistic.configs.customize({
     semi: true,
     braceStyle: '1tbs',
@@ -43,4 +44,4 @@ export default [
       'react/prop-types': 'off',
     },
   },
-];
+]);
