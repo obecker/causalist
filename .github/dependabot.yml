@@ -40,6 +40,10 @@ updates:
         patterns:
           - "tailwindcss"
           - "@tailwindcss/*"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
 
   - package-ecosystem: terraform
     directory: infrastructure
