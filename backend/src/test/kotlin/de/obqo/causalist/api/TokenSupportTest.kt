@@ -2,6 +2,7 @@ package de.obqo.causalist.api
 
 import de.obqo.causalist.Config
 import de.obqo.causalist.EncryptionSecret
+import io.kotest.assertions.fail
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.datatest.withData
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -71,7 +72,7 @@ class TokenSupportTest : DescribeSpec({
             ) { token ->
                 // when
                 val userContext = tokenSupport.validateToken(token) {
-                    error("must not be called")
+                    fail("must not be called")
                 }
 
                 // then
