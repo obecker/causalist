@@ -17,11 +17,6 @@ updates:
       - obecker
     commit-message:
       prefix: ":arrow_up: "
-    groups:
-      kotlin:
-        patterns:
-          - jvm
-          - com.google.devtools.ksp
 
   - package-ecosystem: npm
     directory: frontend
@@ -36,14 +31,14 @@ updates:
         patterns:
           - "eslint"
           - "@eslint/js"
-      tailwindcss:
-        patterns:
-          - "tailwindcss"
-          - "@tailwindcss/*"
       react:
         patterns:
           - "react"
           - "react-dom"
+      tailwindcss:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
 
   - package-ecosystem: terraform
     directory: infrastructure
