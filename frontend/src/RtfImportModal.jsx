@@ -2,7 +2,7 @@ import { DialogTitle } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx/lite';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 
 import { ApiContext } from './ApiContext';
 import FailureAlert from './FailureAlert';
@@ -14,26 +14,19 @@ const UPDATED = 'UPDATED';
 const IGNORED = 'IGNORED';
 const UNKNOWN = 'UNKNOWN';
 
-export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
+export default function RtfImportModal({ setIsOpen, forceUpdate }) {
   const api = useContext(ApiContext);
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [result, setResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedFile(null);
-      setResult(null);
-      setErrorMessage('');
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (selectedFile) {
+  function updateSelectedFile(file) {
+    setSelectedFile(file);
+    if (file) {
       setResult(null);
     }
-  }, [selectedFile]);
+  }
 
   function close() {
     setIsOpen(false);
@@ -45,7 +38,7 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
       api.importCases(selectedFile)
         .then((response) => {
           setResult(response.data);
-          setSelectedFile(null);
+          updateSelectedFile(null);
           forceUpdate();
         })
         .catch((error) => setErrorMessage(error.userMessage));
@@ -65,7 +58,7 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
   }
 
   return (
-    <ModalDialog isOpen={isOpen} onClose={close}>
+    <ModalDialog onClose={close}>
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
       <div className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
         <DialogTitle as="h3" className="flex justify-between text-lg leading-6 font-semibold">
@@ -82,7 +75,7 @@ export default function RtfImportModal({ isOpen, setIsOpen, forceUpdate }) {
               accept=".rtf"
               className="hidden"
               id="fileinput"
-              onChange={(e) => setSelectedFile(e.target.files[0])}
+              onChange={(e) => updateSelectedFile(e.target.files[0])}
             />
             <label
               htmlFor="fileinput"
