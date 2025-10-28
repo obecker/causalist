@@ -1,21 +1,15 @@
 import { DialogTitle } from '@headlessui/react';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 
 import { ApiContext } from './ApiContext';
 import FailureAlert from './FailureAlert';
 import ModalDialog from './ModalDialog';
 import { statusLabels } from './status';
 
-export default function DeleteModal({ isOpen, setIsOpen, selectedCase, forceUpdate }) {
+export default function DeleteModal({ setIsOpen, selectedCase, forceUpdate }) {
   const api = useContext(ApiContext);
 
   const [errorMessage, setErrorMessage] = useState('');
-
-  useEffect(() => {
-    if (isOpen) {
-      setErrorMessage('');
-    }
-  }, [isOpen]);
 
   function close() {
     setIsOpen(false);
@@ -31,7 +25,7 @@ export default function DeleteModal({ isOpen, setIsOpen, selectedCase, forceUpda
   }
 
   return (selectedCase && (
-    <ModalDialog isOpen={isOpen} onClose={close}>
+    <ModalDialog onClose={close}>
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
       <div
         className="w-full max-w-sm transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all"

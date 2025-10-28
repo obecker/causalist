@@ -11,7 +11,7 @@ import { statusKeys, statusLabels } from './status';
 import StatusIcon from './StatusIcon';
 import { addDays, daysDiff, today } from './utils';
 
-export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate }) {
+export default function EditModal({ setIsOpen, selectedCase, forceUpdate }) {
   const api = useContext(ApiContext);
 
   const [refEntity, setRefEntity] = useState('');
@@ -21,11 +21,11 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   const [caseType, setCaseType] = useState('');
   const [caseParties, setCaseParties] = useState('');
   const [caseArea, setCaseArea] = useState('');
-  const [caseStatus, setCaseStatus] = useState('');
+  const [caseStatus, setCaseStatus] = useState(selectedCase ? '' : 'UNKNOWN');
   const [caseStatusNote, setCaseStatusNote] = useState('');
   const [caseMemo, setCaseMemo] = useState('');
   const [caseMarkerColor, setCaseMarkerColor] = useState('');
-  const [caseReceivedOn, setCaseReceivedOn] = useState('');
+  const [caseReceivedOn, setCaseReceivedOn] = useState(selectedCase ? '' : today());
   const [caseSettledOn, setCaseSettledOn] = useState('');
   const [caseDueDateTime, setCaseDueDateTime] = useState('');
   const [caseTodoDate, setCaseTodoDate] = useState('');
@@ -45,7 +45,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   const refNoInput = useRef();
   const refYearInput = useRef();
 
-  const [fieldsDisabled, setFieldsDisabled] = useState(false);
+  const [fieldsDisabled, setFieldsDisabled] = useState(!!selectedCase);
   const [errorOnLoad, setErrorOnLoad] = useState('');
   const [errorOnSave, setErrorOnSave] = useState('');
   const [saving, setSaving] = useState(false);
@@ -56,29 +56,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   const markerColors = ['', 'gray', 'red', 'yellow', 'green', 'blue', 'purple'];
 
   useEffect(() => {
-    if (isOpen) {
-      setRefEntity('');
-      setRefRegister('');
-      setRefNo('');
-      setRefYear('');
-      setCaseType('');
-      setCaseParties('');
-      setCaseArea('');
-      setCaseStatus('');
-      setCaseStatusNote('');
-      setCaseMemo('');
-      setCaseMarkerColor('');
-      setCaseReceivedOn('');
-      setCaseSettledOn('');
-      setCaseDueDateTime('');
-      setCaseTodoDate('');
-      setPreviousDueDate('');
-      setPreviousTodoDate('');
-      setTodoDateEdited(false);
-    }
-
-    if (selectedCase && isOpen) {
-      setFieldsDisabled(true);
+    if (selectedCase) {
       api.getCase(selectedCase.id)
         .then((response) => {
           let caseResource = response.data;
@@ -102,19 +80,8 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
           setFieldsDisabled(false);
         })
         .catch((error) => setErrorOnLoad(error.userMessage));
-    } else {
-      setCaseStatus('UNKNOWN');
-      setCaseReceivedOn(today());
     }
-
-    setRefEntityFailure(false);
-    setRefRegisterFailure(false);
-    setRefNoFailure(false);
-    setRefYearFailure(false);
-    setCaseTypeFailure(false);
-    setCaseReceivedOnFailure(false);
-    setCaseSettledOnFailure(false);
-  }, [api, selectedCase, isOpen]);
+  }, [api, selectedCase]);
 
   function close() {
     setErrorOnLoad('');
@@ -272,7 +239,7 @@ export default function EditModal({ isOpen, setIsOpen, selectedCase, forceUpdate
   }
 
   return (
-    <ModalDialog isOpen={isOpen} onClose={close}>
+    <ModalDialog onClose={close}>
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
       <div
         className="w-full max-w-md min-w-[322px] transform overflow-hidden rounded-2xl bg-white py-6 text-left align-middle shadow-xl transition-all sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl"

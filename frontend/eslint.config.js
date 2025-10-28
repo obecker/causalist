@@ -12,7 +12,7 @@ import globals from 'globals';
 export default defineConfig([
   js.configs.recommended,
   pluginReact.configs.flat.recommended,
-  pluginReactHooks.configs.recommended,
+  pluginReactHooks.configs.flat.recommended,
   pluginReactRefresh.configs.recommended,
   stylistic.configs.customize({
     semi: true,

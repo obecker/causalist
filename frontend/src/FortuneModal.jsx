@@ -11,18 +11,10 @@ import { typeMap } from './type';
 
 const lineHeight = 22;
 
-export function FortuneModal({ isOpen, setIsOpen, cases, setSelectedCase, setEditOpen }) {
-  const [fortuneCase, setFortuneCase] = useState(null);
+export function FortuneModal({ setIsOpen, cases, setSelectedCase, setEditOpen }) {
+  const [fortuneCase] = useState(() => cases[Math.floor(Math.random() * cases.length)]);
   const [revealDetails, setRevealDetails] = useState(false);
   const [explode, setExplode] = useState(false);
-
-  useEffect(() => {
-    let newFortuneCase = cases && isOpen ? cases[Math.floor(Math.random() * cases.length)] : null;
-    setFortuneCase(newFortuneCase);
-    if (!newFortuneCase) {
-      setIsOpen(false);
-    }
-  }, [cases, isOpen, setIsOpen]);
 
   function close() {
     setIsOpen(false);
@@ -37,7 +29,7 @@ export function FortuneModal({ isOpen, setIsOpen, cases, setSelectedCase, setEdi
   }
 
   return (fortuneCase && (
-    <ModalDialog isOpen={isOpen} onClose={close}>
+    <ModalDialog onClose={close}>
       <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all sm:max-w-lg md:max-w-xl">
         <DialogTitle
           as="h3"
@@ -199,6 +191,8 @@ function SpinningWheel({ value, valueStrip, direction, delay, widthClass = 'w-8'
   const [shift, setShift] = useState(isDown ? valueStrip.length - 2 : 1);
   const [selectedClassName, setSelectedClassName] = useState('');
 
+  const [duration] = useState(() => Math.floor(Math.random() * 1500) + 3000);
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       onStart();
@@ -218,7 +212,7 @@ function SpinningWheel({ value, valueStrip, direction, delay, widthClass = 'w-8'
         className="flex flex-col transition-transform"
         style={{
           transform: `translateY(-${shift * lineHeight}px)`,
-          transitionDuration: `${Math.floor(Math.random() * 1500) + 3000}ms`,
+          transitionDuration: `${duration}ms`,
         }}
         onTransitionEnd={() => {
           setSelectedClassName('text-teal-700');

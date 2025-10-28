@@ -41,11 +41,23 @@ function LoginForm({ successMessage, setSuccessMessage, toggleForm }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginFailure, setLoginFailure] = useState('');
-  const [disabled, setDisabled] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
-  useEffect(() => {
+  function updateUsername(e) {
+    const newUsername = e.target.value.trim();
+    setUsername(newUsername);
+    updateDisabled(newUsername, password);
+  }
+
+  function updatePassword(e) {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    updateDisabled(username, newPassword);
+  }
+
+  function updateDisabled(username, password) {
     setDisabled(username === '' || password === '');
-  }, [username, password]);
+  }
 
   function login(event) {
     event.preventDefault();
@@ -88,14 +100,14 @@ function LoginForm({ successMessage, setSuccessMessage, toggleForm }) {
           value={username}
           inputMode="email"
           focus={true}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={updateUsername}
         />
         <FormInput
           name="password"
           label="Passwort"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={updatePassword}
         />
         <FormSubmit label="Login" disabled={disabled} />
         <FormToggle label="zur Registrierung" toggle={toggleForm} />
@@ -110,19 +122,31 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [registrationFailure, setRegistrationFailure] = useState('');
-  const [disabled, setDisabled] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
   const [passwordValidationLength, setPasswordValidationLength] = useState(false);
   const [passwordValidationCase, setPasswordValidationCase] = useState(false);
   const [passwordValidationNonAlpha, setPasswordValidationNonAlpha] = useState(false);
   const [usernameValidation, setUsernameValidation] = useState(false);
 
-  useEffect(() => {
-    let validLength = password.length >= 10;
+  function updateUsername(e) {
+    const newUsername = e.target.value;
+    setUsername(newUsername);
+
+    const validUsername = newUsername.length >= 4;
+    setUsernameValidation(validUsername);
+    updateDisabled(passwordValidationLength, passwordValidationCase, passwordValidationNonAlpha, validUsername);
+  }
+
+  function updatePassword(e) {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+
+    let validLength = newPassword.length >= 10;
     let lowerCase = false;
     let upperCase = false;
     let nonAlpha = false;
-    for (let c of password) {
+    for (let c of newPassword) {
       if (c >= 'a' && c <= 'z') lowerCase = true;
       else if (c >= 'A' && c <= 'Z') upperCase = true;
       else nonAlpha = true;
@@ -132,17 +156,12 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
     setPasswordValidationLength(validLength);
     setPasswordValidationCase(validCase);
     setPasswordValidationNonAlpha(nonAlpha);
-  }, [password]);
+    updateDisabled(validLength, validCase, nonAlpha, usernameValidation);
+  }
 
-  useEffect(() => {
-    setUsernameValidation(username.length >= 4);
-  }, [username]);
-
-  useEffect(() => {
-    setDisabled(
-      !(passwordValidationLength && passwordValidationCase && passwordValidationNonAlpha && usernameValidation),
-    );
-  }, [passwordValidationCase, passwordValidationLength, passwordValidationNonAlpha, usernameValidation]);
+  function updateDisabled(validPasswordLength, validPasswordCase, validPasswordNonAlpha, validUsername) {
+    setDisabled(!(validPasswordLength && validPasswordCase && validPasswordNonAlpha && validUsername));
+  }
 
   function registration(event) {
     event.preventDefault();
@@ -188,7 +207,7 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
           inputMode="email"
           focus={true}
           onInput={removeWhitespace}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={updateUsername}
         >
           <div className="mt-1 flex justify-start text-xs">
             <ValidationInfo value={username} isValid={usernameValidation} label="min 4 Zeichen" />
@@ -200,7 +219,7 @@ function RegistrationForm({ setSuccessMessage, toggleForm }) {
           type="password"
           value={password}
           reveal={true}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={updatePassword}
         >
           <div className="mt-1 flex justify-start gap-5 text-xs">
             <ValidationInfo value={password} isValid={passwordValidationLength} label="min 10 Zeichen" />

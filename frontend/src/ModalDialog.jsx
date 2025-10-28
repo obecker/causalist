@@ -1,9 +1,9 @@
 import { Dialog, Transition, TransitionChild } from '@headlessui/react';
 import { Fragment } from 'react';
 
-export default function ModalDialog({ isOpen, onClose, children }) {
+export default function ModalDialog({ onClose, children }) {
   return (
-    <Transition appear show={isOpen} as={Fragment}>
+    <Transition appear show={true} as={Fragment}>
       <Dialog as="div" className="relative z-10 text-stone-900" onClose={onClose}>
         <TransitionChild>
           <div className="fixed inset-0 bg-black/25 transition duration-300 ease-out data-closed:opacity-0" />

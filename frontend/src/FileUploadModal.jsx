@@ -1,23 +1,16 @@
 import { DialogTitle } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 
 import { ApiContext } from './ApiContext';
 import FailureAlert from './FailureAlert';
 import ModalDialog from './ModalDialog';
 
-export default function FileUploadModal({ isOpen, setIsOpen, selectedCase, forceUpdate }) {
+export default function FileUploadModal({ setIsOpen, selectedCase, forceUpdate }) {
   const api = useContext(ApiContext);
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
-
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedFile(null);
-      setErrorMessage('');
-    }
-  }, [isOpen]);
 
   function close() {
     setIsOpen(false);
@@ -36,7 +29,7 @@ export default function FileUploadModal({ isOpen, setIsOpen, selectedCase, force
   }
 
   return (selectedCase && (
-    <ModalDialog isOpen={isOpen} onClose={close}>
+    <ModalDialog onClose={close}>
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
       <div className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
         <DialogTitle as="h3" className="flex justify-between text-lg leading-6 font-semibold">
