@@ -14,7 +14,7 @@
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
     "@uidotdev/usehooks": "^2.4.1",
-    "axios": "^1.13.0",
+    "axios": "^1.13.1",
     "clsx": "^2.1.1",
     "react": "^19.2.0",
     "react-confetti-explosion": "^3.0.3",
