@@ -11,7 +11,7 @@ import { statusKeys, statusLabels } from './status';
 import StatusIcon from './StatusIcon';
 import { addDays, daysDiff, today } from './utils';
 
-export default function EditModal({ setIsOpen, selectedCase, forceUpdate }) {
+export default function EditModal({ close, selectedCase, forceUpdate }) {
   const api = useContext(ApiContext);
 
   const [refEntity, setRefEntity] = useState('');
@@ -21,11 +21,11 @@ export default function EditModal({ setIsOpen, selectedCase, forceUpdate }) {
   const [caseType, setCaseType] = useState('');
   const [caseParties, setCaseParties] = useState('');
   const [caseArea, setCaseArea] = useState('');
-  const [caseStatus, setCaseStatus] = useState(selectedCase ? '' : 'UNKNOWN');
+  const [caseStatus, setCaseStatus] = useState(selectedCase.id ? '' : 'UNKNOWN');
   const [caseStatusNote, setCaseStatusNote] = useState('');
   const [caseMemo, setCaseMemo] = useState('');
   const [caseMarkerColor, setCaseMarkerColor] = useState('');
-  const [caseReceivedOn, setCaseReceivedOn] = useState(selectedCase ? '' : today());
+  const [caseReceivedOn, setCaseReceivedOn] = useState(selectedCase.id ? '' : today());
   const [caseSettledOn, setCaseSettledOn] = useState('');
   const [caseDueDateTime, setCaseDueDateTime] = useState('');
   const [caseTodoDate, setCaseTodoDate] = useState('');
@@ -45,7 +45,7 @@ export default function EditModal({ setIsOpen, selectedCase, forceUpdate }) {
   const refNoInput = useRef();
   const refYearInput = useRef();
 
-  const [fieldsDisabled, setFieldsDisabled] = useState(!!selectedCase);
+  const [fieldsDisabled, setFieldsDisabled] = useState(!!selectedCase.id);
   const [errorOnLoad, setErrorOnLoad] = useState('');
   const [errorOnSave, setErrorOnSave] = useState('');
   const [saving, setSaving] = useState(false);
@@ -56,7 +56,7 @@ export default function EditModal({ setIsOpen, selectedCase, forceUpdate }) {
   const markerColors = ['', 'gray', 'red', 'yellow', 'green', 'blue', 'purple'];
 
   useEffect(() => {
-    if (selectedCase) {
+    if (selectedCase.id) {
       api.getCase(selectedCase.id)
         .then((response) => {
           let caseResource = response.data;
@@ -82,14 +82,6 @@ export default function EditModal({ setIsOpen, selectedCase, forceUpdate }) {
         .catch((error) => setErrorOnLoad(error.userMessage));
     }
   }, [api, selectedCase]);
-
-  function close() {
-    setErrorOnLoad('');
-    setErrorOnSave('');
-    setFieldsDisabled(false);
-    setSaving(false);
-    setIsOpen(false);
-  }
 
   function nullIfEmpty(value) {
     return value === '' ? null : value;
@@ -197,7 +189,7 @@ export default function EditModal({ setIsOpen, selectedCase, forceUpdate }) {
     let validationFailed = refEntityFailed || refRegisterFailed || refNoFailed || refYearFailed || caseTypeFailed || caseReceivedOnFailed || caseSettledOnFailed;
     if (!validationFailed) {
       let caseResource = {
-        id: selectedCase?.id,
+        id: selectedCase.id,
         ref: {
           entity: refEntity,
           register: refRegister,
@@ -257,7 +249,7 @@ export default function EditModal({ setIsOpen, selectedCase, forceUpdate }) {
             as="h3"
             className="sticky top-0 z-50 bg-white px-6 pb-4 text-lg leading-6 font-semibold tracking-tight text-stone-900 sm:tracking-normal"
           >
-            {selectedCase ? `Verfahren ${selectedCase.ref.value} bearbeiten` : 'Neues Verfahren'}
+            {selectedCase.id ? `Verfahren ${selectedCase.ref.value} bearbeiten` : 'Neues Verfahren'}
           </DialogTitle>
           <FailureAlert message={errorOnLoad} className="mx-6 mb-4" />
           <div className="grid w-full grid-cols-1 gap-6 px-6 py-1 sm:grid-cols-6 lg:grid-cols-4">
@@ -580,7 +572,7 @@ export default function EditModal({ setIsOpen, selectedCase, forceUpdate }) {
                 disabled={fieldsDisabled || saving}
                 className="flex w-32 justify-center rounded-md bg-teal-700 px-3 py-1.5 text-sm leading-6 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed disabled:bg-stone-300 sm:w-40"
               >
-                {selectedCase ? 'Speichern' : 'Anlegen'}
+                {selectedCase.id ? 'Speichern' : 'Anlegen'}
               </button>
             </div>
           </div>

@@ -57,10 +57,3 @@ export function formattedYearMonth(date) {
     month: 'long',
   });
 }
-
-export function single(array) {
-  if (!Array.isArray(array) || array.length !== 1) {
-    return null;
-  }
-  return array[0];
-}

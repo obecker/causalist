@@ -31,7 +31,6 @@ import {
   formattedDateTime,
   formattedTime,
   formattedYearMonth,
-  single,
   startOfWeek,
   today,
 } from './utils';
@@ -54,11 +53,9 @@ export default function Content() {
   const [searchItems, setSearchItems] = useState([]);
   const [statusQuery, setStatusQuery] = useState([]);
   const [typeQuery, setTypeQuery] = useState([]);
-  const [isEditOpen, setEditOpen] = useState(false);
   const [isImportOpen, setImportOpen] = useState(false);
-  const [isDeleteOpen, setDeleteOpen] = useState(false);
   const [isFortuneOpen, setFortuneOpen] = useState(false);
-  const [selectedCase, setSelectedCase] = useState(null);
+  const [caseToEdit, setCaseToEdit] = useState(null);
   const [todosOnly, setTodosOnly] = useState(false);
   const [settledOnly, setSettledOnly] = useState(false);
   const [recentlyUpdatedId, setRecentlyUpdatedId] = useState();
@@ -76,7 +73,7 @@ export default function Content() {
     }
 
     function containsSearch(aCase) {
-      const props = ['parties', 'area', 'caseMemo', 'statusNote'];
+      const props = ['parties', 'area', 'memo', 'statusNote'];
       return searchItems.every((s) => {
         for (const prop of props) {
           if (aCase[prop] && aCase[prop].toLowerCase().indexOf(s) !== -1) {
@@ -270,13 +267,7 @@ export default function Content() {
 
   function openEditModal(event, aCase) {
     ignoreDefaults(event);
-    setSelectedCase(aCase);
-    setEditOpen(true);
-  }
-
-  function openDeleteModal(aCase) {
-    setSelectedCase(aCase);
-    setDeleteOpen(true);
+    setCaseToEdit(aCase || {});
   }
 
   const numberOfCases = filteredCases?.filter((c) => c.ref)?.length; // filter out placeholders
@@ -285,30 +276,14 @@ export default function Content() {
   return (
     <>
       {/* modals */}
-      { isEditOpen
-        && <EditModal setIsOpen={setEditOpen} selectedCase={selectedCase} forceUpdate={forceUpdate} /> }
+      { caseToEdit
+        && <EditModal close={() => setCaseToEdit(null)} selectedCase={caseToEdit} forceUpdate={forceUpdate} /> }
 
       { isImportOpen
         && <RtfImportModal setIsOpen={setImportOpen} forceUpdate={forceUpdate} />}
 
-      { isDeleteOpen
-        && (
-          <DeleteModal
-            setIsOpen={setDeleteOpen}
-            selectedCase={selectedCase}
-            forceUpdate={forceUpdate}
-          />
-        )}
-
       { isFortuneOpen
-        && (
-          <FortuneModal
-            setIsOpen={setFortuneOpen}
-            cases={cases}
-            setSelectedCase={setSelectedCase}
-            setEditOpen={setEditOpen}
-          />
-        )}
+        && <FortuneModal setIsOpen={setFortuneOpen} cases={cases} setCaseToEdit={setCaseToEdit} />}
 
       {/* header */}
       <div className="mb-8 flex flex-row items-baseline justify-between border-b-2 border-solid border-b-stone-400">
@@ -462,7 +437,6 @@ export default function Content() {
         loadingSpinner={loadingSpinner}
         recentlyUpdatedId={recentlyUpdatedId}
         openEditModal={openEditModal}
-        openDeleteModal={openDeleteModal}
         forceUpdate={forceUpdate}
         todosOnly={todosOnly}
       />
@@ -574,55 +548,63 @@ function CasesList({
   loadingSpinner,
   recentlyUpdatedId,
   openEditModal,
-  openDeleteModal,
   forceUpdate,
   todosOnly,
 }) {
   const api = useContext(ApiContext);
 
-  const [openCaseId, setOpenCaseId] = useState(null);
+  const [openCase, setOpenCase] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [clickedCaseId, setClickedCaseId] = useState(null);
-  const singleClickedCaseId = useDebounce(clickedCaseId, 300, updateSingleClickedCaseId);
+  const [clickedCase, setClickedCase] = useState(null);
+  const singleClickedCase = useDebounce(clickedCase, 300, updateSingleClickedCase);
   const [documents, setDocuments] = useState([]);
   const [selectedDocumentId, setSelectedDocumentId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [isUploadOpen, setUploadOpen] = useState(false);
+  const [caseForUpload, setCaseForUpload] = useState(null);
+  const [caseToDelete, setCaseToDelete] = useState(null);
 
-  if (openCaseId && (recentlyUpdatedId || !cases.map((c) => c.id).includes(openCaseId))) {
-    updateOpenCaseId(null);
+  const newOpenCase = recentlyUpdatedId ? null : openCase && cases.find((c) => c.id === openCase.id);
+  if (openCase !== newOpenCase) {
+    updateOpenCase(newOpenCase);
   }
 
-  function updateSingleClickedCaseId(id) {
-    openCase(clickedCaseId, id);
+  function updateSingleClickedCase(aCase) {
+    doOpenCase(clickedCase, aCase);
   }
 
-  function openCase(clickedCaseId, singleClickedCaseId) {
-    if (singleClickedCaseId && clickedCaseId && singleClickedCaseId === clickedCaseId) {
-      updateOpenCaseId(openCaseId === clickedCaseId ? null : clickedCaseId);
+  function clickCase(event, aCase) {
+    // on double-click (clickedCase === aCase): reset clickedCase
+    // on text selection: don't set clickedCase
+    const newClickedCase = (clickedCase === aCase || window.getSelection()?.type === 'Range') ? null : aCase;
+    setClickedCase(newClickedCase);
+    doOpenCase(newClickedCase, singleClickedCase);
+  }
+
+  function doOpenCase(clickedCase, singleClickedCase) {
+    if (singleClickedCase && clickedCase && singleClickedCase === clickedCase) {
+      updateOpenCase(openCase === clickedCase ? null : clickedCase);
     }
   }
 
-  function updateOpenCaseId(caseId) {
-    setOpenCaseId(caseId);
+  function updateOpenCase(aCase) {
+    setOpenCase(aCase);
     setOpenDropdown(null);
-    setClickedCaseId(null);
+    setClickedCase(null);
     setDocuments([]);
-    if (caseId) {
-      loadDocuments(caseId);
+    if (aCase) {
+      loadDocuments(aCase);
     }
   }
 
-  function loadDocuments(caseId, force) {
+  function loadDocuments(aCase, force) {
     setSelectedDocumentId(null);
     setErrorMessage(null);
 
-    let openCase = single(cases.filter((c) => c.id === caseId));
-    if (openCase && (openCase.hasDocuments || force)) {
-      api.getCaseDocuments(openCase.id)
+    if (aCase && (aCase.hasDocuments || force)) {
+      api.getCaseDocuments(aCase.id)
         .then((response) => {
           setDocuments(response.data.documents);
-          openCase.hasDocuments = (response.data.documents.length > 0);
+          aCase.hasDocuments = (response.data.documents.length > 0);
         })
         .catch((error) => setErrorMessage(error.userMessage));
     } else {
@@ -630,23 +612,15 @@ function CasesList({
     }
   }
 
-  function clickCase(event, id) {
-    // on double-click (c === id): reset clickedCaseId
-    // on text selection: don't set clickedCaseId
-    const newClickedCaseId = (clickedCaseId === id || window.getSelection()?.type === 'Range') ? null : id;
-    setClickedCaseId(newClickedCaseId);
-    openCase(newClickedCaseId, singleClickedCaseId);
-  }
-
   function toggleDropdown(event, id) {
     event.stopPropagation();
     setOpenDropdown((o) => (o === id ? null : id));
   }
 
-  function openUpload(event) {
+  function openUpload(event, aCase) {
     event.stopPropagation();
     setOpenDropdown(null);
-    setUploadOpen(true);
+    setCaseForUpload(aCase);
   }
 
   function settleCase(event, aCase) {
@@ -659,7 +633,7 @@ function CasesList({
   function openDelete(event, aCase) {
     event.stopPropagation();
     setOpenDropdown(null);
-    openDeleteModal(aCase);
+    setCaseToDelete(aCase);
   }
 
   function downloadDocument(event, id, docId, filename) {
@@ -687,10 +661,10 @@ function CasesList({
     setSelectedDocumentId(docId);
   }
 
-  function deleteDocument(event, caseId, docId) {
+  function deleteDocument(event, aCase, docId) {
     event.stopPropagation();
-    api.deleteCaseDocument(caseId, docId).then(() => {
-      loadDocuments(caseId);
+    api.deleteCaseDocument(aCase.id, docId).then(() => {
+      loadDocuments(aCase);
     }).catch((error) => setErrorMessage(error.userMessage));
   }
 
@@ -728,13 +702,18 @@ function CasesList({
   return (
     <>
       {/* modals */}
-      { isUploadOpen && (
+      { caseForUpload && (
         <FileUploadModal
-          setIsOpen={setUploadOpen}
-          selectedCase={cases.find((c) => c.id === openCaseId)}
-          forceUpdate={() => loadDocuments(openCaseId, true)}
+          close={() => setCaseForUpload(null)}
+          selectedCase={caseForUpload}
+          forceUpdate={() => loadDocuments(caseForUpload, true)}
         />
       )}
+
+      { caseToDelete
+        && (
+          <DeleteModal close={() => setCaseToDelete(null)} selectedCase={caseToDelete} forceUpdate={forceUpdate} />
+        )}
 
       <ol
         className={clsx(
@@ -750,7 +729,7 @@ function CasesList({
         {cases.map((aCase) => (
           <li
             key={aCase.id}
-            data-open={openCaseId === aCase.id || null}
+            data-open={openCase === aCase || null}
             className={clsx(
               'col-span-full grid grid-cols-subgrid border-y border-y-stone-50 hover:text-teal-700 data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900',
               aCase.ref && 'pt-2.5 pb-1.5 hover:border-y-stone-300',
@@ -758,7 +737,7 @@ function CasesList({
               recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
               aCase.separatorLabel && 'relative mt-20 border-t-teal-700 first:mt-8',
             )}
-            onClick={(e) => clickCase(e, aCase.ref && aCase.id)}
+            onClick={(e) => clickCase(e, aCase.ref && aCase)}
             onDoubleClick={(e) => openEditModal(e, aCase.ref && aCase)}
             onMouseDown={(e) => e.detail === 2 && e.preventDefault()} // no text selection on double click
           >
@@ -781,10 +760,10 @@ function CasesList({
                   <StatusIcon status={aCase.status} className="mx-auto size-6" />
                 </div>
                 <div
-                  data-open={openCaseId === aCase.id || null}
+                  data-open={openCase === aCase || null}
                   className="overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:whitespace-normal md:data-open:mr-4"
                 >
-                  <span title={openCaseId === aCase.id ? null : aCase.parties}>{aCase.parties}</span>
+                  <span title={openCase === aCase ? null : aCase.parties}>{aCase.parties}</span>
                   <div className="text-sm md:hidden">
                     <span
                       title={isSettled(aCase)
@@ -799,13 +778,13 @@ function CasesList({
                       {formattedDate(aCase.todoDate, 'Vorfrist: ')}
                     </span>
                   </div>
-                  {((todosOnly && !isSettled(aCase)) || openCaseId === aCase.id) && (
+                  {((todosOnly && !isSettled(aCase)) || openCase === aCase) && (
                     <div className="text-sm sm:hidden">{formattedDate(aCase.todoDate, 'Vorfrist: ')}</div>
                   )}
                 </div>
                 <div
-                  title={openCaseId === aCase.id ? null : aCase.area}
-                  data-open={openCaseId === aCase.id || null}
+                  title={openCase === aCase ? null : aCase.area}
+                  data-open={openCase === aCase || null}
                   className="hidden overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:mr-4 data-open:whitespace-normal lg:inline"
                 >
                   {aCase.area}
@@ -822,10 +801,10 @@ function CasesList({
                 >
                   {formattedDate(isSettled(aCase) ? aCase.settledOn : aCase.dueDate)}
                   <span className="hidden md:inline">{formattedTime(!isSettled(aCase) && aCase.dueTime, ', ')}</span>
-                  {((todosOnly && !isSettled(aCase)) || openCaseId === aCase.id)
+                  {((todosOnly && !isSettled(aCase)) || openCase === aCase)
                     && <div className="font-normal text-sm xl:hidden">{formattedDate(aCase.todoDate, 'Vorfrist: ')}</div>}
                 </div>
-                <Transition show={openCaseId === aCase.id} appear>
+                <Transition show={openCase === aCase} appear>
                   <div
                     className="col-span-full grid origin-top grid-cols-subgrid gap-y-3 pt-3 transition-all ease-out data-closed:opacity-0 data-enter:duration-150 data-leave:duration-100"
                   >
@@ -857,7 +836,7 @@ function CasesList({
                         <li className={menuItemsClasses}>
                           <button
                             className={clsx(menuItemButtonClasses, 'rounded-t-md')}
-                            onClick={openUpload}
+                            onClick={(e) => openUpload(e, aCase)}
                             onDoubleClick={ignoreDefaults}
                           >
                             <PaperClipIcon className="me-2 inline size-4" />
@@ -953,7 +932,7 @@ function CasesList({
                                   <span className="ms-1 font-semibold">Löschen?</span>
                                   <TrashIcon
                                     className="ms-1 inline size-3 hover:text-rose-700"
-                                    onClick={(e) => deleteDocument(e, aCase.id, doc.id)}
+                                    onClick={(e) => deleteDocument(e, aCase, doc.id)}
                                     onDoubleClick={ignoreDefaults}
                                   />
                                 </div>

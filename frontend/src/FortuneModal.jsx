@@ -11,7 +11,7 @@ import { typeMap } from './type';
 
 const lineHeight = 22;
 
-export function FortuneModal({ setIsOpen, cases, setSelectedCase, setEditOpen }) {
+export function FortuneModal({ setIsOpen, cases, setCaseToEdit }) {
   const [fortuneCase] = useState(() => cases[Math.floor(Math.random() * cases.length)]);
   const [revealDetails, setRevealDetails] = useState(false);
   const [explode, setExplode] = useState(false);
@@ -23,8 +23,7 @@ export function FortuneModal({ setIsOpen, cases, setSelectedCase, setEditOpen })
   }
 
   function edit() {
-    setSelectedCase(fortuneCase);
-    setEditOpen(true);
+    setCaseToEdit(fortuneCase);
     close();
   }
 

@@ -6,14 +6,10 @@ import FailureAlert from './FailureAlert';
 import ModalDialog from './ModalDialog';
 import { statusLabels } from './status';
 
-export default function DeleteModal({ setIsOpen, selectedCase, forceUpdate }) {
+export default function DeleteModal({ close, selectedCase, forceUpdate }) {
   const api = useContext(ApiContext);
 
   const [errorMessage, setErrorMessage] = useState('');
-
-  function close() {
-    setIsOpen(false);
-  }
 
   function deleteCase() {
     api.deleteCase(selectedCase.id)

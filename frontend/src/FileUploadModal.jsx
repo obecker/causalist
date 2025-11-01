@@ -6,15 +6,11 @@ import { ApiContext } from './ApiContext';
 import FailureAlert from './FailureAlert';
 import ModalDialog from './ModalDialog';
 
-export default function FileUploadModal({ setIsOpen, selectedCase, forceUpdate }) {
+export default function FileUploadModal({ close, selectedCase, forceUpdate }) {
   const api = useContext(ApiContext);
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
-
-  function close() {
-    setIsOpen(false);
-  }
 
   function upload() {
     if (selectedFile) {
