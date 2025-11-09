@@ -98,10 +98,33 @@ export default function Content() {
       );
     }
 
-    let newCases;
-    if (todosOnly && !settledOnly) {
-      newCases = cases.filter((c) => c.todoDate)
-        .filter((c) => containsSearch(c))
+    let newCases = cases.filter((c) => containsSearch(c));
+    if (settledOnly) {
+      newCases = newCases.map((c) => Object.assign({}, c));
+      let recentMonth = null;
+      for (let i = 0; i < newCases.length; i++) {
+        let c = newCases[i];
+        const settledOn = new Date(c.settledOn);
+        const currentMonth = settledOn.getFullYear() * 12 + settledOn.getMonth();
+        if (currentMonth !== recentMonth) {
+          c.separatorLabel = formattedYearMonth(settledOn);
+          recentMonth = currentMonth;
+        }
+      }
+      // count the number of cases per month
+      let settledPerMonth = 0;
+      for (let i = newCases.length - 1; i >= 0; i--) {
+        let c = newCases[i];
+        if (c.separatorLabel) {
+          c.ref && settledPerMonth++;
+          c.separatorLabel = `${c.separatorLabel}: ${settledPerMonth} Erledigung${settledPerMonth !== 1 ? 'en' : ''}`;
+          settledPerMonth = 0;
+        } else {
+          settledPerMonth++;
+        }
+      }
+    } else if (todosOnly) {
+      newCases = newCases.filter((c) => c.todoDate)
         .sort((c1, c2) => compareByDates(c1, c2))
         .map((c) => Object.assign({}, c));
       let recentWeek = null;
@@ -138,59 +161,6 @@ export default function Content() {
           ...newCases.slice(e.casesIndex),
         ];
       }
-    } else if (settledOnly) {
-      newCases = cases
-        .filter((c) => containsSearch(c))
-        .map((c) => Object.assign({}, c));
-      let recentMonth = null;
-      let emptyMonths = [];
-      for (let i = 0; i < newCases.length; i++) {
-        let c = newCases[i];
-        const settledOn = new Date(c.settledOn);
-        const currentMonth = settledOn.getFullYear() * 12 + settledOn.getMonth();
-        const dateFromCurrentMonth = (month) => `${Math.floor(month / 12)}-${(month % 12).toString().padStart(2, '0')}-01`;
-        if (currentMonth !== recentMonth) {
-          c.separatorLabel = formattedYearMonth(settledOn);
-          if (recentMonth) {
-            // determine missing (empty) months
-            for (let j = recentMonth - currentMonth; j > 1; j--) {
-              emptyMonths.push({
-                casesIndex: i,
-                settledOn: dateFromCurrentMonth(currentMonth + j),
-                settledMonth: currentMonth + j,
-              });
-            }
-          }
-          recentMonth = currentMonth;
-        }
-      }
-      // add placeholder entries for empty months into the case list
-      for (let i = emptyMonths.length - 1; i >= 0; i--) {
-        const e = emptyMonths[i];
-        newCases = [
-          ...newCases.slice(0, e.casesIndex),
-          {
-            id: `month-${e.settledMonth}`, // required field (used as react key)
-            settledOn: e.settledOn,
-            separatorLabel: formattedYearMonth(new Date(e.settledOn)),
-          },
-          ...newCases.slice(e.casesIndex),
-        ];
-      }
-      // count the number of cases per month
-      let settledPerMonth = 0;
-      for (let i = newCases.length - 1; i >= 0; i--) {
-        let c = newCases[i];
-        if (c.separatorLabel) {
-          c.ref && settledPerMonth++;
-          c.separatorLabel = `${c.separatorLabel}: ${settledPerMonth} Erledigung${settledPerMonth !== 1 ? 'en' : ''}`;
-          settledPerMonth = 0;
-        } else {
-          settledPerMonth++;
-        }
-      }
-    } else {
-      newCases = cases.filter((c) => containsSearch(c));
     }
     setFilteredCases(newCases.map((c) => {
       if (c.id === recentlyUpdatedId) {
