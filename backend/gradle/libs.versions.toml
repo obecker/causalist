@@ -16,7 +16,7 @@ mockk = "io.mockk:mockk:1.14.6"
 
 [plugins]
 decycle = { id = "de.obqo.decycle", version = "1.2.5" }
-dependency-check = { id = "org.owasp.dependencycheck", version = "12.1.8" }
+dependency-check = { id = "org.owasp.dependencycheck", version = "12.1.9" }
 kotest = { id = "io.kotest", version.ref = "kotest" }
 kover = { id = "org.jetbrains.kotlinx.kover", version = "0.9.3" }
 ksp = { id = "com.google.devtools.ksp", version = "2.3.2" }
