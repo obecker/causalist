@@ -3,7 +3,7 @@ kotest = "6.0.5"
 kotshi = "4.0.0"
 
 [libraries]
-http4k-bom = "org.http4k:http4k-bom:6.22.0.0"
+http4k-bom = "org.http4k:http4k-bom:6.23.0.0"
 kotlin-logging = "io.github.oshai:kotlin-logging-jvm:7.0.13"
 kotshi-api = { module = "se.ansman.kotshi:api", version.ref = "kotshi" }
 kotshi-compiler = { module = "se.ansman.kotshi:compiler", version.ref = "kotshi" }
