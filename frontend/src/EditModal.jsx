@@ -226,6 +226,8 @@ export default function EditModal({ close, selectedCase, forceUpdate }) {
           })
           .catch(saveErrorHandler);
       }
+    } else {
+      setErrorOnSave('Bitte überprüfe die markierten Felder.');
     }
     e.preventDefault();
   }
@@ -234,7 +236,7 @@ export default function EditModal({ close, selectedCase, forceUpdate }) {
     <ModalDialog onClose={close}>
       {/* use div instead of DialogPanel, removes the onClose handler when clicked outside */}
       <div
-        className="w-full max-w-md min-w-[322px] transform overflow-hidden rounded-2xl bg-white py-6 text-left align-middle shadow-xl transition-all sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl"
+        className="w-full max-w-md min-w-80.5 transform overflow-hidden rounded-2xl bg-white py-6 text-left align-middle shadow-xl transition-all sm:max-w-lg md:max-w-xl lg:max-w-4xl xl:max-w-6xl"
       >
         <form
           onSubmit={saveCase}
