@@ -241,7 +241,7 @@ export default function Content() {
   }
 
   const numberOfCases = filteredCases?.filter((c) => c.ref)?.length; // filter out placeholders
-  const casesHeader = `${numberOfCases ?? ''} ${settledOnly ? 'Erledigte' : 'Laufende'}${numberOfCases === 1 ? 's' : ''} Verfahren`;
+  const casesHeader = `${numberOfCases ?? ''} ${settledOnly ? 'erledigte' : 'laufende'}${numberOfCases === 1 ? 's' : ''} Verfahren`;
 
   return (
     <>
@@ -274,7 +274,7 @@ export default function Content() {
           )
         }
         <div className="mb-2">
-          <button className="text-teal-700 hover:text-teal-800 hover:underline" onClick={logout}>
+          <button className="text-teal-700 hover:text-teal-800 hover:underline print:hidden" onClick={logout}>
             Abmelden
           </button>
         </div>
@@ -288,8 +288,8 @@ export default function Content() {
           <StatusFilter statusQuery={statusQuery} setStatusQuery={setStatusQuery} settledOnly={settledOnly} loadCases={(statusQuery) => loadCases(statusQuery, typeQuery, settledOnly)} />
 
           {/* search input */}
-          {/* h-[42px] -> same height as status filter button row */}
-          <div className="relative inline-flex h-[42px] flex-1 sm:order-last md:order-none">
+          {/* h-10.5 -> same height as status filter button row */}
+          <div className="relative inline-flex h-10.5 flex-1 sm:order-last md:order-0">
             <input
               type="text"
               placeholder="Suche"
@@ -317,7 +317,7 @@ export default function Content() {
             {/* new case button */}
             <div className="inline-flex">
               <button
-                className="flex w-full items-center rounded-md border-r border-white bg-teal-700 px-3 py-2 text-sm leading-6 font-semibold text-white hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:rounded-r-none"
+                className="flex w-full items-center rounded-md border-r border-white bg-teal-700 px-3 py-2 text-sm leading-6 font-semibold text-white hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:rounded-r-none print:text-stone-900 print:opacity-50"
                 onClick={openEditModal}
               >
                 <PlusCircleIcon className="inline size-6" />
@@ -327,7 +327,7 @@ export default function Content() {
             {/* rtf upload */}
             <div className="hidden sm:inline-flex">
               <button
-                className="flex w-full items-center rounded-r-md bg-teal-700 px-3 py-2 text-sm leading-6 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:bg-stone-300"
+                className="flex w-full items-center rounded-r-md bg-teal-700 px-3 py-2 text-sm leading-6 font-semibold text-white shadow-xs hover:bg-teal-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:bg-stone-300 print:text-stone-900 print:opacity-50"
                 onClick={() => setImportOpen(true)}
               >
                 <ArrowDownOnSquareIcon className="inline size-6" />
@@ -390,7 +390,7 @@ export default function Content() {
             checked={todosOnly}
             onChange={(e) => updateTodosOnly(e.target.checked)}
           />
-          <span className="self-center pr-2">Fristen</span>
+          <span className="self-center pr-2 print:opacity-50">Fristen</span>
         </label>
       </div>
 
@@ -451,7 +451,7 @@ function TypeFilter({ typeQuery, setTypeQuery, loadCases }) {
             key={type}
             data-selected={typeQuery.includes(type) || null}
             title={typeLabels[type]}
-            className="w-11 border border-r-0 border-stone-300 p-2 text-sm font-semibold text-stone-900 first:rounded-l-md last:rounded-r-md last:border-r hover:text-teal-700 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 data-selected:bg-teal-700 data-selected:text-white data-selected:hover:bg-teal-600"
+            className="w-11 border border-r-0 border-stone-300 p-2 text-sm font-semibold text-stone-900 first:rounded-l-md last:rounded-r-md last:border-r hover:text-teal-700 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 data-selected:bg-teal-700 data-selected:text-white data-selected:hover:bg-teal-600 print:opacity-50 print:data-selected:opacity-100 print:data-selected:text-stone-900"
             onClick={() => toggleType(type)}
             onDoubleClick={() => forceType(type)}
           >
@@ -492,7 +492,7 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly, loadCases }) {
   }
 
   return (
-    <div className="order-first inline-flex w-full rounded-md shadow-xs sm:order-none sm:w-auto" role="group">
+    <div className="order-first inline-flex w-full rounded-md shadow-xs sm:order-0 sm:w-auto" role="group">
       {
         filterStatusKeys.map((status) => (
           <button
@@ -501,7 +501,7 @@ function StatusFilter({ statusQuery, setStatusQuery, settledOnly, loadCases }) {
             disabled={settledOnly}
             data-selected={statusQuery.includes(status) || null}
             title={statusLabels[status]}
-            className="w-full border border-r-0 border-stone-300 p-2 text-stone-900 first:rounded-l-md last:rounded-r-md last:border-r hover:text-teal-700 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed disabled:bg-white! disabled:text-stone-400! data-selected:bg-teal-700 data-selected:text-white data-selected:hover:bg-teal-600"
+            className="w-full border border-r-0 border-stone-300 p-2 text-stone-900 first:rounded-l-md last:rounded-r-md last:border-r hover:text-teal-700 focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed disabled:bg-white! disabled:text-stone-400! data-selected:bg-teal-700 data-selected:text-white data-selected:hover:bg-teal-600 print:opacity-50 print:data-selected:opacity-100 print:data-selected:text-stone-900"
             onClick={() => toggleStatus(status)}
             onDoubleClick={() => forceStatus(status)}
           >
@@ -731,7 +731,7 @@ function CasesList({
                 </div>
                 <div
                   data-open={openCase === aCase || null}
-                  className="overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:whitespace-normal md:data-open:mr-4"
+                  className="overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:whitespace-normal print:whitespace-normal md:data-open:mr-4"
                 >
                   <span title={openCase === aCase ? null : aCase.parties}>{aCase.parties}</span>
                   <div className="text-sm md:hidden">
@@ -755,7 +755,7 @@ function CasesList({
                 <div
                   title={openCase === aCase ? null : aCase.area}
                   data-open={openCase === aCase || null}
-                  className="hidden overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:mr-4 data-open:whitespace-normal lg:inline"
+                  className="hidden overflow-hidden px-2 text-ellipsis whitespace-nowrap data-open:mr-4 data-open:whitespace-normal print:whitespace-normal lg:inline"
                 >
                   {aCase.area}
                 </div>

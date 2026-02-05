@@ -11,10 +11,10 @@ export default function App() {
       {(apiKey) => (
         <div className="relative min-h-screen">
           { host !== 'www.causalist.de' && <StageDevAppearance host={host} /> }
-          <div className="container mx-auto min-w-[352px] p-3 pb-12 text-stone-900 sm:p-8">
+          <div className="container mx-auto min-w-88 p-3 pb-12 text-stone-900 sm:p-8 print:p-0">
             {apiKey ? <Content /> : <LoginRegistration />}
           </div>
-          <div className="absolute right-4 bottom-4 text-xs text-stone-400">
+          <div className="absolute right-4 bottom-4 text-xs text-stone-400 print:hidden">
             <a
               className="hover:text-teal-700 hover:underline"
               title="GitHub"
