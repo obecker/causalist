@@ -22,8 +22,12 @@ resource "aws_dynamodb_table" "db_users" {
 
   global_secondary_index {
     name            = "UsernameIndex"
-    hash_key        = "username"
     projection_type = "ALL"
+
+    key_schema {
+      attribute_name = "username"
+      key_type       = "HASH"
+    }
   }
 
   point_in_time_recovery {
