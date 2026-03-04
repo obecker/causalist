@@ -126,7 +126,7 @@ object CryptoUtils {
      * be verified after all bytes have been processed. If the authentication tag is invalid (indicating
      * data tampering), [Cipher.doFinal] throws [javax.crypto.AEADBadTagException].
      */
-    fun InputStream.decrypt(secretKey: SecretKey): InputStream {
+    fun InputStream.decrypt(secretKey: SecretKey): InputStream = use {
         val iv = readNBytes(IV_LENGTH_BYTE)
         val cipher = Cipher.getInstance(ENCRYPT_ALGO)
         cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(TAG_LENGTH_BIT, iv))
