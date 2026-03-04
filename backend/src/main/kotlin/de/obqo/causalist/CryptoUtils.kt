@@ -3,6 +3,7 @@ package de.obqo.causalist
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.io.SequenceInputStream
+import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
@@ -46,7 +47,7 @@ object CryptoUtils {
         val bytes = hash.fromBase64()
         val salt = bytes.copyOfRange(0, SALT_LENGTH_BYTE)
         val computedHash = computeHash(password, salt)
-        return computedHash.contentEquals(bytes.copyOfRange(SALT_LENGTH_BYTE, bytes.size))
+        return MessageDigest.isEqual(computedHash, bytes.copyOfRange(SALT_LENGTH_BYTE, bytes.size))
     }
 
     /**
@@ -119,12 +120,17 @@ object CryptoUtils {
     /**
      * Decrypts the given [InputStream] with the given [SecretKey] using AES/GCM/NoPadding.
      * The given [InputStream] must start with the bytes of the IV.
+     *
+     * Note: [CipherInputStream] does not properly propagate authentication tag failures for AES/GCM,
+     * so we read all bytes and use [Cipher.doFinal] to ensure the authentication tag is verified.
+     * AES-GCM authentication is inherently non-streamable: the tag covers all ciphertext and can only
+     * be verified after all bytes have been processed. If the authentication tag is invalid (indicating
+     * data tampering), [Cipher.doFinal] throws [javax.crypto.AEADBadTagException].
      */
     fun InputStream.decrypt(secretKey: SecretKey): InputStream {
         val iv = readNBytes(IV_LENGTH_BYTE)
         val cipher = Cipher.getInstance(ENCRYPT_ALGO)
         cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(TAG_LENGTH_BIT, iv))
-
-        return CipherInputStream(this, cipher)
+        return ByteArrayInputStream(cipher.doFinal(readBytes()))
     }
 }

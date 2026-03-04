@@ -90,7 +90,7 @@ class TokenSupport(private val config: Config) {
     fun validateToken(token: String, resolvePwdHash: (UUID) -> String?): UserContext? = try {
         val parts = token.split(".")
         require(parts.size == 5) { "Illegal token format" }
-        require(sign(parts[0], parts[1], parts[2], parts[3]) == parts[4]) { "Invalid token signature" }
+        require(MessageDigest.isEqual(sign(parts[0], parts[1], parts[2], parts[3]).toByteArray(), parts[4].toByteArray())) { "Invalid token signature" }
         require(Instant.ofEpochMilli(parts[3].toLong()).isAfter(Instant.now())) { "Token has expired" }
         val id = UUID.fromString(parts[0])
         val pwdHash = parts[1]
