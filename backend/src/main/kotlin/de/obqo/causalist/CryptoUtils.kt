@@ -119,18 +119,12 @@ object CryptoUtils {
     /**
      * Decrypts the given [InputStream] with the given [SecretKey] using AES/GCM/NoPadding.
      * The given [InputStream] must start with the bytes of the IV.
-     *
-     * Note: [CipherInputStream] wraps authentication tag failures in [java.io.IOException] rather than
-     * throwing [javax.crypto.AEADBadTagException] directly, which makes it harder for callers to
-     * distinguish authentication failures from ordinary I/O errors. Using [Cipher.doFinal] directly
-     * ensures [javax.crypto.AEADBadTagException] is thrown immediately on tampered data.
-     * AES-GCM authentication is inherently non-streamable: the tag covers all ciphertext and can only
-     * be verified after all bytes have been processed.
      */
-    fun InputStream.decrypt(secretKey: SecretKey): InputStream = use {
+    fun InputStream.decrypt(secretKey: SecretKey): InputStream {
         val iv = readNBytes(IV_LENGTH_BYTE)
         val cipher = Cipher.getInstance(ENCRYPT_ALGO)
         cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(TAG_LENGTH_BIT, iv))
-        return ByteArrayInputStream(cipher.doFinal(readBytes()))
+
+        return CipherInputStream(this, cipher)
     }
 }

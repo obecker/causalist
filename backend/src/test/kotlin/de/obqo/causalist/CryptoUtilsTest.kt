@@ -13,7 +13,9 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldNotContain
+import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.ByteArrayInputStream
+import java.io.IOException
 import javax.crypto.AEADBadTagException
 
 class CryptoUtilsTest : DescribeSpec({
@@ -124,9 +126,9 @@ class CryptoUtilsTest : DescribeSpec({
         tamperedBytes[12] = (tamperedBytes[12].toInt() xor 0x01).toByte()
 
         // then – AES/GCM must detect the tampering and reject the data
-        shouldThrow<AEADBadTagException> {
+        shouldThrow<IOException> {
             ByteArrayInputStream(tamperedBytes).decrypt(key).readAllBytes()
-        }
+        }.cause.shouldBeInstanceOf<AEADBadTagException>()
     }
 
     it("should reject truncated authentication tag when decrypting inputstream") {
@@ -139,8 +141,8 @@ class CryptoUtilsTest : DescribeSpec({
         val truncatedBytes = cipherBytes.copyOf(cipherBytes.size - 1)
 
         // then – AES/GCM must detect the truncation and reject the data
-        shouldThrow<AEADBadTagException> {
+        shouldThrow<IOException> {
             ByteArrayInputStream(truncatedBytes).decrypt(key).readAllBytes()
-        }
+        }.cause.shouldBeInstanceOf<AEADBadTagException>()
     }
 })
