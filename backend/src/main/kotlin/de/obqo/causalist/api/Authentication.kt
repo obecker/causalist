@@ -6,6 +6,9 @@ import de.obqo.causalist.DuplicateUsernameException
 import de.obqo.causalist.EncryptionSecret
 import de.obqo.causalist.User
 import de.obqo.causalist.UserService
+import de.obqo.causalist.fromBase64
+import de.obqo.causalist.invalid
+import de.obqo.causalist.secureEquals
 import de.obqo.causalist.toBase64
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.core.HttpHandler
@@ -66,13 +69,13 @@ class TokenSupport(private val config: Config) {
     private val signingSecretKeySpec = config.signingSecret.use { SecretKeySpec(it.toByteArray(), ALGORITHM) }
     private val appEncryptionSecretKey = config.encryptionSecret.toSecretKey()
 
-    private fun sign(vararg values: String): String {
+    private fun sign(vararg values: String): ByteArray {
         val mac = Mac.getInstance(ALGORITHM)
         mac.init(signingSecretKeySpec)
         for (v in values) {
             mac.update(v.toByteArray())
         }
-        return mac.doFinal().toBase64()
+        return mac.doFinal()
     }
 
     fun createToken(
@@ -83,14 +86,15 @@ class TokenSupport(private val config: Config) {
     ): String {
         val expires = clock.instant().plus(Duration.ofDays(1)).toEpochMilli()
         val encryptedUserSecret = userSecret.encrypt(appEncryptionSecretKey)
-        val signature = sign(id.toString(), pwdHash, encryptedUserSecret, expires.toString())
+        val signature = sign(id.toString(), pwdHash, encryptedUserSecret, expires.toString()).toBase64()
         return "$id.$pwdHash.$encryptedUserSecret.$expires.$signature"
     }
 
     fun validateToken(token: String, resolvePwdHash: (UUID) -> String?): UserContext? = try {
         val parts = token.split(".")
         require(parts.size == 5) { "Illegal token format" }
-        require(MessageDigest.isEqual(sign(parts[0], parts[1], parts[2], parts[3]).toByteArray(), parts[4].toByteArray())) { "Invalid token signature" }
+        val signature = runCatching { parts[4].fromBase64() }.getOrElse { invalid { "Invalid token signature" } }
+        require(sign(parts[0], parts[1], parts[2], parts[3]).secureEquals(signature)) { "Invalid token signature" }
         require(Instant.ofEpochMilli(parts[3].toLong()).isAfter(Instant.now())) { "Token has expired" }
         val id = UUID.fromString(parts[0])
         val pwdHash = parts[1]
@@ -143,10 +147,10 @@ fun authentication(userService: UserService, config: Config): Authentication {
 
     fun validateRegistrationInput(username: String, password: String) {
         if (username.trim().length < 4) {
-            throw IllegalArgumentException("username")
+            invalid { "username" }
         }
         if (password.length < 10) {
-            throw IllegalArgumentException("password")
+            invalid { "password" }
         }
     }
 

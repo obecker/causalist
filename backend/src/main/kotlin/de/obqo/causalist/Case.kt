@@ -103,7 +103,7 @@ data class Reference(
                 RefNumber.parse(number),
                 RefYear.parse(year)
             )
-        } ?: throw IllegalArgumentException("Illegal Reference: $value")
+        } ?: invalid { "Illegal Reference: $value" }
     }
 }
 

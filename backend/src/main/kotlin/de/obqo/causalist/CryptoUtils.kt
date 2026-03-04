@@ -3,7 +3,6 @@ package de.obqo.causalist
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.io.SequenceInputStream
-import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
@@ -47,7 +46,7 @@ object CryptoUtils {
         val bytes = hash.fromBase64()
         val salt = bytes.copyOfRange(0, SALT_LENGTH_BYTE)
         val computedHash = computeHash(password, salt)
-        return MessageDigest.isEqual(computedHash, bytes.copyOfRange(SALT_LENGTH_BYTE, bytes.size))
+        return computedHash.secureEquals(bytes.copyOfRange(SALT_LENGTH_BYTE, bytes.size))
     }
 
     /**
