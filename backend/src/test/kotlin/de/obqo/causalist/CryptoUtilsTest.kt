@@ -7,12 +7,16 @@ import de.obqo.causalist.CryptoUtils.generatePasswordHash
 import de.obqo.causalist.CryptoUtils.generateRandomAesKey
 import de.obqo.causalist.CryptoUtils.toSecretKey
 import de.obqo.causalist.CryptoUtils.verifyPasswordHash
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldNotContain
+import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.ByteArrayInputStream
+import java.io.IOException
+import javax.crypto.AEADBadTagException
 
 class CryptoUtilsTest : DescribeSpec({
 
@@ -109,5 +113,36 @@ class CryptoUtilsTest : DescribeSpec({
 
         // then
         decryptedBytes shouldBe plainBytes
+    }
+
+    it("should reject tampered ciphertext (bit-flipped byte) when decrypting inputstream") {
+        // given
+        val key = generatePasswordAesKey("password", "salt")
+        val plainStream = ByteArrayInputStream("Hello Stream!".toByteArray())
+        val cipherBytes = plainStream.encrypt(key).readAllBytes()
+
+        // flip a bit in the ciphertext (after the 12-byte IV)
+        val tamperedBytes = cipherBytes.copyOf()
+        tamperedBytes[12] = (tamperedBytes[12].toInt() xor 0x01).toByte()
+
+        // then – AES/GCM must detect the tampering and reject the data
+        shouldThrow<IOException> {
+            ByteArrayInputStream(tamperedBytes).decrypt(key).readAllBytes()
+        }.cause.shouldBeInstanceOf<AEADBadTagException>()
+    }
+
+    it("should reject truncated authentication tag when decrypting inputstream") {
+        // given
+        val key = generatePasswordAesKey("password", "salt")
+        val plainStream = ByteArrayInputStream("Hello Stream!".toByteArray())
+        val cipherBytes = plainStream.encrypt(key).readAllBytes()
+
+        // drop the last byte of the 16-byte GCM authentication tag
+        val truncatedBytes = cipherBytes.copyOf(cipherBytes.size - 1)
+
+        // then – AES/GCM must detect the truncation and reject the data
+        shouldThrow<IOException> {
+            ByteArrayInputStream(truncatedBytes).decrypt(key).readAllBytes()
+        }.cause.shouldBeInstanceOf<AEADBadTagException>()
     }
 })

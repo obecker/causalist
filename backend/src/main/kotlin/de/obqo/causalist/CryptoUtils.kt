@@ -46,7 +46,7 @@ object CryptoUtils {
         val bytes = hash.fromBase64()
         val salt = bytes.copyOfRange(0, SALT_LENGTH_BYTE)
         val computedHash = computeHash(password, salt)
-        return computedHash.contentEquals(bytes.copyOfRange(SALT_LENGTH_BYTE, bytes.size))
+        return computedHash.secureEquals(bytes.copyOfRange(SALT_LENGTH_BYTE, bytes.size))
     }
 
     /**
