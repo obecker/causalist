@@ -37,6 +37,10 @@ class ReferenceTest : DescribeSpec({
             Reference.parseValue(reference2.toValue()) shouldBe reference2
         }
 
+        it("should parse value and ignore optional version") {
+            Reference.parseValue("123 O 456/23 (2)") shouldBe reference1
+        }
+
         it("should provide parseId()") {
             Reference.parseId(reference1.toId()) shouldBe reference1
             Reference.parseId(reference2.toId()) shouldBe reference2
@@ -68,7 +72,7 @@ class ReferenceTest : DescribeSpec({
             "123 O 456/234" // year out of range
         ) {
             shouldThrow<IllegalArgumentException> {
-                Reference.parseId(it)
+                Reference.parseValue(it)
             }
         }
     }

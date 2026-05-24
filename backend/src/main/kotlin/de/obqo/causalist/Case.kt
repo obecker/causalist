@@ -82,7 +82,7 @@ data class Reference(
     companion object {
 
         private val idRegex = Regex("(?<entity>\\d+)(?<register>[A-Z]+)(?<year>\\d+)-(?<number>\\d+)")
-        private val valueRegex = Regex("(?<entity>\\d+)\\s*(?<register>[A-Z]+)\\s*(?<number>\\d+)/(?<year>\\d+)")
+        private val valueRegex = Regex("(?<entity>\\d+)\\s*(?<register>[A-Z]+)\\s*(?<number>\\d+)/(?<year>\\d+)(\\s+\\(\\d+\\))?")
         private val regexGroups = listOf("entity", "register", "number", "year")
 
         private fun toId(ref: Reference) =
