@@ -20,7 +20,7 @@ import EditModal from './EditModal';
 import FailureAlert from './FailureAlert';
 import FileUploadModal from './FileUploadModal';
 import { FortuneModal } from './FortuneModal';
-import { SettledIcon } from './Icons';
+import { BulletIcon, SettledIcon } from './Icons';
 import RtfImportModal from './RtfImportModal';
 import { statusKeys, statusLabels } from './status';
 import StatusIcon from './StatusIcon';
@@ -701,8 +701,8 @@ function CasesList({
             key={aCase.id}
             data-open={openCase === aCase || null}
             className={clsx(
-              'col-span-full grid grid-cols-subgrid border-y border-y-stone-50 hover:text-teal-700 data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900',
-              aCase.ref && 'pt-2.5 pb-1.5 hover:border-y-stone-300',
+              'col-span-full grid grid-cols-subgrid border-y border-y-stone-50 hover:text-teal-700 hover:print:text-stone-900 data-open:border-y-stone-700 data-open:hover:border-y-teal-700 data-open:hover:text-stone-900',
+              aCase.ref && 'pt-2.5 pb-1.5 hover:border-y-stone-300 hover:print:border-y-stone-50',
               todoBg(aCase),
               recentlyUpdatedId && aCase.recentlyUpdated && 'animate-updated',
               aCase.separatorLabel && 'relative mt-20 border-t-teal-700 first:mt-8',
@@ -719,7 +719,8 @@ function CasesList({
             {aCase.ref && ( // a case without ref is a placeholder for an empty entry
               <>
                 <div className="flex w-full items-baseline justify-end">
-                  <span className={clsx('marker ml-2 size-3 rounded-full', aCase.markerColor || 'none')}></span>
+                  <span className={clsx('marker ml-2 size-3 rounded-full print:hidden', aCase.markerColor || 'none')}></span>
+                  <BulletIcon className={clsx('hidden print:block marker ml-2 size-3 bg-transparent! overflow-visible', aCase.markerColor || 'none')} />
                   <span className="flex-none grow text-right">{aCase.ref.value}</span>
                   <span className="relative ml-1 flex-none basis-4 text-left text-xs font-bold text-teal-600">
                     {typeMap[aCase.type]}

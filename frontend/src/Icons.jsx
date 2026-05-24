@@ -119,3 +119,11 @@ export function SettledIcon({ className }) {
     </Svg>
   );
 }
+
+export function BulletIcon({ className }) {
+  return (
+    <Svg className={className}>
+      <circle cx="12" cy="12" r="12" strokeWidth="0" fill="currentColor" />
+    </Svg>
+  );
+}
