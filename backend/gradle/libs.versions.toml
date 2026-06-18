@@ -1,5 +1,5 @@
 [versions]
-kotest = "6.2.0"
+kotest = "6.2.1"
 kotshi = "4.0.0"
 
 [libraries]
