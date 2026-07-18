@@ -69,9 +69,10 @@ application {
 }
 
 tasks.shadowJar {
+    duplicatesStrategy = DuplicatesStrategy.WARN
     // exclude specific env resources
-    exclude(".env.*")
-    // https://imperceptiblethoughts.com/shadow/configuration/minimizing/
+    exclude(".env.*", "LICENSE", "*/LICENSE.txt")
+    // https://gradleup.com/shadow/configuration/minimizing/
     minimize {
         exclude(dependency("org.slf4j:slf4j-simple"))
     }
