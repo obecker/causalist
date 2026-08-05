@@ -40,6 +40,7 @@ export default function EditModal({ close, selectedCase, forceUpdate }) {
   const [caseTypeFailure, setCaseTypeFailure] = useState(false);
   const [caseReceivedOnFailure, setCaseReceivedOnFailure] = useState(false);
   const [caseSettledOnFailure, setCaseSettledOnFailure] = useState(false);
+  const [caseTodoDateFailure, setCaseTodoDateFailure] = useState(false);
 
   const refRegisterInput = useRef();
   const refNoInput = useRef();
@@ -176,7 +177,7 @@ export default function EditModal({ close, selectedCase, forceUpdate }) {
     let caseSettledOnFailed = caseStatus === 'SETTLED' && caseSettledOn === '';
     let [caseDueDate, caseDueTime] = caseDueDateTime ? caseDueDateTime.split('T') : ['', ''];
     let todoDate = caseTodoDate || caseDueDate;
-    setCaseTodoDate(todoDate);
+    let caseTodoDateFailed = caseDueDate && caseDueDate.localeCompare(todoDate) < 0;
 
     setRefEntityFailure(refEntityFailed);
     setRefRegisterFailure(refRegisterFailed);
@@ -185,8 +186,10 @@ export default function EditModal({ close, selectedCase, forceUpdate }) {
     setCaseTypeFailure(caseTypeFailed);
     setCaseReceivedOnFailure(caseReceivedOnFailed);
     setCaseSettledOnFailure(caseSettledOnFailed);
+    setCaseTodoDate(todoDate);
+    setCaseTodoDateFailure(caseTodoDateFailed);
 
-    let validationFailed = refEntityFailed || refRegisterFailed || refNoFailed || refYearFailed || caseTypeFailed || caseReceivedOnFailed || caseSettledOnFailed;
+    let validationFailed = refEntityFailed || refRegisterFailed || refNoFailed || refYearFailed || caseTypeFailed || caseReceivedOnFailed || caseSettledOnFailed || caseTodoDateFailed;
     if (!validationFailed) {
       let caseResource = {
         id: selectedCase.id,
@@ -227,7 +230,11 @@ export default function EditModal({ close, selectedCase, forceUpdate }) {
           .catch(saveErrorHandler);
       }
     } else {
-      setErrorOnSave('Bitte überprüfe die markierten Felder.');
+      let errorMessage = 'Bitte überprüfe die markierten Felder.';
+      if (caseTodoDateFailed) {
+        errorMessage += ' Die Vorfrist darf nicht nach dem nächsten Termin liegen.';
+      }
+      setErrorOnSave(errorMessage);
     }
     e.preventDefault();
   }
@@ -461,7 +468,10 @@ export default function EditModal({ close, selectedCase, forceUpdate }) {
                 onChange={(e) => changeTodoDate(e.target.value)}
                 onFocus={(e) => (e.target.defaultValue = '')}
                 onKeyDown={(e) => dateEdit(e, caseTodoDate, changeTodoDate)}
-                className="block w-full rounded-md border border-stone-300 bg-stone-50 p-2.5 text-sm focus:border-teal-700 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait"
+                className={clsx(
+                  'block w-full rounded-md border border-stone-300 p-2.5 text-sm focus:border-teal-700 focus:ring-2 focus:ring-teal-700 disabled:cursor-wait',
+                  caseTodoDateFailure ? 'bg-rose-100' : 'bg-stone-50',
+                )}
               />
             </div>
             <div className="sm:col-span-3 lg:col-span-1">
